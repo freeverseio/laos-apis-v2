@@ -1,0 +1,8 @@
+type Attribute {
+    traitType: String!
+    value: String!
+}
+type OwnershipContract @entity {
+  id: ID!
+  laosContract: String  @index
+}

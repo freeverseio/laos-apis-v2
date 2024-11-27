@@ -1,0 +1,27 @@
+
+{
+  "apiKeys": [
+    {
+      "apiKey": "test-1",
+      "userId": 1,
+      "contracts": [
+        {
+          "contractAddress": "0xaaf54526c508d573d402bf05a9a5e54f09302adf",
+          "batchMinterContract": "0x7a263f4ef627f35850e478196b4c9ca33303d9e0"
+        }
+      ],
+      "createdAt": "2024-08-20T12:34:56Z"
+    },
+    {
+      "apiKey": "test-2",
+      "userId": 2,
+      "contracts": [
+        {
+          "contractAddress": "0x21e999b6f9be90448b8de0578ef708018df90009",
+          "batchMinterContract": "0x7a263f4ef627f35850e478196b4c9ca33303d9e0"
+        }
+      ],
+      "createdAt": "2024-08-20T12:34:56Z"
+    }
+  ]
+}

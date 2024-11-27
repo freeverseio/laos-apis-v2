@@ -1,0 +1,33 @@
+{
+  "name": "laos-api-gateway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "mesh start",
+    "build": "mesh build"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@envelop/generic-auth": "^7.0.0",
+    "@graphql-mesh/cli": "^0.95.0",
+    "@graphql-mesh/graphql": "^0.102.0",
+    "@graphql-mesh/transform-encapsulate": "^0.102.0",
+    "@graphql-mesh/transform-filter-schema": "^0.102.2",
+    "@graphql-mesh/transform-prefix": "^0.102.0",
+    "@graphql-mesh/transform-rename": "^0.102.2",
+    "@graphql-mesh/transform-resolvers-composition": "^0.102.0",
+    "@graphql-mesh/types": "^0.102.0",
+    "@graphql-tools/utils": "^10.5.4",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.9.0"
+  },
+  "devDependencies": {
+    "@types/graphql": "^14.5.0",
+    "@types/node": "^22.0.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

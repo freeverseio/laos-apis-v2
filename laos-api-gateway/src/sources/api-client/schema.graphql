@@ -1,0 +1,98 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  status: String!
+}
+
+type Mutation {
+  mint(input: MintInput!): MintResponse!
+  evolve(input: EvolveInput!): EvolveResponse!
+  broadcast(input: BroadcastInput!): BroadcastResponse!
+  broadcastBatch(input: BroadcastBatchInput!): BroadcastBatchResponse!
+  createCollection(input: CreateCollectionInput!): CreateCollectionResponse!
+}
+
+type MintResponse {
+  numberOfTokens: Int!
+  tokenIds: [String!]!
+  success: Boolean!
+}
+
+input MintInput {
+  chainId: String!
+  contractAddress: String!
+  tokens: [TokenInput!]!
+}
+
+input TokenInput {
+  name: String!
+  description: String
+  attributes: [AttributeInput!]
+  image: String
+  mintTo: [String!]!
+}
+
+input AttributeInput {
+  trait_type: String!
+  value: String!
+}
+
+type EvolveResponse {
+  tokenId: String!
+  success: Boolean!
+  tokenUri: String!
+  tx: String!
+}
+
+input EvolveInput {
+  chainId: String!
+  contractAddress: String!
+  tokenId: String!
+  name: String!
+  description: String
+  attributes: [AttributeInput!]
+  image: String
+}
+
+type BroadcastResponse {
+  tokenId: String!
+  success: Boolean!
+}
+
+input BroadcastInput {
+  type: String
+  tokenId: String!
+  chainId: String!
+  ownershipContractAddress: String!
+}
+
+type BroadcastBatchResponse {
+  tokenIds: [String!]
+  success: Boolean!
+}
+
+input BroadcastBatchInput {
+  type: String
+  tokenIds: [String!]!
+  chainId: String!
+  ownershipContractAddress: String!
+}
+
+type CreateCollectionResponse {
+  chainId: String!
+  name: String!
+  symbol: String!
+  contractAddress: String!
+  laosAddress: String!
+  batchMinterAddress: String!
+  success: Boolean!
+}
+
+input CreateCollectionInput {
+  chainId: String!
+  name: String!
+  symbol: String!
+}
