@@ -81,6 +81,7 @@ type TokenIndexer = {
   tokenId: string;
   image: string;
   name: string;
+  description: string;
   owner: string;
   playerId?: string;
   createdAt: string;

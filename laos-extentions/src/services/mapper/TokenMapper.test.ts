@@ -21,6 +21,7 @@ describe("TokenMapper", () => {
       tokenId: "94635553975731813549050915545394364355688529545086776129190805410002304523125",
       image: "ipfs://QmXEx4oVwoHSeSSLFW5HN6vjgKCh7mCve5Z7VUnb7ha3pj",
       name: "Feng Rivero",
+      description: "description",
       owner: "0xc69f5121e79155f036acf8d2bdef50cee0c05b75",
       createdAt: "2024-11-27T16:08:36.000Z",
     },
