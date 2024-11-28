@@ -17,8 +17,7 @@ export class TokenController {
   @Post("/GetTokenSupplies")
   async getTokenSupplies(@Body({ validate: true }) body: TokenSupplyInput): Promise<TokenSuppliesResponse> {
     try {
-      const { contractAddress, includeMetadata } = body;
-      const result = await this.tokenService.getTokenSupplies(contractAddress, includeMetadata);
+      const result = await this.tokenService.getTokenSupplies(body);
       return result;
     } catch (error: any) {
       console.error("Error in getTokenSupplies:", error.message);
@@ -29,8 +28,7 @@ export class TokenController {
   @Post("/GetTokenBalances")
   async getTokenBalances(@Body({ validate: true }) body: GetTokenBalancesInput): Promise<TokenBalancesResponse> {
     try {
-      const {  accountAddress, includeMetadata } = body;
-      const result = await this.tokenService.getTokenBalances(accountAddress, includeMetadata);
+      const result = await this.tokenService.getTokenBalances(body);
       return result;
     } catch (error: any) {
       console.error("Error in getTokenBalances:", error.message);

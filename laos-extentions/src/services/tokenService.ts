@@ -1,3 +1,4 @@
+import { GetTokenBalancesInput, TokenSupplyInput } from '../types/rest/input/token';
 import { TokenSuppliesResponse, TokenBalancesResponse } from '../types/token';
 import { TokenQuery } from './graphql/TokenQuery';
 
@@ -8,10 +9,7 @@ export class TokenService {
     this.tokenQuery = tokenQuery;
   }
 
-  public async getTokenSupplies(
-    contractAddress: string,
-    includeMetadata: boolean
-  ): Promise<TokenSuppliesResponse> {
+  public async getTokenSupplies(body: TokenSupplyInput): Promise<TokenSuppliesResponse> {
     // This would typically make an external API call or database query
     // For now returning mock data structure
     return {
@@ -25,12 +23,8 @@ export class TokenService {
     };
   }
 
-  public async getTokenBalances(
-    accountAddress: string,
-    includeMetadata: boolean
-  ): Promise<TokenBalancesResponse> {
-    // This would typically make an external API call or database query
-    // For now returning mock data structure
+  public async getTokenBalances(body: GetTokenBalancesInput): Promise<TokenBalancesResponse> {
+
     return {
       page: {
         pageSize: 200,
