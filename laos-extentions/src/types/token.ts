@@ -83,6 +83,7 @@ type TokenIndexer = {
   name: string;
   owner: string;
   playerId?: string;
+  createdAt: string;
 }
 
 export {

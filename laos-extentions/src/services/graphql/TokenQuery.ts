@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client/core";
 import { gqlClient } from "./GqlClient";
-import { TokenIndexer } from "../../types";
+import { TokenIndexer, TokenSupply, TokenSupplyInput } from "../../types";
 
 export class TokenQuery {
   // Method to construct the query with dynamic variables
@@ -49,6 +49,44 @@ export class TokenQuery {
         }
       }
     `;
+
+  }
+
+  createQueryTokens(
+    {contractAddress, after, first = 100, includeMetadata = true}:
+    {contractAddress: string, after?: string, first?: number, includeMetadata?: boolean}) {
+    return gql`
+      query MyQuery {
+        polygon {
+          tokens(
+            where: {contractAddress: "${contractAddress}"}
+            orderBy: CREATED_AT_DESC
+            pagination: {first: ${first} ${after ? `, after: "${after}"` : ''}}
+          ) {
+            totalCount
+            edges {
+              cursor
+              node {
+                tokenId
+                ${includeMetadata ? `
+                attributes
+                contractAddress
+                block_number
+                createdAt
+                description
+                image
+                initialOwner
+                name
+                owner
+                tokenUri
+                tokenUriFetchState
+                ` : ''}
+              }
+            }
+          }
+        }
+      }
+    `;
   }
 
   // Method to fetch the token data
@@ -82,6 +120,26 @@ export class TokenQuery {
     } catch (error) {
       console.error('Error fetching token by owner:', error);
       throw new Error('Could not fetch token by owner.');
+    }
+  }
+
+  async fetchTokens(body: TokenSupplyInput): Promise<TokenIndexer[]> {
+    try {
+      const query = this.createQueryTokens({
+        contractAddress: body.contractAddress,
+        after: body.page?.after as string | undefined,
+        first: body.page?.pageSize,
+        includeMetadata: body.includeMetadata,
+      });
+      const response = await gqlClient.query({
+        query,
+        fetchPolicy: 'no-cache',
+      });
+      const tokens: TokenIndexer[] = response.data.polygon.tokens.edges.map((edge: any) => edge.node);
+      return tokens;
+    } catch (error) {
+      console.error('Error fetching tokens:', error);
+      throw new Error('Could not fetch tokens.');
     }
   }
 }
