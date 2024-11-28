@@ -1,17 +1,24 @@
 import "reflect-metadata";
 import { JsonController, Body, Post, Req, Res } from "routing-controllers";
-import { getTokenSupplies, getTokenBalances } from "../services/tokenService";
 import { Request, Response } from "express";
-import { TokenSupplyInput, GetTokenBalancesInput } from "../types";
+import { TokenSupplyInput, GetTokenBalancesInput, TokenSuppliesResponse, TokenBalancesResponse } from "../types";
+import { TokenServiceFactory } from "../factories/TokenServiceFactory";
+import { TokenService } from "../services/TokenService";
 
 @JsonController("/token")
 export class TokenController {
-  
+
+  private tokenService: TokenService;
+
+  constructor() {
+    this.tokenService = TokenServiceFactory.createTokenService();
+  }
+
   @Post("/GetTokenSupplies")
-  async getTokenSupplies(@Body({ validate: true }) body: TokenSupplyInput) {
+  async getTokenSupplies(@Body({ validate: true }) body: TokenSupplyInput): Promise<TokenSuppliesResponse> {
     try {
       const { contractAddress, includeMetadata } = body;
-      const result = await getTokenSupplies(contractAddress, includeMetadata);
+      const result = await this.tokenService.getTokenSupplies(contractAddress, includeMetadata);
       return result;
     } catch (error: any) {
       console.error("Error in getTokenSupplies:", error.message);
@@ -20,10 +27,10 @@ export class TokenController {
   }
 
   @Post("/GetTokenBalances")
-  async getTokenBalances(@Body({ validate: true }) body: GetTokenBalancesInput) {
+  async getTokenBalances(@Body({ validate: true }) body: GetTokenBalancesInput): Promise<TokenBalancesResponse> {
     try {
       const {  accountAddress, includeMetadata } = body;
-      const result = await getTokenBalances(accountAddress, includeMetadata);
+      const result = await this.tokenService.getTokenBalances(accountAddress, includeMetadata);
       return result;
     } catch (error: any) {
       console.error("Error in getTokenBalances:", error.message);

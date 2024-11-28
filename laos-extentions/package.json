@@ -6,8 +6,9 @@
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "dev": "ts-node-dev --respawn src/index.ts",
-    "test": "jest"
+    "dev": "nodemon src/index.ts",
+    "test": "jest",
+    "clear_jest": "jest --clearCache"
   },
   "dependencies": {
     "cors": "^2.8.5",

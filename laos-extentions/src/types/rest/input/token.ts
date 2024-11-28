@@ -1,5 +1,51 @@
-import { IsString, IsBoolean, IsOptional, IsArray, IsObject, IsNotEmpty, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
+
+// Enum for sort order
+enum SortOrder {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
+// SortBy class
+class SortBy {
+  @IsString()
+  @IsNotEmpty()
+  column!: string;
+
+  @IsEnum(SortOrder)
+  order!: SortOrder;
+}
+
+// Page class
+class Page {
+  @IsNumber()
+  @IsOptional()
+  page?: number;
+
+  @IsString()
+  @IsOptional()
+  column?: string;
+
+  @IsOptional()
+  before?: object;
+
+  @IsOptional()
+  after?: object;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SortBy)
+  sort?: SortBy[];
+
+  @IsNumber()
+  @IsOptional()
+  pageSize?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  more?: boolean;
+}
 
 class MetadataOptions {
   // You can add specific fields for metadataOptions if needed
@@ -35,7 +81,12 @@ export class GetTokenBalancesInput {
 
   @IsOptional()
   @IsBoolean()
-  includeCollectionTokens: boolean = true;
+  includeCollectionTokens?: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Page)
+  page?: Page;
 
 }
 
@@ -46,4 +97,9 @@ export class TokenSupplyInput {
 
   @IsBoolean()
   includeMetadata!: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Page)
+  page?: Page;
 }

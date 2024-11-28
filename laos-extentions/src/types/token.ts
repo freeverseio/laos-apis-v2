@@ -71,11 +71,27 @@ interface TokenBalancesResponse {
   balances: TokenBalance[];
 }
 
+type AttributeIndexer = {
+  traitType: string;
+  value: string;
+}
+
+type TokenIndexer = {
+  attributes: AttributeIndexer[];
+  tokenId: string;
+  image: string;
+  name: string;
+  owner: string;
+  playerId?: string;
+}
+
 export {
   TokenSupply,
   TokenBalance,
   ContractInfo,
   TokenMetadata,
   TokenSuppliesResponse,
-  TokenBalancesResponse
+  TokenBalancesResponse,
+  AttributeIndexer,
+  TokenIndexer
 };
