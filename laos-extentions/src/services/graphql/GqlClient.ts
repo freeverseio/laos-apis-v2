@@ -1,9 +1,16 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client/core';
+import { ApolloClient, DocumentNode, InMemoryCache, QueryOptions, gql } from '@apollo/client/core';
 
-export const gqlClient = new ApolloClient({
-  uri: process.env.GRAPHQL_ENDPOINT!,
-  cache: new InMemoryCache(),
-  headers: {
-    "x-api-key": `${process.env.GRAPHQL_ACCESS_TOKEN}`,
-  },
-});
+
+export class GqlClient {
+  private readonly client: ApolloClient<any>
+  constructor() {
+    this.client = new ApolloClient({
+      uri: process.env.GRAPHQL_ENDPOINT!,
+      cache: new InMemoryCache(),
+    });
+  }
+
+  public async query(options: QueryOptions<any, any>): Promise<any> {
+    return this.client.query(options);
+  }
+}

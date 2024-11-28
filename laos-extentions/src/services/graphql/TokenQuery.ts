@@ -1,8 +1,14 @@
-import { gql } from "@apollo/client/core";
-import { gqlClient } from "./GqlClient";
+import { ApolloClient, gql, InMemoryCache } from "@apollo/client/core";
+import { GqlClient } from "./GqlClient";
 import { TokenIndexer, TokenSupply, TokenSupplyInput } from "../../types";
 
 export class TokenQuery {
+  private gqlClient: GqlClient;
+
+  constructor() {
+    this.gqlClient = new GqlClient();
+  }
+
   // Method to construct the query with dynamic variables
   createQuery(contractAddress: string, tokenId: string) {
     return gql`
@@ -89,29 +95,12 @@ export class TokenQuery {
     `;
   }
 
-  // Method to fetch the token data
-  async fetchToken(contractAddress: string, tokenId: string): Promise<TokenIndexer | null> {
-    try {
-      const query = this.createQuery(contractAddress, tokenId); // Create a query with the current variables
-      const response = await gqlClient.query({
-        query,
-        fetchPolicy: 'no-cache',
-      });
-
-      // Accessing the data
-      const token: TokenIndexer = response.data.polygon.token;
-
-      return token;
-    } catch (error) {
-      console.error('Error fetching token:', error);
-      throw new Error('Could not fetch token.');
-    }
-  }
+  
 
   async fetchTokensByOwner(contractAddress: string, owner: string): Promise<TokenIndexer[] | null> {
     try {
       const query = this.createQueryByOwner(contractAddress, owner);
-      const response = await gqlClient.query({
+      const response = await this.gqlClient.query({
         query,
         fetchPolicy: 'no-cache',
       });
@@ -131,7 +120,8 @@ export class TokenQuery {
         first: body.page?.pageSize,
         includeMetadata: body.includeMetadata,
       });
-      const response = await gqlClient.query({
+      console.log(query?.loc?.source.body);
+      const response = await this.gqlClient.query({
         query,
         fetchPolicy: 'no-cache',
       });

@@ -1,6 +1,7 @@
 import { GetTokenBalancesInput, TokenSupplyInput } from '../types/rest/input/token';
 import { TokenSuppliesResponse, TokenBalancesResponse } from '../types/token';
 import { TokenQuery } from './graphql/TokenQuery';
+import { TokenMapper } from './mapper/TokenMapper';
 
 export class TokenService {
   private tokenQuery: TokenQuery;
@@ -10,17 +11,9 @@ export class TokenService {
   }
 
   public async getTokenSupplies(body: TokenSupplyInput): Promise<TokenSuppliesResponse> {
-    // This would typically make an external API call or database query
-    // For now returning mock data structure
-    return {
-      page: {
-        after: "sample_cursor",
-        pageSize: 50,
-        more: true
-      },
-      contractType: "ERC1155",
-      tokenIDs: []
-    };
+    const tokens = await this.tokenQuery.fetchTokens(body);
+    const mappedTokens = TokenMapper.mapTokenSupplies(tokens, 137, body.contractAddress);
+    return mappedTokens;
   }
 
   public async getTokenBalances(body: GetTokenBalancesInput): Promise<TokenBalancesResponse> {

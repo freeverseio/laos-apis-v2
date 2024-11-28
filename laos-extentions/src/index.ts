@@ -1,6 +1,9 @@
 import "reflect-metadata";
+import * as dotenv from 'dotenv';
 import { createExpressServer } from "routing-controllers";
 import { TokenController } from "./controllers/TokenController";
+
+dotenv.config();
 
 const app = createExpressServer({
   controllers: [TokenController],
