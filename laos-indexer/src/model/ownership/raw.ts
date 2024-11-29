@@ -19,4 +19,7 @@ export interface DetectedEvents{
 export interface RawOwnershipContract {
   id: string
   laosContract: string | null
+  bytecodeHash: string | null
+  name: string | null
+  symbol: string | null
 }

@@ -5,6 +5,9 @@ export function mapToOwnershipContract(raw: RawOwnershipContract): OwnershipCont
   return new OwnershipContract({
     id: raw.id,
     laosContract: raw.laosContract,
+    bytecodeHash: raw.bytecodeHash,
+    name: raw.name,
+    symbol: raw.symbol,
     assets: [],
   });
 }

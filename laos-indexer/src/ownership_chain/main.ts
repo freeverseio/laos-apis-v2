@@ -17,13 +17,13 @@ processor.run<Store>(new TypeormDatabase(options), async (ctx) => {
   const ownershipContractIds = new Set(ownerShipContracts.map(contract => contract.id));
 
   const service = new EventDetectionService(ctx, ownershipContractIds);
-  const detectedEvents = service.detectEvents();
+  const detectedEvents = await service.detectEvents();
 
   const rawOwnershipContracts = detectedEvents.ownershipContracts;
   const rawTransfers = detectedEvents.transfers;
 
   if (rawOwnershipContracts.length > 0) {
-    const ownershipContractsModelArray = createOwnershipContractsModel(detectedEvents.ownershipContracts);
+    const ownershipContractsModelArray = createOwnershipContractsModel(rawOwnershipContracts);
     await ctx.store.insert(ownershipContractsModelArray);
   }
 

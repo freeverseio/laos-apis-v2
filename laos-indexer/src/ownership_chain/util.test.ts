@@ -2,7 +2,17 @@ import { createHash } from 'crypto';
 import { v5 as uuidv5 } from 'uuid';
 import { generateAssetUUID, parseBaseURI } from './util';
 
+beforeEach(() => {         
+  const consoleSpy = jest.spyOn(console, 'log');       
+  consoleSpy.mockImplementation(() => {});
+  const consoleSpyWarn = jest.spyOn(console, 'warn');       
+  consoleSpyWarn.mockImplementation(() => {});
+});
 
+afterEach(() => {
+  jest.clearAllMocks();
+  jest.resetModules();
+});
 
 describe('generateUUID', () => {
   it('should combine tokenId and contractAddress and generate a UUID', () => {
@@ -48,7 +58,7 @@ describe('parseBaseURI', () => {
         });
     });
 
-    it('should return null for an invalid baseUri', () => {
+    it('should return null for an invalid baseUri', () => {      
         const baseUri = 'https://uloc.io/InvalidData/Parachain(2)/PalletInstance(3)/AccountKey20(0x123abc)';
         const result = parseBaseURI(baseUri);
 

@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
     "@subsquid/evm-abi": "^0.3.0",
     "@subsquid/evm-codec": "^0.3.0",
     "@subsquid/evm-processor": "^1.19.1",
@@ -19,6 +20,7 @@
     "@types/node": "^20.14.9",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
     "graphql-type-json": "^0.3.2",
     "reflect-metadata": "^0.2.2",
     "type-graphql": "^1.2.0-rc.1",

@@ -6,12 +6,18 @@ describe('mapToOwnershipContract', () => {
     const raw: RawOwnershipContract = {
       id: '0xfec1af3e023432ef364ef88653094442cfc00020',
       laosContract: '0xffffFfFFFFfFffFffffffFFe0000000000000354',
+      bytecodeHash: null,
+      name: null,
+      symbol: null
     };
 
     const expected = new OwnershipContract({
       id: '0xfec1af3e023432ef364ef88653094442cfc00020',
       laosContract: '0xffffFfFFFFfFffFffffffFFe0000000000000354',
       assets: [],
+      bytecodeHash: null,
+      name: null,
+      symbol: null
     });
 
     const result = mapToOwnershipContract(raw);
@@ -26,10 +32,16 @@ describe('createOwnershipContractsModel', () => {
       {
         id: '0xfec1af3e023432ef364ef88653094442cfc00020',
         laosContract: '0xffffFfFFFFfFffFffffffFFe0000000000000354',
+        bytecodeHash: null,
+        name: null,
+        symbol: null
       },
       {
         id: '0xe3f5d',
         laosContract: '0xffffFfFFFFfFffFffffffFFe0000000000000355',
+        bytecodeHash: null,
+        name: null,
+        symbol: null
       },
     ];
 
@@ -38,11 +50,17 @@ describe('createOwnershipContractsModel', () => {
         id: '0xfec1af3e023432ef364ef88653094442cfc00020',
         laosContract: '0xffffFfFFFFfFffFffffffFFe0000000000000354',
         assets: [],
+        bytecodeHash: null,
+        name: null,
+        symbol: null
       }),
       new OwnershipContract({
         id: '0xe3f5d',
         laosContract: '0xffffFfFFFFfFffFffffffFFe0000000000000355',
         assets: [],
+        bytecodeHash: null,
+        name: null,
+        symbol: null
       }),
     ];
 

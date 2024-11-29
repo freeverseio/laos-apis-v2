@@ -1,6 +1,9 @@
 type OwnershipContract @entity {
   id: ID! # ownership_contract
   laosContract: String  @index
+  name: String
+  symbol: String
+  bytecodeHash: String
   assets: [Asset]! @derivedFrom(field: "ownershipContract")
 }
 
