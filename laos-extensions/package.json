@@ -1,5 +1,5 @@
 {
-  "name": "laos-extentions",
+  "name": "laos-extensions",
   "version": "1.0.0",
   "description": "REST API for token supplies and balances",
   "main": "dist/index.js",
