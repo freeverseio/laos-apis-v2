@@ -39,7 +39,6 @@ export class IpfsService {
         data = await this.fetchData(httpUrlFallback);
         console.log('Fetched data from ipfs.io done');
         return data;
-
       }else{
         return null;
       }
