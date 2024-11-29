@@ -1,55 +1,116 @@
-import { TokenIndexer } from "../../types";
-import { AttributeIndexer, TokenBalance, TokenSuppliesResponse, TokenSupply } from "../../types/token";
+import { GetTokenBalancesInput, TokenIndexer, TokenSupplyInput } from "../../types";
+import { AttributeIndexer, TokenBalance, TokenBalancesResponse, TokenResponse, TokenSuppliesResponse, TokenSupply } from "../../types/token";
 
 export class TokenMapper {
-  static mapTokenSupplies(tokens: TokenIndexer[], chainId: number, contractAddress: string): TokenSuppliesResponse {
-    const tokenSupplies = tokens.map((token) => this.mapTokenSupply(token, chainId, contractAddress));
+
+  static mapTokenBalances(tokenResponse: TokenResponse, request: GetTokenBalancesInput, chainId: number): TokenBalancesResponse {
+    const tokens = tokenResponse.tokens;
+    const tokenBalances = tokens.map((token) => this.mapTokenBalance(token, chainId, request.includeMetadata));
+    const pageSize = tokenResponse.page?.pageSize !== undefined  ? tokenResponse.page?.pageSize : 100;
     return {
       page: {
-        after: "sample_cursor",
-        pageSize: 50,
-        more: true
+        after: tokenResponse.page?.after || "",
+        pageSize: pageSize,
+        more: tokenResponse.page?.more || false
       },
-      contractType: "ERC721",
+      balances: tokenBalances
+    }
+  }
+
+  static mapTokenBalance(token: TokenIndexer, chainId: number, includeMetadata: boolean): TokenBalance {
+    return {
+        tokenID: token.tokenId,
+        balance: "1",
+        contractType: "ERC721",
+        contractAddress: token.contractAddress,
+        accountAddress: token.owner || "",
+        blockHash: "TODO",
+        blockNumber: 0,
+        chainId: chainId,
+        contractInfo: includeMetadata ? {
+          chainId: chainId,
+          address: token.contractAddress,
+          name: "TODO",
+          type: "ERC721",
+          symbol: "TODO",
+          decimals: 0,
+          logoURI: "?",
+          deployed: true,
+          bytecodeHash: "TODO",
+          extensions: {
+            link: "",
+            description: "",
+            ogImage: "",
+            originChainId: chainId,
+            originAddress: token.contractAddress,
+            verified: true,
+          },
+          updatedAt: "",
+        } : undefined,
+        tokenMetadata: includeMetadata ? {
+          tokenId: token.tokenId,
+          name: token.name || "",
+          description: token.description || "",
+          image: token.image || "",
+          properties: this.mapAttributes(token.attributes || []),
+          attributes: token.attributes || [],
+          external_url: "",
+          decimals: 0,
+          updatedAt: token.createdAt || "",
+        } : undefined,
+    }
+  }
+
+  static mapTokenSupplies(tokenResponse: TokenResponse, request: TokenSupplyInput, chainId: number, contractAddress: string): TokenSuppliesResponse {
+    const tokens = tokenResponse.tokens;
+    const tokenSupplies = tokens.map((token) => this.mapTokenSupply(token, chainId, contractAddress, request.includeMetadata));
+    const pageSize = tokenResponse.page?.pageSize !== undefined  ? tokenResponse.page?.pageSize : 100;
+    return {
+      page: {
+        after: tokenResponse.page?.after || "",
+        pageSize: pageSize,
+        more: tokenResponse.page?.more || false
+      },
+      contractType: pageSize > 0 ? "ERC721" : "",
       tokenIDs: tokenSupplies
     }
   }
-  static mapTokenSupply(token: TokenIndexer, chainId: number, contractAddress: string): TokenSupply {
+  static mapTokenSupply(token: TokenIndexer, chainId: number, contractAddress: string, includeMetadata: boolean): TokenSupply {
     return {
-      tokenID: token.tokenId, // Mapping tokenId from TokenIndexer
-      supply: "1", // Assuming supply is not provided, you can adjust accordingly
-      chainId: chainId, // Placeholder, update based on your chainId logic
-      contractInfo: {
-        chainId: chainId, // Placeholder, update based on your logic
-        address: contractAddress, // Add logic to extract address
-        name: "TODO", // Use name from TokenIndexer, fallback to "Unknown"
-        type: "ERC721", // Assuming ERC721, change based on your needs
-        symbol: "TODO", // Add logic to populate symbol
-        decimals: 0, // Assuming no decimals for ERC721 tokens, change as needed
-        logoURI: "?", // Using image as logoURI
-        deployed: true, // Assuming deployed, change as needed
-        bytecodeHash: "?", // Add logic to populate bytecodeHash
+      tokenID: token.tokenId,
+      supply: "1",
+      chainId: chainId,
+      contractInfo: includeMetadata ? {
+        chainId: chainId,
+        address: contractAddress,
+        name: "TODO",
+        type: "ERC721",
+        symbol: "TODO",
+        decimals: 0,
+        logoURI: "?",
+        deployed: true,
+        bytecodeHash: "TODO",
         extensions: {
-          link: "?", // Add logic to populate link
-          description: "?", // Add logic to populate description
-          ogImage: "?", // Use image for OpenGraph image
-          originChainId: chainId, // Add logic to populate originChainId
-          originAddress: contractAddress, // Add logic to populate originAddress
-          verified: true, // Set default as false, update as needed
+          link: "",
+          description: "",
+          ogImage: "",
+          originChainId: chainId,
+          originAddress: contractAddress,
+          verified: true,
         },
-        updatedAt: "?"
-      },
-      tokenMetadata: {
+        updatedAt: ""
+      } : undefined,
+      tokenMetadata: includeMetadata ? {
         tokenId: token.tokenId,
         name: token.name || "",
-        description: token.description || "", // Add logic for description
-        image: token.image || "", // Use image from TokenIndexer
-        properties: this.mapAttributes(token.attributes), // Add properties mapping logic if applicable
-        attributes: token.attributes || [], // Mapping attributes
-        external_url: "", // Add logic for external URL
-        decimals: 0, // Assuming no decimals for ERC721 tokens
-        updatedAt: token.createdAt, 
-      },
+        description: token.description || "",
+        image: token.image || "",
+        properties: this.mapAttributes(token.attributes || []),
+        attributes: token.attributes || [],
+        external_url: "",
+        decimals: 0,
+        updatedAt: token.createdAt || "",
+      } : undefined,
     };
   }
 

@@ -2,7 +2,7 @@ interface TokenSupply {
   tokenID: string;
   supply: string;
   chainId: number;
-  contractInfo: ContractInfo;
+  contractInfo?: ContractInfo;
   tokenMetadata?: TokenMetadata;
 }
 
@@ -15,7 +15,8 @@ interface TokenBalance {
   blockHash: string;
   blockNumber: number;
   chainId: number;
-  contractInfo: ContractInfo;
+  contractInfo?: ContractInfo;
+  tokenMetadata?: TokenMetadata;
 }
 
 interface ContractInfo {
@@ -65,6 +66,7 @@ interface TokenSuppliesResponse {
 
 interface TokenBalancesResponse {
   page: {
+    after: string;
     pageSize: number;
     more: boolean;
   };
@@ -76,15 +78,43 @@ type AttributeIndexer = {
   value: string;
 }
 
+export interface TokenResponse {
+  page?: {
+    after: string;
+    pageSize?: number;
+    more: boolean;
+  };
+  tokens: TokenIndexer[];
+}
+
 type TokenIndexer = {
-  attributes: AttributeIndexer[];
+  contractAddress: string;
+  attributes?: AttributeIndexer[];
   tokenId: string;
-  image: string;
-  name: string;
-  description: string;
+  image?: string;
+  name?: string;
+  description?: string;
+  owner?: string;
+  blockNumber?: number;
+  blockHash?: string;
+  createdAt?: string;
+}
+
+export type GetTokenBalancesQueryInput = {
+  contractAddress?: string;
   owner: string;
-  playerId?: string;
-  createdAt: string;
+  after?: string;
+  first?: number;
+  includeMetadata?: boolean;
+  orderBy?: string;
+}
+
+export type GetTokenSuppliesQueryInput = {
+  contractAddress?: string;
+  after?: string;
+  first?: number;
+  includeMetadata?: boolean;
+  orderBy?: string;
 }
 
 export {

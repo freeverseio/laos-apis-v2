@@ -1,12 +1,12 @@
 // Import dependencies
 import { TokenQuery } from './TokenQuery';
-import { gqlClient } from './GqlClient';
+import { GqlClient } from './GqlClient';
 import { ApolloQueryResult } from '@apollo/client';
 
 jest.mock('./GqlClient', () => ({
-  gqlClient: {
-    query: jest.fn() as jest.MockedFunction<(<T = any>(options: any) => Promise<ApolloQueryResult<T>>)>,
-  },
+  GqlClient: jest.fn().mockImplementation(() => ({
+    query: jest.fn() as jest.MockedFunction<(options: any) => Promise<ApolloQueryResult<any>>>,
+  })),
 }));
 
 describe('TokenQuery - fetchTokensByOwner', () => {
@@ -17,60 +17,13 @@ describe('TokenQuery - fetchTokensByOwner', () => {
           totalCount: 18,
           edges: [
             {
+              cursor: 'cursor1',
               node: {
                 attributes: [
                   {
-                    "value": "2748779069630",
-                    "traitType": "ID"
+                    value: '2748779069630',
+                    traitType: 'ID',
                   },
-                  {
-                    "value": "881",
-                    "traitType": "Defence"
-                  },
-                  {
-                    "value": "1036",
-                    "traitType": "Speed"
-                  },
-                  {
-                    "value": "1359",
-                    "traitType": "Pass"
-                  },
-                  {
-                    "value": "885",
-                    "traitType": "Shoot"
-                  },
-                  {
-                    "value": "839",
-                    "traitType": "Endurance"
-                  },
-                  {
-                    "value": "10",
-                    "traitType": "Shirt Number"
-                  },
-                  {
-                    "value": "MD C",
-                    "traitType": "Preferred Position"
-                  },
-                  {
-                    "value": "6",
-                    "traitType": "Potential"
-                  },
-                  {
-                    "value": "ES",
-                    "traitType": "Country of Birth"
-                  },
-                  {
-                    "value": "Spanish",
-                    "traitType": "Race"
-                  },
-                  {
-                    "value": "0",
-                    "traitType": "Tiredness"
-                  },
-                  {
-                    "value": "26328088242270179065952717366766006629855130129897153013571650417",
-                    "traitType": "Skills"
-                  }
                 ],
                 block_number: 241353,
                 description: null,
@@ -79,73 +32,77 @@ describe('TokenQuery - fetchTokensByOwner', () => {
                 tokenId: '5859940151081954314402908485620542763290938128937918929447',
               },
             },
-            {
-              node: {
-                attributes: null,
-                block_number: 241353,
-                description: null,
-                image: null,
-                name: null,
-                tokenId: '1596981792969232974370101329926450223133977488622968117799',
-              },
-            },
-            {
-              node: {
-                attributes: null,
-                block_number: 241353,
-                description: null,
-                image: null,
-                name: null,
-                tokenId: '2235577223979834083966307893144337510179708528232167119399',
-              },
-            },
-            {
-              node: {
-                attributes: null,
-                block_number: 241353,
-                description: null,
-                image: null,
-                name: null,
-                tokenId: '2753159977428053296503966492551065707587701753794738264615',
-              },
-            },
           ],
         },
       },
     },
   };
 
+  let tokenQuery: TokenQuery;
+  let gqlClient: jest.Mocked<GqlClient>;
+
   beforeEach(() => {
-    (gqlClient.query as jest.Mock).mockResolvedValue(mockData);
+    gqlClient = new GqlClient() as jest.Mocked<GqlClient>;
+    gqlClient.query.mockResolvedValue(mockData);
+
+    tokenQuery = new TokenQuery();
+    (tokenQuery as any).gqlClient = gqlClient;
+
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should fetch tokens by owner', async () => {
-    const tokenQuery = new TokenQuery();
-    const contractAddress = '0x123456789abcdef';
-    const owner = '0xowneraddress';
+    const input = {
+      accountAddress: '0xowneraddress',
+      page: { pageSize: 10, sort: [] },
+      includeMetadata: true,
+    };
 
-    const tokens = await tokenQuery.fetchTokensByOwner(contractAddress, owner);
+    const result = await tokenQuery.fetchTokensByOwner(input);
 
-    expect(gqlClient.query).toHaveBeenCalled();
-    expect(tokens).toHaveLength(4);
-    expect(tokens![0].tokenId).toBe('5859940151081954314402908485620542763290938128937918929447');
-    const attributes = tokens![0].attributes;
-    const idAttribute = attributes.find((attribute) => attribute.traitType === 'ID');
-    
-    expect(idAttribute?.value).toBe('2748779069630');
-    expect(tokens![1].tokenId).toBe('1596981792969232974370101329926450223133977488622968117799');
-    expect(tokens![2].tokenId).toBe('2235577223979834083966307893144337510179708528232167119399');
-    expect(tokens![3].tokenId).toBe('2753159977428053296503966492551065707587701753794738264615');
+    expect(gqlClient.query).toHaveBeenCalledWith(expect.objectContaining({
+      query: expect.anything(),
+      fetchPolicy: 'no-cache',
+    }));
+    expect(result.tokens).toHaveLength(1);
+    expect(result.tokens[0].tokenId).toBe('5859940151081954314402908485620542763290938128937918929447');
+    expect(result.tokens[0].blockNumber).toBe(241353);
+    expect(result.page?.more).toBe(false);
+  });
+
+  it('should handle empty token results', async () => {
+    gqlClient.query.mockResolvedValueOnce({
+      data: {
+        polygon: { tokens: { totalCount: 0, edges: [] } },
+      },
+    });
+
+    const input = {
+      accountAddress: '0xowneraddress',
+      page: { pageSize: 10, sort: [] },
+      includeMetadata: true,
+    };
+
+    const result = await tokenQuery.fetchTokensByOwner(input);
+
+    expect(result.tokens).toHaveLength(0);
+    expect(result.page?.more).toBe(false);
   });
 
   it('should throw an error when gqlClient query fails', async () => {
-    (gqlClient.query as jest.Mock).mockRejectedValue(new Error('GraphQL query failed'));
-    const tokenQuery = new TokenQuery();
-    const contractAddress = '0x123456789abcdef';
-    const owner = '0xowneraddress';
+    gqlClient.query.mockRejectedValue(new Error('GraphQL query failed'));
 
-    await expect(tokenQuery.fetchTokensByOwner(contractAddress, owner)).rejects.toThrow('Could not fetch token by owner.');
+    const input = {
+      accountAddress: '0xowneraddress',
+      page: { pageSize: 10, sort: [] },
+      includeMetadata: true,
+    };
+
+    await expect(tokenQuery.fetchTokensByOwner(input)).rejects.toThrow('Could not fetch token by owner.');
   });
 });

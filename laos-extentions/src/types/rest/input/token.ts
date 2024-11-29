@@ -2,16 +2,21 @@ import { Type } from "class-transformer";
 import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 
 // Enum for sort order
-enum SortOrder {
+export enum SortOrder {
   ASC = 'ASC',
   DESC = 'DESC',
 }
 
+export enum SortColumn {
+  CREATED_AT = 'CREATED_AT',
+}
+
 // SortBy class
-class SortBy {
+export class SortBy {
   @IsString()
   @IsNotEmpty()
-  column!: string;
+  @IsEnum(SortColumn)
+  column!: SortColumn;
 
   @IsEnum(SortOrder)
   order!: SortOrder;
@@ -55,6 +60,10 @@ class MetadataOptions {
 }
 
 export class GetTokenBalancesInput {
+
+  @IsString()
+  @IsOptional()
+  contractAddress?: string;
 
   @IsString()
   @IsNotEmpty()

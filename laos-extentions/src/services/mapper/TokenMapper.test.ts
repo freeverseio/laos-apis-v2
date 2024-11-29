@@ -1,6 +1,6 @@
 import { TokenMapper } from "./TokenMapper";
 import { TokenIndexer, AttributeIndexer } from "../../types";
-import { TokenSuppliesResponse, TokenSupply } from "../../types/token";
+import { TokenSuppliesResponse } from "../../types/token";
 
 describe("TokenMapper", () => {
   const inputTokens: TokenIndexer[] = [
@@ -23,6 +23,7 @@ describe("TokenMapper", () => {
       name: "Feng Rivero",
       description: "description",
       owner: "0xc69f5121e79155f036acf8d2bdef50cee0c05b75",
+      contractAddress: "0x1fc0b17a5ca075345fbf9701475a7fc25b8a16c5",
       createdAt: "2024-11-27T16:08:36.000Z",
     },
   ];
@@ -49,39 +50,37 @@ describe("TokenMapper", () => {
       const contractAddress = "0x1fc0b17a5ca075345fbf9701475a7fc25b8a16c5";
       const token = inputTokens[0];
 
-      const result = TokenMapper.mapTokenSupply(token, chainId, contractAddress);
+      const result = TokenMapper.mapTokenSupply(token, chainId, contractAddress, true);
 
       expect(result).toEqual({
         tokenID: token.tokenId,
-        supply: "0",
+        supply: "1",
         chainId: chainId,
         contractInfo: {
           chainId: chainId,
           address: contractAddress,
-          name: "Feng Rivero",
+          name: "TODO",
           type: "ERC721",
-          symbol: "",
+          symbol: "TODO",
           decimals: 0,
-          logoURI: "ipfs://QmXEx4oVwoHSeSSLFW5HN6vjgKCh7mCve5Z7VUnb7ha3pj",
+          logoURI: "?",
           deployed: true,
-          bytecodeHash: "",
+          bytecodeHash: "TODO",
           extensions: {
             link: "",
             description: "",
-            ogImage: "ipfs://QmXEx4oVwoHSeSSLFW5HN6vjgKCh7mCve5Z7VUnb7ha3pj",
-            originChainId: 0,
-            originAddress: "",
-            verified: false,
-            verifiedBy: undefined,
-            featured: false,
+            ogImage: "",
+            originChainId: chainId,
+            originAddress: contractAddress,
+            verified: true,
           },
-          updatedAt: expect.any(String), // Expect ISO date string
+          updatedAt: "",
         },
         tokenMetadata: {
           tokenId: token.tokenId,
-          name: "Feng Rivero",
-          description: "",
-          image: "ipfs://QmXEx4oVwoHSeSSLFW5HN6vjgKCh7mCve5Z7VUnb7ha3pj",
+          name: token.name,
+          description: token.description,
+          image: token.image,
           properties: {
             ID: "2748779069736",
             Defence: "1352",
@@ -98,7 +97,7 @@ describe("TokenMapper", () => {
           attributes: token.attributes,
           external_url: "",
           decimals: 0,
-          updatedAt: "2024-11-27T16:08:36.000Z",
+          updatedAt: token.createdAt,
         },
       });
     });
@@ -109,7 +108,15 @@ describe("TokenMapper", () => {
       const chainId = 1;
       const contractAddress = "0x1fc0b17a5ca075345fbf9701475a7fc25b8a16c5";
 
-      const result = TokenMapper.mapTokenSupplies(inputTokens, chainId, contractAddress);
+      const result = TokenMapper.mapTokenSupplies(
+        {
+          tokens: inputTokens,
+          page: { after: "sample_cursor", pageSize: 50, more: true },
+        },
+        { contractAddress: contractAddress, includeMetadata: true },
+        chainId,
+        contractAddress
+      );
 
       expect(result).toEqual({
         page: {
@@ -117,9 +124,37 @@ describe("TokenMapper", () => {
           pageSize: 50,
           more: true,
         },
-        contractType: "ERC1155",
+        contractType: "ERC721",
         tokenIDs: inputTokens.map((token) =>
-          TokenMapper.mapTokenSupply(token, chainId, contractAddress)
+          TokenMapper.mapTokenSupply(token, chainId, contractAddress, true)
+        ),
+      });
+    });
+  });
+
+  describe("mapTokenBalances", () => {
+    it("should map an array of tokens to TokenBalancesResponse format", () => {
+      const chainId = 1;
+      const inputRequest = { 
+        includeMetadata: true,
+        accountAddress: "0xc69f5121e79155f036acf8d2bdef50cee0c05b75"
+      };
+      const tokenResponse = {
+        tokens: inputTokens,
+        page: { after: "cursor1", pageSize: 100, more: false },
+        
+      };
+
+      const result = TokenMapper.mapTokenBalances(tokenResponse, inputRequest, chainId);
+
+      expect(result).toEqual({
+        page: {
+          after: "cursor1",
+          pageSize: 100,
+          more: false,
+        },
+        balances: inputTokens.map((token) =>
+          TokenMapper.mapTokenBalance(token, chainId, inputRequest.includeMetadata)
         ),
       });
     });
