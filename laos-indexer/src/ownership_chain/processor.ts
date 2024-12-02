@@ -8,6 +8,7 @@ import {
 } from '@subsquid/evm-processor';
 import { Store } from '@subsquid/typeorm-store';
 import * as ERC721UniversalContract from '../abi/UniversalContract'
+import * as ERC721UniversalContract2 from '../abi/UniversalContract2' // added Name, Symbol to NewERC721Universal
 
 export const processor = new EvmBatchProcessor()
     .setGateway(process.env.GATEWAY_ENDPOINT!)
@@ -24,7 +25,7 @@ export const processor = new EvmBatchProcessor()
         to: Number(61892163)
     })
     .addLog({
-       topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
+       topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract2.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
     })
     .setFields({
         log: {
