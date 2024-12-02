@@ -12,7 +12,15 @@ export class IpfsService {
 
   private async fetchData(url: string): Promise<any> {
     try {
-      const response = await axios.get(url);
+      const gatewayKey = process.env.PRIVATE_IPFS_GATEWAY_API_KEY;
+  
+      const headers: Record<string, string> = {};
+      if (gatewayKey) {
+        headers['x-pinata-gateway-token'] = gatewayKey;
+      }
+  
+      const response = await axios.get(url, { headers });
+  
       return response.data;
     } catch (error) {
       console.warn('Error fetching data from URL:', url, error);
