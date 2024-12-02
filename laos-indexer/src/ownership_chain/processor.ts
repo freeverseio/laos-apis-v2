@@ -20,9 +20,8 @@ export const processor = new EvmBatchProcessor()
       requestTimeout: 15_000,
     })
     .setFinalityConfirmation(200)
-    .setBlockRange({        
-        from: Number(61891161),
-        to: Number(61892163)
+    .setBlockRange({
+        from: Number(process.env.STARTING_BLOCK_OWNERSHIP),        
     })
     .addLog({
        topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract2.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
