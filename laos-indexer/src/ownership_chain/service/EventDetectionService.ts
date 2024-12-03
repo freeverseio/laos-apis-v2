@@ -16,12 +16,12 @@ export class EventDetectionService {
     this.ownershipContractsToCheck = ownershipContractsToCheck;
   }
 
-  public async detectEvents(): Promise<DetectedEvents> {
+  public detectEvents(): DetectedEvents {
     const transfers: RawTransfer[] = [];
     const ownershipContractsToInsertInDb: RawOwnershipContract[] = [];
     for (const block of this.ctx.blocks) {
       for (const log of block.logs) {
-        await this.detectNewERC721Universal(log, ownershipContractsToInsertInDb, block);
+        this.detectNewERC721Universal(log, ownershipContractsToInsertInDb, block);
         this.detectTransfer(log, transfers, block.header.timestamp, block.header.height);
       }
     }
@@ -29,7 +29,7 @@ export class EventDetectionService {
     return { transfers, ownershipContracts: ownershipContractsToInsertInDb };
   }
 
-  private async detectNewERC721Universal(log: any, ownershipContractsToInsertInDb: RawOwnershipContract[], block: BlockData): Promise<void> {
+  private detectNewERC721Universal(log: any, ownershipContractsToInsertInDb: RawOwnershipContract[], block: BlockData): void {
     let universalContractVersion = 0;
     let logDecoded: any = null;
     if (log.topics[0] === ERC721UniversalContract.events.NewERC721Universal.topic) {
@@ -46,7 +46,7 @@ export class EventDetectionService {
       if (baseURITokens === null) return // If the baseURI is not valid, skip the ERC721Universal contract
       const laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
 
-      const bytecodeHash = await this.getBytecodeHash(logDecoded, block);
+      const bytecodeHash = this.getBytecodeHash(logDecoded, block);
       let name = null;
       let symbol = null;
       if (universalContractVersion === 2) {
@@ -64,7 +64,7 @@ export class EventDetectionService {
     }
   }
 
-  private async getBytecodeHash(logDecoded: { readonly newContractAddress: string; readonly baseURI: string; }, block: BlockData) {
+  private getBytecodeHash(logDecoded: { readonly newContractAddress: string; readonly baseURI: string; }, block: BlockData) {
     let bytecodeHash: string | null = null;
     try {
       
@@ -79,7 +79,7 @@ export class EventDetectionService {
         }
       }
       console.log('Contract Bytecode Hash:', bytecodeHash);
-      
+
     } catch (error) {
       console.error('Error retrieving contract bytecode for address:', logDecoded.newContractAddress, 'Error:', error);
     }

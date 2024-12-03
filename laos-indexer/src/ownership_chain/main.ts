@@ -17,7 +17,7 @@ processor.run<Store>(new TypeormDatabase(options), async (ctx) => {
   const ownershipContractIds = new Set(ownerShipContracts.map(contract => contract.id));
 
   const service = new EventDetectionService(ctx, ownershipContractIds);
-  const detectedEvents = await service.detectEvents();
+  const detectedEvents = service.detectEvents();
 
   const rawOwnershipContracts = detectedEvents.ownershipContracts;
   const rawTransfers = detectedEvents.transfers;

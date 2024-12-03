@@ -23,7 +23,7 @@ describe('EventDetectionService', () => {
     jest.resetModules();
   });
 
-  it('should detect new ERC721 universal contracts and transfers', async() => {
+  it('should detect new ERC721 universal contracts and transfers', () => {
     process.env.LAOS_GLOBAL_CONSENSUS= '0:0x4756c4042a431ad2bbe61d8c4b966c1328e7a8daa0110e9bbd3d4013138a0bd4'
     process.env.LAOS_PARACHAIN='2000'
     process.env.LAOS_PALLET_INSTANCE= '51'
@@ -33,7 +33,7 @@ describe('EventDetectionService', () => {
     ownershipContractsToCheck.add('0x31E1818e4ca0f7DEFe50009a2B99485C4B6B795F');
     
     const service = new EventDetectionService(ctx, ownershipContractsToCheck);
-    const detectedEvents = await service.detectEvents();
+    const detectedEvents = service.detectEvents();
 
     // Validate ownershipContracts
     expect(detectedEvents.ownershipContracts).toHaveLength(1);
@@ -51,7 +51,7 @@ describe('EventDetectionService', () => {
     expect(detectedEvents.transfers[0].to).toEqual('0x8e4dfc6d56e84913fa6a901a3df21de6e9285de8'.toLowerCase());
   });
 
-  it('should detect new ERC721 universal contracts and transfers for the same contract', async() => {
+  it('should detect new ERC721 universal contracts and transfers for the same contract', () => {
     process.env.LAOS_GLOBAL_CONSENSUS= '0:0x4756c4042a431ad2bbe61d8c4b966c1328e7a8daa0110e9bbd3d4013138a0bd4'
     process.env.LAOS_PARACHAIN='2000'
     process.env.LAOS_PALLET_INSTANCE= '51'
@@ -59,7 +59,7 @@ describe('EventDetectionService', () => {
     ownershipContractsToCheck.add('0xb176c21d6b66d2fe1b0e7c697610163d28000a65');
     
     const service = new EventDetectionService(ctx, ownershipContractsToCheck);
-    const detectedEvents = await service.detectEvents();
+    const detectedEvents = service.detectEvents();
 
     // Validate ownershipContracts
     expect(detectedEvents.ownershipContracts).toHaveLength(1);
