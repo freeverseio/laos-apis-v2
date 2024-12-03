@@ -8,6 +8,7 @@ import {
 } from '@subsquid/evm-processor';
 import { Store } from '@subsquid/typeorm-store';
 import * as ERC721UniversalContract from '../abi/UniversalContract'
+import * as ERC721UniversalContract2 from '../abi/UniversalContract2' // added Name, Symbol to NewERC721Universal
 
 export const processor = new EvmBatchProcessor()
     .setGateway(process.env.GATEWAY_ENDPOINT!)
@@ -19,17 +20,23 @@ export const processor = new EvmBatchProcessor()
       requestTimeout: 15_000,
     })
     .setFinalityConfirmation(200)
-    .setBlockRange({        
-        from: Number(process.env.STARTING_BLOCK_OWNERSHIP),
-        
+    .setBlockRange({
+        from: Number(process.env.STARTING_BLOCK_OWNERSHIP),        
     })
     .addLog({
-       topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
+       topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract2.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
     })
     .setFields({
         log: {
             transactionHash: true
-        }
+        },
+        trace: {
+          createResultCode: true, // to retrieve the contract bytecode
+          createResultAddress: true,
+        },
+      })
+      .addTrace({
+        type: ["create"],
     });
 
 export type Fields = EvmBatchProcessorFields<typeof processor>;

@@ -23,7 +23,7 @@ processor.run<Store>(new TypeormDatabase(options), async (ctx) => {
   const rawTransfers = detectedEvents.transfers;
 
   if (rawOwnershipContracts.length > 0) {
-    const ownershipContractsModelArray = createOwnershipContractsModel(detectedEvents.ownershipContracts);
+    const ownershipContractsModelArray = createOwnershipContractsModel(rawOwnershipContracts);
     await ctx.store.insert(ownershipContractsModelArray);
   }
 

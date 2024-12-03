@@ -138,10 +138,10 @@ describe('TokenResolver', () => {
       [],
   
       new PageInfo({
-        endCursor: undefined,
+        endCursor: "",
         hasNextPage: false,
         hasPreviousPage: true,
-        startCursor: undefined
+        startCursor: ""
       }),
       0
     ));

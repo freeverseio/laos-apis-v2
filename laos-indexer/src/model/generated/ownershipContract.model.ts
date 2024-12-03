@@ -14,6 +14,15 @@ export class OwnershipContract {
     @StringColumn_({nullable: true})
     laosContract!: string | undefined | null
 
+    @StringColumn_({nullable: true})
+    name!: string | undefined | null
+
+    @StringColumn_({nullable: true})
+    symbol!: string | undefined | null
+
+    @StringColumn_({nullable: true})
+    bytecodeHash!: string | undefined | null
+
     @OneToMany_(() => Asset, e => e.ownershipContract)
     assets!: Asset[]
 }

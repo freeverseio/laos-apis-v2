@@ -11,7 +11,11 @@ describe('EventDetectionService', () => {
   beforeEach(() => {   
     ownershipContractsToCheck = new Set();
     const consoleSpy = jest.spyOn(console, 'log');
+    const consoleSpyWarn = jest.spyOn(console, 'warn');
+    const consoleSpyError = jest.spyOn(console, 'error');
     consoleSpy.mockImplementation(() => {});
+    consoleSpyWarn.mockImplementation(() => {});
+    consoleSpyError.mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -36,6 +40,9 @@ describe('EventDetectionService', () => {
     expect(detectedEvents.ownershipContracts[0]).toEqual<RawOwnershipContract>({
       id: '0x31E1818e4ca0f7DEFe50009a2B99485C4B6B795F'.toLowerCase(),
       laosContract: '0xfffffffffffffffffffffffe0000000000000021'.toLowerCase(),
+      bytecodeHash: null,
+      name: null,
+      symbol: null
     });
 
     // Validate transfers
@@ -59,6 +66,9 @@ describe('EventDetectionService', () => {
     expect(detectedEvents.ownershipContracts[0]).toEqual<RawOwnershipContract>({
       id: '0x31e1818e4ca0f7defe50009a2b99485c4b6b795f'.toLowerCase(),
       laosContract: '0xfffffffffffffffffffffffe0000000000000021'.toLowerCase(),
+      bytecodeHash: null,
+      name: null,
+      symbol: null
     });
 
     // Validate transfers
