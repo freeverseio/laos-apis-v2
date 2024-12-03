@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { RawTransfer, DetectedEvents, RawOwnershipContract } from '../../model';
 import { BlockData } from '@subsquid/evm-processor';
 import { ethers } from 'ethers';
-import { JsonRpcProvider } from '@ethersproject/providers';
 
 export class EventDetectionService {
   private ctx: Context;
@@ -22,7 +21,7 @@ export class EventDetectionService {
     const ownershipContractsToInsertInDb: RawOwnershipContract[] = [];
     for (const block of this.ctx.blocks) {
       for (const log of block.logs) {
-        await this.detectNewERC721Universal(log, ownershipContractsToInsertInDb);
+        await this.detectNewERC721Universal(log, ownershipContractsToInsertInDb, block);
         this.detectTransfer(log, transfers, block.header.timestamp, block.header.height);
       }
     }
@@ -30,7 +29,7 @@ export class EventDetectionService {
     return { transfers, ownershipContracts: ownershipContractsToInsertInDb };
   }
 
-  private async detectNewERC721Universal(log: any, ownershipContractsToInsertInDb: RawOwnershipContract[]): Promise<void> {
+  private async detectNewERC721Universal(log: any, ownershipContractsToInsertInDb: RawOwnershipContract[], block: BlockData): Promise<void> {
     let universalContractVersion = 0;
     let logDecoded: any = null;
     if (log.topics[0] === ERC721UniversalContract.events.NewERC721Universal.topic) {
@@ -47,7 +46,7 @@ export class EventDetectionService {
       if (baseURITokens === null) return // If the baseURI is not valid, skip the ERC721Universal contract
       const laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
 
-      const bytecodeHash = await this.getBytecodeHash(logDecoded);
+      const bytecodeHash = await this.getBytecodeHash(logDecoded, block);
       let name = null;
       let symbol = null;
       if (universalContractVersion === 2) {
@@ -65,13 +64,22 @@ export class EventDetectionService {
     }
   }
 
-  private async getBytecodeHash(logDecoded: { readonly newContractAddress: string; readonly baseURI: string; }) {
+  private async getBytecodeHash(logDecoded: { readonly newContractAddress: string; readonly baseURI: string; }, block: BlockData) {
     let bytecodeHash: string | null = null;
     try {
-      const provider = new JsonRpcProvider(process.env.RPC_ENDPOINT);
-      const bytecode = await provider.getCode(logDecoded.newContractAddress);
-      bytecodeHash = ethers.keccak256(bytecode);
+      
+      for (let trc of block.traces) {
+        if (trc.type === "create") {
+          const trcCast = trc as any;
+          if (trcCast.result?.address === logDecoded.newContractAddress) {
+            const bytecode = trcCast.result?.code;
+            bytecodeHash = ethers.keccak256(bytecode);
+            break; // code retrieved
+          }
+        }
+      }
       console.log('Contract Bytecode Hash:', bytecodeHash);
+      
     } catch (error) {
       console.error('Error retrieving contract bytecode for address:', logDecoded.newContractAddress, 'Error:', error);
     }

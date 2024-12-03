@@ -29,7 +29,14 @@ export const processor = new EvmBatchProcessor()
     .setFields({
         log: {
             transactionHash: true
-        }
+        },
+        trace: {
+          createResultCode: true, // to retrieve the contract bytecode
+          createResultAddress: true,
+        },
+      })
+      .addTrace({
+        type: ["create"],
     });
 
 export type Fields = EvmBatchProcessorFields<typeof processor>;
