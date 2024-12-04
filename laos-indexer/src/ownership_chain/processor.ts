@@ -29,19 +29,29 @@ processor.setRpcEndpoint({
     })
     .addLog({
        topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract2.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
-    })
-    .setFields({
-        log: {
-            transactionHash: true
-        },
-        trace: {
-          createResultCode: true, // to retrieve the contract bytecode
-          createResultAddress: true,
-        },
-      })
-      .addTrace({
-        type: ["create"],
     });
+
+    if (process.env.OWNERSHIP_PARSE_TRACES){
+        processor.setFields({
+            log: {
+                transactionHash: true
+            }
+        });
+        
+    } else {
+        processor.setFields({
+            log: {
+                transactionHash: true
+            },
+            trace: {
+                createResultCode: true, // to retrieve the contract bytecode
+                createResultAddress: true,
+            },
+            })
+            .addTrace({
+            type: ["create"],
+        });
+    }
 
 export type Fields = EvmBatchProcessorFields<typeof processor>;
 export type Context = DataHandlerContext<Store, Fields>;
