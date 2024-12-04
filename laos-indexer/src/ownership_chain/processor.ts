@@ -10,9 +10,13 @@ import { Store } from '@subsquid/typeorm-store';
 import * as ERC721UniversalContract from '../abi/UniversalContract'
 import * as ERC721UniversalContract2 from '../abi/UniversalContract2' // added Name, Symbol to NewERC721Universal
 
-export const processor = new EvmBatchProcessor()
-    .setGateway(process.env.GATEWAY_ENDPOINT!)
-    .setRpcEndpoint({
+export const processor = new EvmBatchProcessor();
+
+if (process.env.GATEWAY_ENDPOINT) {
+    processor.setGateway(process.env.GATEWAY_ENDPOINT);
+}
+
+processor.setRpcEndpoint({
       url: process.env.RPC_ENDPOINT!,
       capacity: 10,
       ...(process.env.MAX_BATCH_CALL_SIZE_OWNERSHIP ? { maxBatchCallSize: Number(process.env.MAX_BATCH_CALL_SIZE_OWNERSHIP) } : {}),
