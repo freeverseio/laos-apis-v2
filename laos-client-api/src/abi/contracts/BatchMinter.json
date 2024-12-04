@@ -107,6 +107,25 @@
 			{
 				"indexed": true,
 				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_precompileAddress",
+				"type": "address"
+			}
+		],
+		"name": "NewBatchMinter",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
 				"name": "_previousOwner",
 				"type": "address"
 			},
@@ -123,6 +142,19 @@
 	{
 		"inputs": [],
 		"name": "batchMinterOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "collectionFactoryAddress",
 		"outputs": [
 			{
 				"internalType": "address",
@@ -277,7 +309,7 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_tokenURI",
+				"name": "_tokenId",
 				"type": "uint256"
 			}
 		],
