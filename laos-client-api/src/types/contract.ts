@@ -19,4 +19,5 @@ export interface Contract {
 export interface DeploymentResult {
   contractAddress: string;
   transactionHash: string;
+  logs?: any[];
 }

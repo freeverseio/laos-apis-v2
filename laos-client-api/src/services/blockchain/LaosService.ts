@@ -111,7 +111,7 @@ export class LaosService {
     }
   }
 
-  public async deployBatchMinterContract(apiKey: string): Promise<string> {
+  public async deployBatchMinterContract(apiKey: string): Promise<{contractAddress: string, precompileAddress: string}> {
     const minterPvk = JSON.parse(process.env.MINTER_KEYS || '{}')[apiKey];
     const deployer = new ContractService(minterPvk, this.laosRpc);
     const provider = new ethers.JsonRpcProvider(this.laosRpc);
@@ -123,8 +123,24 @@ export class LaosService {
         [wallet.address],
         laosTransactionOverrides
       );
+      let precompileAddress = '';
+      if (!deploymentResult.logs || deploymentResult.logs.length === 0) {
+        throw new Error("No logs found in deployment result");
+      } else {
+        const event = deploymentResult.logs.find((parsedLog: any) => parsedLog && parsedLog.name === "NewBatchMinter");
+        if (!event) {
+          throw new Error("NewBatchMinter event not found in logs");
+        }
+        const { _precompileAddress } = event.args;
+        precompileAddress = _precompileAddress;
+      }
+      
 
-      return deploymentResult.contractAddress;
+
+      return {
+        contractAddress: deploymentResult.contractAddress,
+        precompileAddress: precompileAddress
+      };
     } catch (error) {
       console.error("Error deploying ERC721Universal contract:", error);
       throw error;

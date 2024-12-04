@@ -55,25 +55,19 @@ export class CreateCollectionService {
       if(contract){
         console.log(`You already have a collection on this chain: ${chainId}, collection address: ${contract.contractAddress}`);
       }
-      // Create collection in LAOS
-      let laosCollectionAddress;
-      try {
-        laosCollectionAddress = await this.serviceHelper.laosService.createLaosCollection(apiKey);
-        console.log('laosCollectionAddress: ', laosCollectionAddress)
-      } catch (error) {
-        throw new Error(`Failed to create new LAOS collection: ${error}`);
-      }
+      
 
       let evochainTarget = "LAOS";
       if (process.env.RPC_MINTER?.toLocaleLowerCase().includes("sigma")) {
         evochainTarget = "LAOS_SIGMA";
       }
-      const baseURI = this.serviceHelper.generateBaseUri(laosCollectionAddress, evochainTarget);
+      const {contractAddress, precompileAddress} = await this.createBatchMinterContract(apiKey);
+      console.log("BatchMinter contract deployed at: ", contractAddress);
+
+      const baseURI = this.serviceHelper.generateBaseUri(precompileAddress, evochainTarget);
       if (!baseURI) {
         throw new Error("BaseURI is null");
       }
-      const batchMinterAddress =  await this.createBatchMinterContract(apiKey, laosCollectionAddress);
-      console.log("BatchMinter contract deployed at: ", batchMinterAddress);
 
       console.log("Deploying ownershipChain contract...");     
       const ownershipContractAddress = await this.ownershipChainService.deployNewErc721universal(chainId, name, symbol, baseURI, apiKey)
@@ -83,8 +77,8 @@ export class CreateCollectionService {
       // Save contract to DB
       await ContractService.insertContract(client.id, chainId, 
         ownershipContractAddress.toLowerCase(), 
-        laosCollectionAddress.toLowerCase(), 
-        batchMinterAddress.toLowerCase());
+        precompileAddress.toLowerCase(), 
+        contractAddress.toLowerCase());
       console.log("Contract saved to DB");
 
       // release Client.lock
@@ -95,8 +89,8 @@ export class CreateCollectionService {
         name: name,
         symbol: symbol,
         contractAddress: ownershipContractAddress.toLowerCase(),
-        batchMinterAddress: batchMinterAddress.toLowerCase(),
-        laosAddress: laosCollectionAddress.toLowerCase(),
+        batchMinterAddress: contractAddress.toLowerCase(),
+        laosAddress: precompileAddress.toLowerCase(),
         success: true,
       };
     } catch (error) {
@@ -105,17 +99,11 @@ export class CreateCollectionService {
     }
   }
 
-  private async createBatchMinterContract(apiKey: string, laosCollectionAddress: string): Promise<string> {
+  private async createBatchMinterContract(apiKey: string): Promise<{contractAddress: string, precompileAddress: string}> {
      // Deploy BatchMinter with owner ownerAddress
-     const batchMinterAddress = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
-
-     // Set owner of LaosColletion to batchMinter
-     await this.serviceHelper.laosService.transferOwnership(laosCollectionAddress!, batchMinterAddress, apiKey);
-     
-     // Set Collection address to batchMinter
-     await this.serviceHelper.laosService.setPrecompileAddress(batchMinterAddress, laosCollectionAddress!, apiKey);
+     const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
    
-     return batchMinterAddress;
+     return {contractAddress, precompileAddress};
   }
 
 

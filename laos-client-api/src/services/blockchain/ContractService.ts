@@ -1,6 +1,7 @@
 // ContractDeployer.ts
 import { ethers } from "ethers";
 import { DeploymentResult } from "../../types";
+import { events } from '../../abi/UniversalContract';
 
 export const laosTransactionOverrides = {
   gasPrice:5000000000n,
@@ -46,11 +47,22 @@ export class ContractService {
       if (!receipt) {
         throw new Error("Failed to retrieve transaction receipt, receipt is null.");
       }
+      const iface = new ethers.Interface(abi);
+
+      const logs = receipt.logs.map(log => {
+        try {
+          return iface.parseLog(log);
+        } catch (error) {
+          return null; // Skip logs that cannot be parsed
+        }
+      }).filter(log => log !== null);
+
       let contractAddress = await  contract.getAddress();
       console.log("Contract deployed at address:", contractAddress);
       return {
         contractAddress,
         transactionHash: deployTx.hash,
+        logs: logs
       };
     } catch (error) {
       console.error("Error deploying contract:", error);
