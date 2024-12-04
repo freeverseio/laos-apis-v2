@@ -61,7 +61,7 @@ export class CreateCollectionService {
       if (process.env.RPC_MINTER?.toLocaleLowerCase().includes("sigma")) {
         evochainTarget = "LAOS_SIGMA";
       }
-      const {contractAddress, precompileAddress} = await this.createBatchMinterContract(apiKey);
+      const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
       console.log("BatchMinter contract deployed at: ", contractAddress);
 
       const baseURI = this.serviceHelper.generateBaseUri(precompileAddress, evochainTarget);
@@ -98,13 +98,5 @@ export class CreateCollectionService {
       throw new Error(error as string);
     }
   }
-
-  private async createBatchMinterContract(apiKey: string): Promise<{contractAddress: string, precompileAddress: string}> {
-     // Deploy BatchMinter with owner ownerAddress
-     const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
-   
-     return {contractAddress, precompileAddress};
-  }
-
 
 }

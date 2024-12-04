@@ -48,7 +48,6 @@ export class ContractService {
         throw new Error("Failed to retrieve transaction receipt, receipt is null.");
       }
       const iface = new ethers.Interface(abi);
-
       const logs = receipt.logs.map(log => {
         try {
           return iface.parseLog(log);
