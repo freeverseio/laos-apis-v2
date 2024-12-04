@@ -31,14 +31,7 @@ processor.setRpcEndpoint({
        topic0: [ ERC721UniversalContract.events.NewERC721Universal.topic, ERC721UniversalContract2.events.NewERC721Universal.topic, ERC721UniversalContract.events.Transfer.topic]
     });
 
-    if (process.env.OWNERSHIP_PARSE_TRACES){
-        processor.setFields({
-            log: {
-                transactionHash: true
-            }
-        });
-        
-    } else {
+    if (process.env.OWNERSHIP_PARSE_TRACES == "true"){
         processor.setFields({
             log: {
                 transactionHash: true
@@ -47,9 +40,16 @@ processor.setRpcEndpoint({
                 createResultCode: true, // to retrieve the contract bytecode
                 createResultAddress: true,
             },
-            })
-            .addTrace({
+        })
+        .addTrace({
             type: ["create"],
+        });
+        
+    } else {
+        processor.setFields({
+            log: {
+                transactionHash: true
+            }
         });
     }
 
