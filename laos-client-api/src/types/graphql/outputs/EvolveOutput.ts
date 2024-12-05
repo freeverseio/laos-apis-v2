@@ -14,3 +14,25 @@ export class EvolveResponse {
   @Field()
   tx!: string;
 }
+
+@ObjectType()
+export class EvolveBatchResponse {
+
+  @Field()
+  success!: boolean;
+
+  @Field()
+  tx!: string;
+
+  @Field(() => [EvolveTokenResponse])
+  tokens!: EvolveTokenResponse[];
+}
+
+@ObjectType()
+export class EvolveTokenResponse {
+  @Field()
+  tokenId!: string;
+
+  @Field()
+  tokenUri!: string;
+}

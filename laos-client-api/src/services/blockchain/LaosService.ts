@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { MintSingleNFTParams, EvolveNFTParams, MintResult, EvolveResult, AssetMetadata, LaosConfig, EventName, BatchMintNFTParams, BatchMintResult, DeploymentResult } from "../../types";
+import { MintSingleNFTParams, EvolveNFTParams, MintResult, EvolveResult, AssetMetadata, LaosConfig, EventName, BatchMintNFTParams, BatchMintResult, DeploymentResult, EvolveBatchResult } from "../../types";
 import { IPFSService } from "../ipfs/IPFSService";
 import * as EvolutionCollection from "../../abi/EvolutionCollection";
 import EvolutionCollectionAbi from '../../abi/contracts/EvolutionCollection.json';
@@ -222,56 +222,58 @@ export class LaosService {
     }
   }
 
-  public async evolve(params: EvolveNFTParams, apiKey: string): Promise<EvolveResult> {
+  public async evolveBatch(params: EvolveNFTParams, apiKey: string): Promise<EvolveBatchResult> {
     const minterPvk = JSON.parse(process.env.MINTER_KEYS || '{}')[apiKey];
     const wallet = new ethers.Wallet(minterPvk, this.provider);
-    const contract = this.getEthersContract({laosContractAddress: params.laosContractAddress, abi: BatchMinterAbi, wallet});
-    const assetJson: AssetMetadata = {
-      name: `${params.assetMetadata.name}`,
-      description: `${params.assetMetadata.description}`,
-      image: `${params.assetMetadata.image}`,
-      attributes: params.assetMetadata.attributes,
-    };
-    const nonce = await wallet.getNonce();
-    const ipfsCid = await this.ipfsService.uploadAssetMetadataToIPFS(assetJson, params.assetMetadata.name);
+    const contract = this.getEthersContract({ laosContractAddress: params.laosContractAddress, abi: BatchMinterAbi, wallet });
+  
+    const tokenIds: string[] = [];
+    const tokenUris: string[] = [];
+  
+    for (const token of params.tokens) {
+      const assetJson: AssetMetadata = {
+        name: `${token.assetMetadata.name}`,
+        description: `${token.assetMetadata.description}`,
+        image: `${token.assetMetadata.image}`,
+        attributes: token.assetMetadata.attributes,
+      };
+      
+      // Upload asset metadata to IPFS
+      const ipfsCid = await this.ipfsService.uploadAssetMetadataToIPFS(assetJson, token.assetMetadata.name);
+      const tokenUri = `ipfs://${ipfsCid}`;
+      
+      tokenIds.push(token.tokenId);
+      tokenUris.push(tokenUri);
+    }
+  
     let tx: any;
     try {
-      const tokenUri = `ipfs://${ipfsCid}`;
-      console.log('tokenUri:', tokenUri);
-      console.log("Evolving NFT with tokenId:", params.tokenId, "nonce:", nonce);
-      tx = await contract
-        .evolveWithExternalURI(params.tokenId, tokenUri, { nonce })
-        .catch((error: Error) => {
-          console.error(
-            "Evolve Failed, nonce:",
-            nonce,
-            "error: ",
-            error.message
-          );
-          throw error;
-        });
-
+      console.log('Evolving NFTs with tokenIds:', tokenIds);
+      tx = await contract.evolveWithExternalURIBatch(tokenIds, tokenUris, { nonce: await wallet.getNonce() });
+      
+      console.log('Transaction sent, waiting for confirmation...');
       const receipt = await this.retryOperation(
         () => this.provider.waitForTransaction(tx.hash, 1, 14000),
         20
       );
-      const tokenId = this.extractTokenId(receipt, contract, 'EvolvedWithExternalURI');
+  
+      const evolvedTokenIds = this.extractTokenIds(receipt, 'EvolvedWithExternalURI');
       return {
-        status: "success",
-        tokenId: tokenId.toString(),
-        tokenUri: tokenUri,
+        status: 'success',
+        tokens: evolvedTokenIds.map(id => ({ tokenId: id.toString(), tokenUri: tokenUris[evolvedTokenIds.indexOf(id)] })),
         tx: tx?.hash,
       };
     } catch (error: any) {
-      console.error("Evolving Failed:", error.message);
+      console.error('Evolving Failed:', error.message);
       return {
-        status: "failed",
+        status: 'failed',
+        tokens: [],
         tx: tx?.hash,
         error: error.message,
       };
     }
   }
-
+  
   private extractTokenId(receipt: ethers.TransactionReceipt, contract: ethers.Contract, eventName: EventName): bigint {
     if (!receipt || !receipt.status || receipt.status !== 1) {
         throw new Error("Receipt status is not 1");

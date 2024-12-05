@@ -35,6 +35,10 @@ export interface BatchMintTokenInput {
 
 export interface EvolveNFTParams {
   laosContractAddress: string;
+  tokens: EvolveToken[];
+}
+
+export interface EvolveToken {
   tokenId: string;
   assetMetadata: AssetMetadata;
 }
@@ -63,4 +67,16 @@ export interface EvolveResult {
   contractAddress?: string;
   tx?: string;
   error?: string;
+}
+
+export interface EvolveBatchResult {
+  status: string;
+  tokens: EvolveTokenResult[];
+  tx?: string;
+  error?: string;
+}
+
+export interface EvolveTokenResult {
+  tokenId: string;
+  tokenUri: string;
 }
