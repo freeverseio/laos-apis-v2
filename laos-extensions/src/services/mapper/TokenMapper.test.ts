@@ -59,13 +59,13 @@ describe("TokenMapper", () => {
         contractInfo: {
           chainId: chainId,
           address: contractAddress,
-          name: "TODO",
+          name: "Universal Contract",
           type: "ERC721",
-          symbol: "TODO",
+          symbol: "UC",
           decimals: 0,
-          logoURI: "?",
+          logoURI: "",
           deployed: true,
-          bytecodeHash: "TODO",
+          bytecodeHash: "",
           extensions: {
             link: "",
             description: "",

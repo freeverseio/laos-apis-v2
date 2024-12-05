@@ -15,6 +15,7 @@ interface TokenBalance {
   blockHash: string;
   blockNumber: number;
   chainId: number;
+  isSummary: boolean;
   contractInfo?: ContractInfo;
   tokenMetadata?: TokenMetadata;
 }
@@ -39,6 +40,7 @@ interface ContractInfo {
     verifiedBy?: string;
     featured?: boolean;
   };
+  contentHash?: number;
   updatedAt: string;
 }
 
@@ -89,6 +91,9 @@ export interface TokenResponse {
 
 type TokenIndexer = {
   contractAddress: string;
+  contractName?: string;
+  contractSymbol?: string;
+  contractBytecodeHash?: string;
   attributes?: AttributeIndexer[];
   tokenId: string;
   image?: string;
