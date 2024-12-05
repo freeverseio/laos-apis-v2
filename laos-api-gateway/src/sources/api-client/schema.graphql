@@ -10,6 +10,7 @@ type Query {
 type Mutation {
   mint(input: MintInput!): MintResponse!
   evolve(input: EvolveInput!): EvolveResponse!
+  evolveBatch(input: EvolveBatchInput!): EvolveBatchResponse!
   broadcast(input: BroadcastInput!): BroadcastResponse!
   broadcastBatch(input: BroadcastBatchInput!): BroadcastBatchResponse!
   createCollection(input: CreateCollectionInput!): CreateCollectionResponse!
@@ -50,6 +51,31 @@ type EvolveResponse {
 input EvolveInput {
   chainId: String!
   contractAddress: String!
+  tokenId: String!
+  name: String!
+  description: String
+  attributes: [AttributeInput!]
+  image: String
+}
+
+type EvolveBatchResponse {
+  success: Boolean!
+  tx: String!
+  tokens: [EvolveTokenResponse!]!
+}
+
+type EvolveTokenResponse {
+  tokenId: String!
+  tokenUri: String!
+}
+
+input EvolveBatchInput {
+  chainId: String!
+  contractAddress: String!
+  tokens: [TokenEvolveInput!]!
+}
+
+input TokenEvolveInput {
   tokenId: String!
   name: String!
   description: String
