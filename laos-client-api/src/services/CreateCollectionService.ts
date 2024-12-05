@@ -58,7 +58,7 @@ export class CreateCollectionService {
       
 
       let evochainTarget = "LAOS";
-      if (process.env.RPC_MINTER?.toLocaleLowerCase().includes("sigma")) {
+      if (process.env.LAOS_CHAIN?.toLocaleLowerCase().includes("sigma")) {
         evochainTarget = "LAOS_SIGMA";
       }
       const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
