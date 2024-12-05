@@ -27,6 +27,7 @@ export type Query = {
 export type Mutation = {
   mint: MintResponse;
   evolve: EvolveResponse;
+  evolveBatch: EvolveBatchResponse;
   broadcast: BroadcastResponse;
   broadcastBatch: BroadcastBatchResponse;
   createCollection: CreateCollectionResponse;
@@ -40,6 +41,11 @@ export type MutationmintArgs = {
 
 export type MutationevolveArgs = {
   input: EvolveInput;
+};
+
+
+export type MutationevolveBatchArgs = {
+  input: EvolveBatchInput;
 };
 
 
@@ -99,6 +105,31 @@ export type EvolveInput = {
   image?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type EvolveBatchResponse = {
+  success: Scalars['Boolean']['output'];
+  tx: Scalars['String']['output'];
+  tokens: Array<EvolveTokenResponse>;
+};
+
+export type EvolveTokenResponse = {
+  tokenId: Scalars['String']['output'];
+  tokenUri: Scalars['String']['output'];
+};
+
+export type EvolveBatchInput = {
+  chainId: Scalars['String']['input'];
+  contractAddress: Scalars['String']['input'];
+  tokens: Array<TokenEvolveInput>;
+};
+
+export type TokenEvolveInput = {
+  tokenId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  attributes?: InputMaybe<Array<AttributeInput>>;
+  image?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type BroadcastResponse = {
   tokenId: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
@@ -149,6 +180,8 @@ export type CreateCollectionInput = {
   mint: InContextSdkMethod<Mutation['mint'], MutationmintArgs, MeshContext>,
   /** null **/
   evolve: InContextSdkMethod<Mutation['evolve'], MutationevolveArgs, MeshContext>,
+  /** null **/
+  evolveBatch: InContextSdkMethod<Mutation['evolveBatch'], MutationevolveBatchArgs, MeshContext>,
   /** null **/
   broadcast: InContextSdkMethod<Mutation['broadcast'], MutationbroadcastArgs, MeshContext>,
   /** null **/
