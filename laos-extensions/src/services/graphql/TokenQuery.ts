@@ -27,6 +27,9 @@ export class TokenQuery {
                 tokenId
                 contractAddress
                 ${input.includeMetadata ? `
+                contractName
+                contractSymbol
+                contractBytecodeHash
                 attributes
                 block_number
                 createdAt
@@ -64,6 +67,9 @@ export class TokenQuery {
                 ${input.includeMetadata ? `
                 attributes
                 contractAddress
+                contractBytecodeHash
+                contractName
+                contractSymbol
                 block_number
                 createdAt
                 description
