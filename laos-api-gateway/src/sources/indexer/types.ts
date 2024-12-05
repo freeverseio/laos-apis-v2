@@ -30,6 +30,7 @@ export type Query = {
   ownershipContractsConnection: OwnershipContractsConnection;
   token?: Maybe<TokenQueryResult>;
   tokens?: Maybe<TokenConnection>;
+  tokenOwners?: Maybe<Array<TokenOwnersQueryResult>>;
   transfers?: Maybe<Array<TransferQueryResult>>;
   tokenHistory?: Maybe<Array<TokenHistoryQueryResult>>;
 };
@@ -74,6 +75,11 @@ export type QuerytokensArgs = {
 };
 
 
+export type QuerytokenOwnersArgs = {
+  where?: InputMaybe<TokenOwnersWhereInput>;
+};
+
+
 export type QuerytransfersArgs = {
   orderBy?: InputMaybe<TransferOrderByOptions>;
   pagination?: InputMaybe<TransferPaginationInput>;
@@ -90,6 +96,9 @@ export type QuerytokenHistoryArgs = {
 export type OwnershipContract = {
   id: Scalars['String']['output'];
   laosContract?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  symbol?: Maybe<Scalars['String']['output']>;
+  bytecodeHash?: Maybe<Scalars['String']['output']>;
 };
 
 export type OwnershipContractWhereInput = {
@@ -127,6 +136,57 @@ export type OwnershipContractWhereInput = {
   laosContract_not_startsWith?: InputMaybe<Scalars['String']['input']>;
   laosContract_endsWith?: InputMaybe<Scalars['String']['input']>;
   laosContract_not_endsWith?: InputMaybe<Scalars['String']['input']>;
+  name_isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  name_eq?: InputMaybe<Scalars['String']['input']>;
+  name_not_eq?: InputMaybe<Scalars['String']['input']>;
+  name_gt?: InputMaybe<Scalars['String']['input']>;
+  name_gte?: InputMaybe<Scalars['String']['input']>;
+  name_lt?: InputMaybe<Scalars['String']['input']>;
+  name_lte?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  name_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_containsInsensitive?: InputMaybe<Scalars['String']['input']>;
+  name_not_containsInsensitive?: InputMaybe<Scalars['String']['input']>;
+  name_startsWith?: InputMaybe<Scalars['String']['input']>;
+  name_not_startsWith?: InputMaybe<Scalars['String']['input']>;
+  name_endsWith?: InputMaybe<Scalars['String']['input']>;
+  name_not_endsWith?: InputMaybe<Scalars['String']['input']>;
+  symbol_isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  symbol_eq?: InputMaybe<Scalars['String']['input']>;
+  symbol_not_eq?: InputMaybe<Scalars['String']['input']>;
+  symbol_gt?: InputMaybe<Scalars['String']['input']>;
+  symbol_gte?: InputMaybe<Scalars['String']['input']>;
+  symbol_lt?: InputMaybe<Scalars['String']['input']>;
+  symbol_lte?: InputMaybe<Scalars['String']['input']>;
+  symbol_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  symbol_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  symbol_contains?: InputMaybe<Scalars['String']['input']>;
+  symbol_not_contains?: InputMaybe<Scalars['String']['input']>;
+  symbol_containsInsensitive?: InputMaybe<Scalars['String']['input']>;
+  symbol_not_containsInsensitive?: InputMaybe<Scalars['String']['input']>;
+  symbol_startsWith?: InputMaybe<Scalars['String']['input']>;
+  symbol_not_startsWith?: InputMaybe<Scalars['String']['input']>;
+  symbol_endsWith?: InputMaybe<Scalars['String']['input']>;
+  symbol_not_endsWith?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  bytecodeHash_eq?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_not_eq?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_gt?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_gte?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_lt?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_lte?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  bytecodeHash_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  bytecodeHash_contains?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_not_contains?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_containsInsensitive?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_not_containsInsensitive?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_startsWith?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_not_startsWith?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_endsWith?: InputMaybe<Scalars['String']['input']>;
+  bytecodeHash_not_endsWith?: InputMaybe<Scalars['String']['input']>;
   AND?: InputMaybe<Array<OwnershipContractWhereInput>>;
   OR?: InputMaybe<Array<OwnershipContractWhereInput>>;
 };
@@ -143,7 +203,25 @@ export type OwnershipContractOrderByInput =
   | 'laosContract_ASC_NULLS_FIRST'
   | 'laosContract_ASC_NULLS_LAST'
   | 'laosContract_DESC_NULLS_FIRST'
-  | 'laosContract_DESC_NULLS_LAST';
+  | 'laosContract_DESC_NULLS_LAST'
+  | 'name_ASC'
+  | 'name_DESC'
+  | 'name_ASC_NULLS_FIRST'
+  | 'name_ASC_NULLS_LAST'
+  | 'name_DESC_NULLS_FIRST'
+  | 'name_DESC_NULLS_LAST'
+  | 'symbol_ASC'
+  | 'symbol_DESC'
+  | 'symbol_ASC_NULLS_FIRST'
+  | 'symbol_ASC_NULLS_LAST'
+  | 'symbol_DESC_NULLS_FIRST'
+  | 'symbol_DESC_NULLS_LAST'
+  | 'bytecodeHash_ASC'
+  | 'bytecodeHash_DESC'
+  | 'bytecodeHash_ASC_NULLS_FIRST'
+  | 'bytecodeHash_ASC_NULLS_LAST'
+  | 'bytecodeHash_DESC_NULLS_FIRST'
+  | 'bytecodeHash_DESC_NULLS_LAST';
 
 export type WhereIdInput = {
   id: Scalars['String']['input'];
@@ -169,6 +247,10 @@ export type PageInfo = {
 
 export type TokenQueryResult = {
   tokenId: Scalars['String']['output'];
+  laosContract: Scalars['String']['output'];
+  contractName?: Maybe<Scalars['String']['output']>;
+  contractSymbol?: Maybe<Scalars['String']['output']>;
+  contractBytecodeHash?: Maybe<Scalars['String']['output']>;
   owner: Scalars['String']['output'];
   tokenUri?: Maybe<Scalars['String']['output']>;
   tokenUriFetchState?: Maybe<Scalars['String']['output']>;
@@ -184,6 +266,10 @@ export type TokenQueryResult = {
 
 export type TokenQueryResultSelect = {
   tokenId: Scalars['String']['output'];
+  laosContract: Scalars['String']['output'];
+  contractName?: Maybe<Scalars['String']['output']>;
+  contractSymbol?: Maybe<Scalars['String']['output']>;
+  contractBytecodeHash?: Maybe<Scalars['String']['output']>;
   owner: Scalars['String']['output'];
   tokenUri?: Maybe<Scalars['String']['output']>;
   tokenUriFetchState?: Maybe<Scalars['String']['output']>;
@@ -232,6 +318,11 @@ export type TokenHistoryQueryResult = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type TokenOwnersQueryResult = {
+  owner: Scalars['String']['output'];
+  initialOwner?: Maybe<Scalars['String']['output']>;
+};
+
 export type PaginationInput = {
   limit: Scalars['Int']['input'];
   offset?: Scalars['Int']['input'];
@@ -263,10 +354,20 @@ export type TransferWhereInput = {
   contractAddress?: InputMaybe<Scalars['String']['input']>;
   to?: InputMaybe<Scalars['String']['input']>;
   from?: InputMaybe<Scalars['String']['input']>;
+  to_startsWith?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type TokenWhereInput = {
   contractAddress?: InputMaybe<Scalars['String']['input']>;
+  owner?: InputMaybe<Scalars['String']['input']>;
+  laosContract?: InputMaybe<Scalars['String']['input']>;
+  tokenId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TokenOwnersWhereInput = {
+  laosContract?: InputMaybe<Scalars['String']['input']>;
+  contractAddress?: InputMaybe<Scalars['String']['input']>;
+  tokenId?: InputMaybe<Scalars['String']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -295,6 +396,8 @@ export type TransferOrderByOptions =
   token: InContextSdkMethod<Query['token'], QuerytokenArgs, MeshContext>,
   /** null **/
   tokens: InContextSdkMethod<Query['tokens'], QuerytokensArgs, MeshContext>,
+  /** null **/
+  tokenOwners: InContextSdkMethod<Query['tokenOwners'], QuerytokenOwnersArgs, MeshContext>,
   /** null **/
   transfers: InContextSdkMethod<Query['transfers'], QuerytransfersArgs, MeshContext>,
   /** null **/

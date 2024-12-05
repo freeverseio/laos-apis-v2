@@ -9,6 +9,7 @@ type Query {
   ownershipContractsConnection(orderBy: [OwnershipContractOrderByInput!]!, after: String, first: Int, where: OwnershipContractWhereInput): OwnershipContractsConnection!
   token(tokenId: String!, contractAddress: String!): TokenQueryResult
   tokens(orderBy: TokenOrderByOptions, pagination: TokenPaginationInput! = {first: 10}, where: TokenWhereInput): TokenConnection
+  tokenOwners(where: TokenOwnersWhereInput): [TokenOwnersQueryResult!]
   transfers(orderBy: TransferOrderByOptions, pagination: TransferPaginationInput, where: TransferWhereInput): [TransferQueryResult!]
   tokenHistory(pagination: TokenHistoryPaginationInput, tokenId: String!, contractAddress: String!): [TokenHistoryQueryResult!]
 }
@@ -16,10 +17,13 @@ type Query {
 type OwnershipContract {
   id: String!
   laosContract: String
+  name: String
+  symbol: String
+  bytecodeHash: String
 }
 
 input OwnershipContractWhereInput {
-  id_eq: String 
+  id_eq: String
 }
 
 enum OwnershipContractOrderByInput {
@@ -35,6 +39,24 @@ enum OwnershipContractOrderByInput {
   laosContract_ASC_NULLS_LAST
   laosContract_DESC_NULLS_FIRST
   laosContract_DESC_NULLS_LAST
+  name_ASC
+  name_DESC
+  name_ASC_NULLS_FIRST
+  name_ASC_NULLS_LAST
+  name_DESC_NULLS_FIRST
+  name_DESC_NULLS_LAST
+  symbol_ASC
+  symbol_DESC
+  symbol_ASC_NULLS_FIRST
+  symbol_ASC_NULLS_LAST
+  symbol_DESC_NULLS_FIRST
+  symbol_DESC_NULLS_LAST
+  bytecodeHash_ASC
+  bytecodeHash_DESC
+  bytecodeHash_ASC_NULLS_FIRST
+  bytecodeHash_ASC_NULLS_LAST
+  bytecodeHash_DESC_NULLS_FIRST
+  bytecodeHash_DESC_NULLS_LAST
 }
 
 input WhereIdInput {
@@ -61,6 +83,10 @@ type PageInfo {
 
 type TokenQueryResult {
   tokenId: String!
+  laosContract: String!
+  contractName: String
+  contractSymbol: String
+  contractBytecodeHash: String
   owner: String!
   tokenUri: String
   tokenUriFetchState: String
@@ -86,6 +112,10 @@ scalar JSON
 
 type TokenQueryResultSelect {
   tokenId: String!
+  laosContract: String!
+  contractName: String
+  contractSymbol: String
+  contractBytecodeHash: String
   owner: String!
   tokenUri: String
   tokenUriFetchState: String
@@ -134,6 +164,11 @@ type TokenHistoryQueryResult {
   updatedAt: DateTime!
 }
 
+type TokenOwnersQueryResult {
+  owner: String!
+  initialOwner: String
+}
+
 input PaginationInput {
   limit: Int!
   offset: Int! = 0
@@ -166,10 +201,20 @@ input TransferWhereInput {
   contractAddress: String
   to: String
   from: String
+  to_startsWith: String
 }
 
 input TokenWhereInput {
   contractAddress: String
+  owner: String
+  laosContract: String
+  tokenId: String
+}
+
+input TokenOwnersWhereInput {
+  laosContract: String
+  contractAddress: String
+  tokenId: String
   owner: String
 }
 
