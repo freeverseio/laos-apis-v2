@@ -15,7 +15,10 @@ export const buildTokenQueryBase = `
     tu.description AS description,
     tu.image AS image,
     tu.attributes AS attributes,
-    oc.id AS "contractAddress"
+    oc.id AS "contractAddress",
+    oc.name AS "contractName",
+    oc.symbol AS "contractSymbol",
+    oc.bytecode_hash AS "contractBytecodeHash"
   FROM laos_asset la
   INNER JOIN ownership_contract oc ON LOWER(la.laos_contract) = LOWER(oc.laos_contract)
   INNER JOIN metadata m ON la.metadata = m.id

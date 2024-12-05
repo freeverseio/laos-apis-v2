@@ -5,4 +5,7 @@ type Attribute {
 type OwnershipContract @entity {
   id: ID!
   laosContract: String  @index
+  name: String
+  symbol: String
+  bytecodeHash: String
 }
