@@ -20,7 +20,7 @@ export class TokenMapper {
   static mapTokenBalance(token: TokenIndexer, chainId: number, includeMetadata: boolean): TokenBalance {
     return {
         tokenID: token.tokenId,
-        balance: "0",
+        balance: "1",
         contractType: "ERC721",
         contractAddress: token.contractAddress,
         accountAddress: token.owner || "",
