@@ -89,6 +89,52 @@ sources:
           name: ethereum
           applyTo:
             query: true
+  
+  - name: hedera-indexer
+    handler:
+      graphql:
+        endpoint: ${HEDERA_INDEXER_GRAPHQL_ENDPOINT}
+        source: ./src/sources/indexer/schema.graphql
+    transforms:
+      - rename:
+          mode: bare | wrap
+          renames:
+            - from:
+                type: OwnershipContract
+              to:
+                type: Contract
+            - from:
+                type: OwnershipContractWhereInput
+              to:
+                type: ContractWhereInput
+            - from:
+                type: Contract
+                field: id
+              to:
+                type: Contract
+                field: address
+            - from:
+                type: Query
+                field: ownershipContracts
+              to:
+                type: Query
+                field: contracts
+            - from:
+                type: ContractWhereInput
+                field: id_eq
+              to:
+                type: ContractWhereInput
+                field: address_eq
+      - filterSchema:
+          mode: bare | wrap
+          filters:
+            - Type.!{ OwnershipContractsConnection, OwnershipContractEdge, OwnershipContractOrderByInput}
+            - Query.!{ownershipContractById, ownershipContractByUniqueInput, ownershipContractsConnection}
+            - Query.contracts.!orderBy
+      - encapsulate:
+          name: hedera
+          applyTo:
+            query: true
       
   - name: api-client
     handler:
