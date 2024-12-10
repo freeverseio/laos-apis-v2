@@ -33,6 +33,10 @@ export class CreateCollectionService {
   public async createCollection(input: CreateCollectionInput, apiKey: string): Promise<CreateCollectionResponse> {
     const { chainId, name, symbol } = input;
 
+    if (chainId === "296" || chainId === "295") {
+      throw new Error("Create collection on Hedera is not supported yet");
+    }
+
     try {
       console.log('Running createCollection without setting gasLimit');
       const client = await ClientService.getClientByKey(apiKey);
