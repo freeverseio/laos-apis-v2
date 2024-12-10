@@ -132,7 +132,7 @@ sources:
             - Query.!{ownershipContractById, ownershipContractByUniqueInput, ownershipContractsConnection}
             - Query.contracts.!orderBy
       - encapsulate:
-          name: hedera-testnet
+          name: hederatestnet
           applyTo:
             query: true
       
