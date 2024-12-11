@@ -41,10 +41,10 @@ export class EventDetectionService {
     }
     if (logDecoded) {      
       console.log('New ERC721 Universal contract detected:', logDecoded.newContractAddress);
-      this.ownershipContractsToCheck.add(logDecoded.newContractAddress.toLowerCase());
       const baseURITokens = parseBaseURI(logDecoded.baseURI);
       if (baseURITokens === null) return // If the baseURI is not valid, skip the ERC721Universal contract
       const laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
+      this.ownershipContractsToCheck.add(logDecoded.newContractAddress.toLowerCase());
 
       const bytecodeHash = this.getBytecodeHash(logDecoded, block);
       let name = null;
