@@ -256,7 +256,6 @@ export class LaosService {
       };
       
       // Upload asset metadata to IPFS
-      //const ipfsCid = await this.ipfsService.uploadAssetMetadataToIPFS(assetJson, token.assetMetadata.name);
       const ipfsCid = await this.ipfsService.getCid(assetJson);
       this.ipfsService.uploadAssetMetadataToIPFS(assetJson, token.assetMetadata.name, ipfsCid);
       const tokenUri = `ipfs://${ipfsCid}`;
