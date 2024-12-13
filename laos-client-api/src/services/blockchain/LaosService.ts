@@ -245,6 +245,8 @@ export class LaosService {
     const tokenIds: string[] = [];
     const tokenUris: string[] = [];
   
+    console.time('elapsed-IPFS');
+
     for (const token of params.tokens) {
       const assetJson: AssetMetadata = {
         name: `${token.assetMetadata.name}`,
@@ -254,12 +256,14 @@ export class LaosService {
       };
       
       // Upload asset metadata to IPFS
-      const ipfsCid = await this.ipfsService.uploadAssetMetadataToIPFS(assetJson, token.assetMetadata.name);
+      const ipfsCid = await this.ipfsService.getCid(assetJson);
+      this.ipfsService.uploadAssetMetadataToIPFS(assetJson, token.assetMetadata.name, ipfsCid);
       const tokenUri = `ipfs://${ipfsCid}`;
       
       tokenIds.push(token.tokenId);
       tokenUris.push(tokenUri);
     }
+    console.timeEnd('elapsed-IPFS');
   
     let tx: any;
     try {
@@ -267,19 +271,23 @@ export class LaosService {
       tx = await contract.evolveWithExternalURIBatch(tokenIds, tokenUris, { nonce: await wallet.getNonce() });
       
       console.log('Transaction sent, waiting for confirmation...');
+      console.time('elapsed-receipt');
+
       const receipt = await this.retryOperation(
         () => this.provider.waitForTransaction(tx.hash, 1, 14000),
         20
       );
+      console.timeEnd('elapsed-receipt');
   
       const evolvedTokenIds = this.extractTokenIds(receipt, 'EvolvedWithExternalURI');
+      console.log('Evolve successful');
       return {
         status: 'success',
         tokens: evolvedTokenIds.map(id => ({ tokenId: id.toString(), tokenUri: tokenUris[evolvedTokenIds.indexOf(id)] })),
         tx: tx?.hash,
       };
     } catch (error: any) {
-      console.error('Evolving Failed:', error.message);
+      console.error('Evolve Failed:', error.message);
       return {
         status: 'failed',
         tokens: [],
