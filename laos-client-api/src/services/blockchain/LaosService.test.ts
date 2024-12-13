@@ -80,6 +80,7 @@ describe("LaosService", () => {
 
     mockWallet.getNonce = jest.fn().mockResolvedValue(1);
     mockIPFSService.uploadAssetMetadataToIPFS = jest.fn().mockResolvedValue("mockIpfsCid");
+    mockIPFSService.getCid = jest.fn().mockResolvedValue("mockIpfsCid");
     mockContract.mintWithExternalURI.mockResolvedValue({
       hash: "mockHash",
       wait: jest.fn().mockResolvedValue({
@@ -126,6 +127,7 @@ describe("LaosService", () => {
 
     mockWallet.getNonce = jest.fn().mockResolvedValue(1);
     mockIPFSService.uploadAssetMetadataToIPFS = jest.fn().mockResolvedValue("mockIpfsCid");
+    mockIPFSService.getCid = jest.fn().mockResolvedValue("mockIpfsCid");
     mockContract.mintWithExternalURI.mockRejectedValue(new Error("Mint failed"));
     mockProvider.waitForTransaction = jest.fn();
 
@@ -165,6 +167,7 @@ describe("LaosService", () => {
 
     mockWallet.getNonce = jest.fn().mockResolvedValue(1);
     mockIPFSService.uploadAssetMetadataToIPFS = jest.fn().mockResolvedValueOnce("mockIpfsCid1").mockResolvedValueOnce("mockIpfsCid2");
+    mockIPFSService.getCid = jest.fn().mockResolvedValueOnce("mockIpfsCid1").mockResolvedValueOnce("mockIpfsCid2");
     mockContract.evolveWithExternalURIBatch.mockResolvedValue({
       hash: "mockHash",
       wait: jest.fn().mockResolvedValue({
@@ -226,6 +229,7 @@ describe("LaosService", () => {
 
     mockWallet.getNonce = jest.fn().mockResolvedValue(1);
     mockIPFSService.uploadAssetMetadataToIPFS = jest.fn().mockResolvedValue("mockIpfsCid");
+    mockIPFSService.getCid = jest.fn().mockResolvedValue("mockIpfsCid");
     mockContract.evolveWithExternalURIBatch.mockRejectedValue(new Error("Evolve failed"));
     mockProvider.waitForTransaction = jest.fn();
 
