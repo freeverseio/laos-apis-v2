@@ -1,12 +1,10 @@
-import { TypeormDatabase, TypeormDatabaseOptions, Store } from '@subsquid/typeorm-store'
-import { EntityManager } from 'typeorm'
-import { processor } from './processor'
-import { EventDetectionService } from './service/EventDetectionService';
-import { TokenURIDataService } from './service/TokenURIDataService';
-import { CustomStore } from './service/CustomStore';
+import { Store, TypeormDatabase, TypeormDatabaseOptions } from '@subsquid/typeorm-store';
+import { createEvolveModels } from './mapper/evolveMapper';
 import { createMintedWithExternalURIModels } from './mapper/mintMapper';
 import { createTokenUriModels } from './mapper/tokenUriMapper';
-import { createEvolveModels } from './mapper/evolveMapper';
+import { processor } from './processor';
+import { CustomStore } from './service/CustomStore';
+import { EventDetectionService } from './service/EventDetectionService';
 import { processTokenURIs } from './tokenUriProcessor';
 
 const options: TypeormDatabaseOptions = {
@@ -32,12 +30,20 @@ processor.run<Store>(new TypeormDatabase(options) as any, async (ctx) => {
 
   if (evolveEvents.length > 0) {
     processTokenUris = true;
+  
     const evolves = createEvolveModels(evolveEvents);
-    const tokenUris = createTokenUriModels(evolveEvents);
-    await ctx.store.upsert(tokenUris);
     const customStore = new CustomStore(ctx.store['em']());
-    await customStore.evolve(evolves.map(evolve => evolve.asset));
-    await ctx.store.insert(evolves.map(evolve => evolve.metadata));
+  
+    try {
+      const existingIds = await customStore.evolve(evolves.map(evolve => evolve.asset));
+      const validEvolves = evolves.filter(evolve => existingIds.includes(evolve.asset.id));
+      await ctx.store.insert(validEvolves.map(evolve => evolve.metadata));
+      const tokenUris = createTokenUriModels(evolveEvents);
+      await ctx.store.upsert(tokenUris);
+  
+    } catch (error) {
+      console.error('Error processing evolves:', error);
+    }
   }
   if (processTokenUris) {
     processTokenURIs();
