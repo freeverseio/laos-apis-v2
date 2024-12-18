@@ -41,6 +41,11 @@ export class OwnershipChainService {
             return this.broadcastError(error, tx);
           });
       }
+
+      if (!tx || !tx.hash) {
+        throw new Error("Transaction hash is undefined. Cannot retry operation.");
+      }
+      
       const receipt = await this.retryOperation(
         () => provider.waitForTransaction(tx.hash, 1, 14000),
         20
