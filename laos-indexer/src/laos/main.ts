@@ -36,10 +36,10 @@ processor.run<Store>(new TypeormDatabase(options) as any, async (ctx) => {
   
     try {
       const { updatedIds: existingIds , updatedTokenIds: existingTokenIds } = await customStore.evolve(evolves.map(evolve => evolve.asset));
-      const validEvolves = evolves.filter(evolve => existingIds.includes(evolve.asset.id));
-      await ctx.store.insert(validEvolves.map(evolve => evolve.metadata));
       const tokenUris = createTokenUriModels(evolveEvents.filter(evolveEvent => existingTokenIds.includes(evolveEvent._tokenId)));
       await ctx.store.upsert(tokenUris);
+      const validEvolves = evolves.filter(evolve => existingIds.includes(evolve.asset.id));
+      await ctx.store.insert(validEvolves.map(evolve => evolve.metadata));
   
     } catch (error) {
       console.error('Error processing evolves:', error);
