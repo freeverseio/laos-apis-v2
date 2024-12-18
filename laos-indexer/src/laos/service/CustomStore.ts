@@ -8,24 +8,25 @@ export class CustomStore {
     this.entityManager = em;
   }
 
-  async evolve(entities: LaosAsset[]): Promise<string[]> {
-    const updatedIds: string[] = []; 
-
+  async evolve(entities: LaosAsset[]): Promise<{ updatedIds: string[]; updatedTokenIds: bigint[] }> {
+    const updatedIds: string[] = [];
+    const updatedTokenIds: bigint[] = [];
+  
     for (const entity of entities) {
       const { id, ...attributes } = entity;
-
+  
       try {
         const result: UpdateResult = await this.entityManager.update(LaosAsset, id, attributes);
-
-        // Check if rows were affected
+  
         if (result.affected && result.affected > 0) {
           updatedIds.push(id);
+          updatedTokenIds.push(entity.tokenId);
         }
       } catch (error) {
         throw new Error(`Failed to update LaosAsset with ID ${id}: ${error}`);
       }
     }
-
-    return updatedIds; 
+  
+    return { updatedIds, updatedTokenIds };
   }
 }
