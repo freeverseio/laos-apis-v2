@@ -35,10 +35,10 @@ processor.run<Store>(new TypeormDatabase(options) as any, async (ctx) => {
     const customStore = new CustomStore(ctx.store['em']());
   
     try {
-      const existingIds = await customStore.evolve(evolves.map(evolve => evolve.asset));
+      const { updatedIds: existingIds , updatedTokenIds: existingTokenIds } = await customStore.evolve(evolves.map(evolve => evolve.asset));
       const validEvolves = evolves.filter(evolve => existingIds.includes(evolve.asset.id));
       await ctx.store.insert(validEvolves.map(evolve => evolve.metadata));
-      const tokenUris = createTokenUriModels(evolveEvents);
+      const tokenUris = createTokenUriModels(evolveEvents.filter(evolveEvent => existingTokenIds.includes(evolveEvent._tokenId)));
       await ctx.store.upsert(tokenUris);
   
     } catch (error) {
