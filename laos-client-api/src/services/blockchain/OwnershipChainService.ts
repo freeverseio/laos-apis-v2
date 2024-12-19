@@ -91,6 +91,11 @@ export class OwnershipChainService {
             return this.broadcastError(error, tx);
           });
       }
+
+      if (!tx || !tx.hash) {
+        throw new Error("Transaction hash is undefined. Cannot retry operation.");
+      }
+
       const receipt = await this.retryOperation(
         () => provider.waitForTransaction(tx.hash, 1, 14000),
         20
@@ -102,7 +107,7 @@ export class OwnershipChainService {
         tx: tx?.hash,
       };
     } catch (error: any) {
-      console.error("BroadcastSelfTransfer Failed:", error.message);
+      console.error("Broadcast Failed:", error.message);
       return {
         status: "failed",
         tx: tx?.hash,
@@ -112,7 +117,7 @@ export class OwnershipChainService {
   }
 
   private broadcastError(error: any, tx: any) {
-    console.error("BroadcastSelfTransfer Failed:", error.message);
+    console.error("Broadcast Failed:", error.message);
     return {
       status: "failed",
       tx: tx?.hash,
