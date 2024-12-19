@@ -7,6 +7,7 @@ export class TokenQuery {
   private chainNameMap = {
     "1": "ethereum",
     "137": "polygon",
+    "296": "hederatestnet"
   };
 
   constructor() {

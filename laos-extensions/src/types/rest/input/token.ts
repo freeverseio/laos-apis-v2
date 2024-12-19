@@ -14,6 +14,7 @@ export enum SortColumn {
 export enum ChainId {
   ETHEREUM = '1',
   POLYGON = '137',
+  HEDERA_TESTNET = '296',  
 }
 
 // SortBy class
