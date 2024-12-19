@@ -74,22 +74,29 @@ export class OwnershipChainService {
     const ownershipChainContract = params.ownershipContractAddress;
     const provider = new ethers.JsonRpcProvider(rpcOwnershipChain);
     const wallet = new ethers.Wallet(pvk, provider);
-    const contract = new ethers.Contract(ownershipChainContract, ERC721UniversalAbi, wallet);
-    const nonce = await wallet.getNonce();
+    const contract = new ethers.Contract(ownershipChainContract, ERC721UniversalAbi, wallet);    
     let tx: any;
     try {
-      console.log("Broadcasting tokenId:", params.tokenIds);
       if (type === BroadcastType.MINT) {
-        tx = await contract.broadcastMintBatch(params.tokenIds, { nonce })
-          .catch((error: Error) => {
-            return this.broadcastError(error, tx);
-          });
+        console.log("Broadcasting MINT tokenId:", params.tokenIds);
+        tx = await contract.broadcastMintBatch(params.tokenIds)
+        .catch((error: Error) => {
+          console.warn("ERROR in call contract.broadcastMintBatch");
+          return this.broadcastError(error, tx);
+        });
       } else {
-        tx = await contract.broadcastSelfTransferBatch(params.tokenIds, { nonce })
+        console.log("Broadcasting SELF TRANSFER tokenId:", params.tokenIds);
+        tx = await contract.broadcastSelfTransferBatch(params.tokenIds)
           .catch((error: Error) => {
+            console.warn("ERROR in call contract.broadcastMintBatch");
             return this.broadcastError(error, tx);
           });
       }
+
+      if (!tx || !tx.hash) {
+        throw new Error("Transaction hash is undefined. Cannot retry operation.");
+      }
+      
       const receipt = await this.retryOperation(
         () => provider.waitForTransaction(tx.hash, 1, 14000),
         20
