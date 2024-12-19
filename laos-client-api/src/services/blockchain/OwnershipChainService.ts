@@ -25,18 +25,17 @@ export class OwnershipChainService {
     const ownershipChainContract = params.ownershipContractAddress;
     const provider = new ethers.JsonRpcProvider(rpcOwnershipChain);
     const wallet = new ethers.Wallet(pvk, provider);
-    const contract = new ethers.Contract(ownershipChainContract, ERC721UniversalAbi, wallet);
-    const nonce = await wallet.getNonce();
+    const contract = new ethers.Contract(ownershipChainContract, ERC721UniversalAbi, wallet);    
     let tx: any;
     try {
       console.log("Broadcasting tokenId:", params.tokenId);
       if (type === BroadcastType.MINT) {
-        tx = await contract.broadcastMint(params.tokenId, { nonce })
+        tx = await contract.broadcastMint(params.tokenId)
           .catch((error: Error) => {
             return this.broadcastError(error, tx);
           });
       } else {
-        tx = await contract.broadcastSelfTransfer(params.tokenId, { nonce })
+        tx = await contract.broadcastSelfTransfer(params.tokenId)
           .catch((error: Error) => {
             return this.broadcastError(error, tx);
           });
