@@ -55,6 +55,11 @@
         "cmd": ["node", "lib/ownership_chain/main.js"],
         "hidden": true
       },
+      "process:prod:ownership_chain:no_migration": {
+        "description": "Start the squid processor",
+        "cmd": ["node", "lib/ownership_chain/main.js"],
+        "hidden": true
+      },
       "process:laos": {
         "description": "Load .env and start the squid processor",
         "deps": ["build", "migration:apply"],
@@ -63,6 +68,11 @@
       "process:prod:laos": {
         "description": "Start the squid processor",
         "deps": ["migration:apply"],
+        "cmd": ["node", "lib/laos/main.js"],
+        "hidden": true
+      },
+      "process:prod:laos:no_migration": {
+        "description": "Start the squid processor",
         "cmd": ["node", "lib/laos/main.js"],
         "hidden": true
       },
