@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 
 // Enum for sort order
 export enum SortOrder {
@@ -9,6 +9,12 @@ export enum SortOrder {
 
 export enum SortColumn {
   CREATED_AT = 'CREATED_AT',
+}
+
+export enum ChainId {
+  ETHEREUM = '1',
+  POLYGON = '137',
+  HEDERA_TESTNET = '296',  
 }
 
 // SortBy class
@@ -59,16 +65,22 @@ class MetadataOptions {
   exampleField?: string;
 }
 
-export class GetTokenBalancesInput {
+export class GetTokenBalancesInput {  
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(Object.values(ChainId), { 
+    message: `chainId must be one of the following string values: ${Object.values(ChainId).join(', ')}` 
+  })
+  chainId!: ChainId;
+  
+  @IsNotEmpty()
+  @IsString()
+  accountAddress!: string;
 
   @IsString()
   @IsOptional()
   contractAddress?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  accountAddress!: string;
-
+ 
   @IsOptional()
   @IsBoolean()
   includeMetadata: boolean = false;
@@ -100,12 +112,19 @@ export class GetTokenBalancesInput {
 }
 
 export class TokenSupplyInput {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   contractAddress!: string;
 
   @IsBoolean()
   includeMetadata!: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(Object.values(ChainId), { 
+    message: `chainId must be one of the following string values: ${Object.values(ChainId).join(', ')}` 
+  })
+  chainId!: ChainId;
 
   @IsOptional()
   @ValidateNested()
