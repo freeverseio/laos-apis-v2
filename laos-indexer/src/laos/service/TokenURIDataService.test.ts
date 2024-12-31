@@ -35,6 +35,8 @@ describe('TokenURIDataService', () => {
     consoleSpy.mockImplementation(() => {});
     const consoleSpyError = jest.spyOn(console, 'error');
     consoleSpyError.mockImplementation(() => {});
+    const consoleSpyWarn = jest.spyOn(console, 'warn');
+    consoleSpyWarn.mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -100,7 +102,7 @@ describe('TokenURIDataService', () => {
     await tokenURIDataService.updatePendingTokenUris();
 
     expect(entityManager.find).toHaveBeenCalledWith(TokenUri, { where: { state: TokenUriFetchState.Pending } });
-    expect(entityManager.save).toHaveBeenCalledTimes(pendingTokenUris.length);
+    expect(entityManager.save).toHaveBeenCalledTimes(1);
   });
 
   it('should handle errors during token URI update', async () => {
@@ -114,7 +116,7 @@ describe('TokenURIDataService', () => {
     await tokenURIDataService.updatePendingTokenUris();
 
     expect(entityManager.find).toHaveBeenCalledWith(TokenUri, { where: { state: TokenUriFetchState.Pending } });
-    expect(entityManager.save).toHaveBeenCalledTimes(pendingTokenUris.length);
+    expect(entityManager.save).toHaveBeenCalledTimes(1);
     expect(pendingTokenUris[0].state).toBe(TokenUriFetchState.Fail);
     expect(pendingTokenUris[1].state).toBe(TokenUriFetchState.Fail);
   });

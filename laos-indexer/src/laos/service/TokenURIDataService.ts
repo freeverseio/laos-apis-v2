@@ -38,25 +38,27 @@ export class TokenURIDataService {
     this.isUpdating = true;
 
     try {
-      const tokenUris = await this.entityManager.find(TokenUri, { where: { state: TokenUriFetchState.Pending } });
-      const updatePromises = tokenUris.map(async (tokenUri) => {
-        try {
-          const updatedTokenUri = await this.ipfsService.getTokenURIData(tokenUri.id);
-          if (updatedTokenUri) {
-            Object.assign(tokenUri, updatedTokenUri);
-            tokenUri.state = TokenUriFetchState.Done;
-          } else {
-            console.error('Error updating token URI:', tokenUri.id);
+      const tokenUris = await this.entityManager.find(TokenUri, { where: { state: TokenUriFetchState.Pending } });      
+      // store in DB in batches of 100
+      for (let i = 0; i < tokenUris.length; i += 100) {
+        const batch = tokenUris.slice(i, i + 100);
+        for (const tokenUri of batch) {
+          try {
+            const updatedTokenUri = await this.ipfsService.getTokenURIData(tokenUri.id);
+            if (updatedTokenUri) {
+              Object.assign(tokenUri, updatedTokenUri);
+              tokenUri.state = TokenUriFetchState.Done;
+            } else {
+              console.warn('Warning: TokenURI not found while retrieving token URI:', tokenUri.id);
+              tokenUri.state = TokenUriFetchState.Fail;
+            }
+          } catch (error) {
+            console.error('Error retrieving token URI:', tokenUri.id, error);
             tokenUri.state = TokenUriFetchState.Fail;
           }
-        } catch (error) {
-          console.error('Error updating token URI:', tokenUri.id, error);
-          tokenUri.state = TokenUriFetchState.Fail;
         }
-        await this.entityManager.save(TokenUri, tokenUri);
-      });
-
-      await Promise.all(updatePromises);
+        await this.entityManager.save(TokenUri, batch);
+      }
     } finally {
       this.isUpdating = false;
       if (this.updateQueue) {
@@ -66,4 +68,5 @@ export class TokenURIDataService {
       }
     }
   }
+
 }

@@ -18,12 +18,13 @@ export class IpfsService {
       if (gatewayKey) {
         headers['x-pinata-gateway-token'] = gatewayKey;
       }
+      headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
   
       const response = await axios.get(url, { headers });
   
       return response.data;
     } catch (error) {
-      console.warn('Error fetching data from URL:', url, error);
+      console.warn('WARNING: Error fetching data from URL:', url, error);
       return null;
     }
   }
