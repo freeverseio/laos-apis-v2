@@ -14,10 +14,10 @@ RUN npm ci --production
 COPY . .
 
 ENV ROOT_DIR=/app
-ENV POLYGON_INDEXER_GRAPHQL_ENDPOINT=http://indexer-laos-polygon-api.protostar.svc.cluster.local:4000/graphql
-ENV ETHEREUM_INDEXER_GRAPHQL_ENDPOINT=http://indexer-laos-ethereum-api.protostar.svc.cluster.local:4000/graphql
-ENV HEDERA_INDEXER_GRAPHQL_ENDPOINT=http://indexer-laos-hedera-api.protostar.svc.cluster.local:4000/graphql
-ENV API_GRAPHQL_ENDPOINT=http://laos-client-api.protostar.svc.cluster.local:4001/
+ENV POLYGON_INDEXER_GRAPHQL_ENDPOINT=http://indexer-laos-polygon-api-for-gateway.protostar.svc.cluster.local:4000/graphql
+ENV ETHEREUM_INDEXER_GRAPHQL_ENDPOINT=http://indexer-laos-ethereum-api-for-gateway.protostar.svc.cluster.local:4000/graphql
+ENV HEDERA_INDEXER_GRAPHQL_ENDPOINT=http://indexer-laos-hedera-api-for-gateway.protostar.svc.cluster.local:4000/graphql
+ENV API_GRAPHQL_ENDPOINT=http://laos-client-api-for-gateway.protostar.svc.cluster.local:4001/
 
 # Build the TypeScript code
 RUN npm run build
