@@ -88,7 +88,7 @@ export class OwnershipChainService {
         console.log("Broadcasting SELF TRANSFER tokenId:", params.tokenIds);
         tx = await contract.broadcastSelfTransferBatch(params.tokenIds)
           .catch((error: Error) => {
-            console.warn("ERROR in call contract.broadcastMintBatch");
+            console.warn("ERROR in call contract.broadcastSelfTransferBatch");
             return this.broadcastError(error, tx);
           });
       }
