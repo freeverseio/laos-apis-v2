@@ -53,8 +53,8 @@ export interface MintResult {
 
 export interface BatchMintResult {
   status: string;
-  numberOfTokens: number;
-  tokenIds: string[];
+  numberOfTokens?: number;
+  tokenIds?: string[];
   contractAddress?: string;
   tx?: string;
   error?: string;

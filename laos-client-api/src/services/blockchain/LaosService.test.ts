@@ -1,9 +1,18 @@
 import { ethers } from "ethers";
 import { LaosService } from "./LaosService"; 
 import { IPFSService } from "../ipfs/IPFSService"; 
-import { MintSingleNFTParams, EvolveNFTParams, EvolveBatchResult } from "../../types";
+import { MintSingleNFTParams, EvolveNFTParams, EvolveBatchResult, BatchMintNFTParams } from "../../types";
+import { TransactionReceiptType } from "../../types/graphql/outputs/MintOutput";
 import * as EvolutionCollection from "../../abi/EvolutionCollection";
+import { AttributeInput,  } from "../../types/graphql/inputs/MintInput";
 
+
+jest.mock("../../types/graphql/outputs/MintOutput", () => ({
+  TransactionReceiptType: jest.fn(),
+}));
+jest.mock("../../types/graphql/inputs/MintInput", () => ({
+  AttributeInput: jest.fn(),
+}));
 jest.mock("ethers");
 jest.mock("../ipfs/IPFSService");
 jest.mock("../../abi/EvolutionCollection", () => ({
@@ -45,6 +54,7 @@ describe("LaosService", () => {
       mintWithExternalURI: jest.fn(),
       evolveWithExternalURI: jest.fn(),
       evolveWithExternalURIBatch: jest.fn(),
+      mintWithExternalURIBatch: jest.fn(),
     } as unknown as jest.Mocked<ethers.Contract>;
 
     mockIPFSService = new IPFSService("mockApiKey", "mockApiSecret") as jest.Mocked<IPFSService>;
@@ -67,21 +77,20 @@ describe("LaosService", () => {
   });
 
   it("should mint an NFT successfully", async () => {
-    const params: MintSingleNFTParams = {
-      laosContractAddress: "mockMinterLaosCollection",
-      to: "0x123",
-      assetMetadata: {
-        name: "Test NFT",
-        description: "A test NFT",
-        image: "ipfs://testImage",
-        attributes: [],
-      },
+    const params: BatchMintNFTParams  = {
+      laosBatchMinterContractAddress: "mockMinterLaosCollection",
+      tokens: [
+        {
+          mintTo: "0x123",
+          tokenUri: "ipfs://testImage",
+        },
+      ],
     };
 
     mockWallet.getNonce = jest.fn().mockResolvedValue(1);
     mockIPFSService.uploadAssetMetadataToIPFS = jest.fn().mockResolvedValue("mockIpfsCid");
     mockIPFSService.getCid = jest.fn().mockResolvedValue("mockIpfsCid");
-    mockContract.mintWithExternalURI.mockResolvedValue({
+    mockContract.mintWithExternalURIBatch.mockResolvedValue({
       hash: "mockHash",
       wait: jest.fn().mockResolvedValue({
         status: 1,
@@ -102,43 +111,19 @@ describe("LaosService", () => {
         },
       ],
     });
-    (EvolutionCollection.events.MintedWithExternalURI.decode as jest.Mock).mockReturnValue({ _tokenId: BigInt(0) });
+    (EvolutionCollection.events.MintedWithExternalURI.decode as jest.Mock).mockReturnValue({ _tokenId: BigInt(1) });
 
-    const result = await laosService.mint(params, '550e8400-e29b-41d4-a716-446655440001');
+    const result = await laosService.batchMint(params, '550e8400-e29b-41d4-a716-446655440001');
 
     expect(result).toEqual({
+      numberOfTokens: 1,
       status: "success",
-      tokenId: "0",
+      tokenIds: ["1"],
       tx: "mockHash",
     });
   });
 
-  it("should fail to mint an NFT", async () => {
-    const params: MintSingleNFTParams = {
-      laosContractAddress: "mockMinterLaosCollection",
-      to: "0x123",
-      assetMetadata: {
-        name: "Test NFT",
-        description: "A test NFT",
-        image: "ipfs://testImage",
-        attributes: [],
-      },
-    };
-
-    mockWallet.getNonce = jest.fn().mockResolvedValue(1);
-    mockIPFSService.uploadAssetMetadataToIPFS = jest.fn().mockResolvedValue("mockIpfsCid");
-    mockIPFSService.getCid = jest.fn().mockResolvedValue("mockIpfsCid");
-    mockContract.mintWithExternalURI.mockRejectedValue(new Error("Mint failed"));
-    mockProvider.waitForTransaction = jest.fn();
-
-    const result = await laosService.mint(params, '550e8400-e29b-41d4-a716-446655440001');
-
-    expect(result).toEqual({
-      status: "failed",
-      tx: undefined,
-      error: "Mint failed",
-    });
-  });
+  
 
   it("should evolve NFTs in a batch successfully", async () => {
     const params: EvolveNFTParams = {
@@ -200,7 +185,6 @@ describe("LaosService", () => {
     (EvolutionCollection.events.EvolvedWithExternalURI.decode as jest.Mock).mockReturnValueOnce({ _tokenId: BigInt(0) }).mockReturnValueOnce({ _tokenId: BigInt(1) });
 
     const result = await laosService.evolveBatch(params, '550e8400-e29b-41d4-a716-446655440001');
-
     expect(result).toEqual({
       status: "success",
       tokens: [

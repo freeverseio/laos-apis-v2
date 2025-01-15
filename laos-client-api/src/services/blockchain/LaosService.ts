@@ -1,12 +1,12 @@
-import { ethers } from "ethers";
-import { MintSingleNFTParams, EvolveNFTParams, MintResult, EvolveResult, AssetMetadata, LaosConfig, EventName, BatchMintNFTParams, BatchMintResult, DeploymentResult, EvolveBatchResult } from "../../types";
-import { IPFSService } from "../ipfs/IPFSService";
+import { ethers, TransactionReceipt } from "ethers";
 import * as EvolutionCollection from "../../abi/EvolutionCollection";
-import EvolutionCollectionAbi from '../../abi/contracts/EvolutionCollection.json';
 import BatchMinterAbi from '../../abi/contracts/BatchMinter.json';
-import EvolutionCollectionFactoryAbi from '../../abi/contracts/EvolutionCollectionFactory.json';
-import { ContractService } from "./ContractService";
 import { BatchMinterBytecode } from "../../abi/contracts/BatchMinterBytecode";
+import EvolutionCollectionAbi from '../../abi/contracts/EvolutionCollection.json';
+import EvolutionCollectionFactoryAbi from '../../abi/contracts/EvolutionCollectionFactory.json';
+import { AssetMetadata, BatchMintNFTParams, BatchMintResult, DeploymentResult, EventName, EvolveBatchResult, EvolveNFTParams, LaosConfig, MintAsyncResponse, MintAsyncStatus, MintStatusResponse, TransactionReceiptType } from "../../types";
+import { IPFSService } from "../ipfs/IPFSService";
+import { ContractService } from "./ContractService";
 
 const eventNameToEventTypeMap = {
   MintedWithExternalURI: EvolutionCollection.events.MintedWithExternalURI,
@@ -27,89 +27,7 @@ export class LaosService {
     this.laosRpc = rpcMinter;
   }
 
-  private async mintNFTWithRetries(
-    contract: any,
-    params: { to: string },
-    ipfsCid: string,
-    wallet: ethers.Wallet,
-    maxRetries: number
-  ): Promise<any> {
-    let nonce = await wallet.getNonce();
-    const random = this.randomUint96();
-    const tokenUri = `ipfs://${ipfsCid}`;
-  
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log("Minting NFT to:", params.to, "nonce:", nonce);
-        const tx = await contract.mintWithExternalURI(params.to, random, tokenUri, {
-          nonce: nonce
-        });
-  
-        console.log(`Mint successful on attempt ${attempt}`);
-        return tx;
-      } catch (error) {
-        const errorMessage = (error as Error).message;
-        if (errorMessage.includes("nonce too low") || errorMessage.includes("NONCE_EXPIRED")) {
-          console.log(`Nonce error detected [${nonce}], retrieveing new nonce`);
-          nonce = await wallet.getNonce();
 
-        } else if (errorMessage.includes("replacement transaction underpriced") || errorMessage.includes("REPLACEMENT_UNDERPRICED") || errorMessage.includes("intrinsic gas too low")) {
-          console.log(`Underpriced error detected`);
-          throw error;
-
-        } else {
-          console.error(
-            `Mint Failed, attempt: ${attempt}, nonce:`,
-            nonce,
-            "error: ",
-            errorMessage
-          );
-          throw error;
-        }
-  
-        if (attempt === maxRetries) {
-          console.error("Max retries reached, throwing last error");
-          throw error;
-        }
-      }
-    }
-  }
-
-  public async mint(params: MintSingleNFTParams, apiKey: string): Promise<MintResult> {
-    const minterPvk = JSON.parse(process.env.MINTER_KEYS || '{}')[apiKey];
-    const wallet = new ethers.Wallet(minterPvk, this.provider);
-    const contract = this.getEthersContract({laosContractAddress: params.laosContractAddress, abi: EvolutionCollectionAbi, wallet});
-    const assetJson: AssetMetadata = {
-      name: `${params.assetMetadata.name} `,
-      description: `${params.assetMetadata.description}`,
-      image: `${params.assetMetadata.image}`,
-      attributes: params.assetMetadata.attributes,
-    };
-    const ipfsCid = await this.ipfsService.uploadAssetMetadataToIPFS(assetJson, params.assetMetadata.name);
-    let tx: any;
-    try {
-      tx = await this.mintNFTWithRetries(contract, params, ipfsCid, wallet, 5);
-      
-      const receipt = await this.retryOperation(
-        () => this.provider.waitForTransaction(tx.hash, 1, 14000),
-        20
-      );
-      
-      const tokenId = this.extractTokenId(receipt, contract, 'MintedWithExternalURI');
-      return {
-        status: "success",
-        tokenId: tokenId.toString(),
-        tx: tx?.hash,
-      };
-    } catch (error: any) {
-      console.error("Minting Failed:", error.message);
-      return {
-        status: "failed",
-        tx: tx?.hash,
-        error: error.message,
-      };
-    }
-  }
 
   public async deployBatchMinterContract(apiKey: string): Promise<{contractAddress: string, precompileAddress: string}> {
     const minterPvk = JSON.parse(process.env.MINTER_KEYS || '{}')[apiKey];
@@ -150,7 +68,7 @@ export class LaosService {
     return new ethers.Contract(laosContractAddress, abi, wallet);
   }
 
-  private async batchMintNFTWithRetries(
+  private async batchMintNFTs(
     contract: any,
     tokens: {tokenUri: string, mintTo: string}[],    
     wallet: ethers.Wallet,
@@ -176,7 +94,6 @@ export class LaosService {
         const tx = await contract.mintWithExternalURIBatch(recipients, randoms, tokenUris, {
           nonce: nonce,
         });
-  
         console.log(`Mint successful on attempt ${attempt}`);
         return tx;
       } catch (error) {
@@ -205,13 +122,37 @@ export class LaosService {
     }
   }
 
+  public async batchMintAsync(params: BatchMintNFTParams, apiKey: string): Promise<BatchMintResult> {
+    const minterPvk = JSON.parse(process.env.MINTER_KEYS || '{}')[apiKey];
+    const wallet = new ethers.Wallet(minterPvk, this.provider);
+    const contract = this.getEthersContract({laosContractAddress: params.laosBatchMinterContractAddress, abi: BatchMinterAbi, wallet});
+    let tx: any;
+    try {
+      tx = await this.batchMintNFTs(contract, params.tokens, wallet, 5);
+      if (!tx) {
+        throw new Error("Transaction not found");
+      }
+      return {
+        status: MintAsyncStatus.PENDING,
+        tx: tx?.hash
+      };
+    } catch (error: any) {
+      console.error("Minting Failed:", error.message);
+      return {
+        status: MintAsyncStatus.REVERTED,
+        tx: tx?.hash,
+        error: error.message,
+      };
+    }
+  }
+
   public async batchMint(params: BatchMintNFTParams, apiKey: string): Promise<BatchMintResult> {
     const minterPvk = JSON.parse(process.env.MINTER_KEYS || '{}')[apiKey];
     const wallet = new ethers.Wallet(minterPvk, this.provider);
     const contract = this.getEthersContract({laosContractAddress: params.laosBatchMinterContractAddress, abi: BatchMinterAbi, wallet});
     let tx: any;
     try {
-      tx = await this.batchMintNFTWithRetries(contract, params.tokens, wallet, 5);
+      tx = await this.batchMintNFTs(contract, params.tokens, wallet, 5);
       
       const receipt = await this.retryOperation(
         () => this.provider.waitForTransaction(tx.hash, 1, 14000),
@@ -297,34 +238,114 @@ export class LaosService {
     }
   }
   
-  private extractTokenId(receipt: ethers.TransactionReceipt, contract: ethers.Contract, eventName: EventName): bigint {
-    if (!receipt || !receipt.status || receipt.status !== 1) {
-        throw new Error("Receipt status is not 1");
-    }
-    const log = receipt.logs[0] as any;
-    const logDecoded = eventNameToEventTypeMap[eventName].decode(log);
-    const { _tokenId } = logDecoded;
-    return _tokenId;
-  }
 
   private extractTokenIds(receipt: ethers.TransactionReceipt, eventName: EventName): bigint[] {
-    if (!receipt || !receipt.status || receipt.status !== 1) {
-      console.error("Receipt: ", receipt);
-      throw new Error("Receipt status is not 1");
+    if (!receipt) {
+      throw new Error("Transaction receipt is missing");
     }
   
-    return receipt.logs
-      .map(log => {
-        try {
-          const logDecoded = eventNameToEventTypeMap[eventName].decode(log as any);
-          return logDecoded._tokenId;
-        } catch (error) {
-          // If decoding fails, it's likely not the event we're looking for
-          return null;
+    if (receipt.status !== 1) {
+      console.error("Receipt: ", receipt);
+      throw new Error(`Transaction failed with status: ${receipt.status}`);
+    }
+  
+    const eventType = eventNameToEventTypeMap[eventName];
+    if (!eventType || !eventType.decode) {
+      throw new Error(`Event type or decoder not found for event: ${eventName}`);
+    }
+  
+    const tokenIds: bigint[] = [];
+  
+    receipt.logs.forEach((log, index) => {
+      try {
+        const decodedLog = eventType.decode(log as any);
+        if (decodedLog && decodedLog._tokenId !== undefined && decodedLog._tokenId !== null) {
+          tokenIds.push(decodedLog._tokenId);
+        } else {
+          throw new Error(`Decoded log does not contain a valid _tokenId. Log index: ${index}`);
         }
-      })
-      .filter((tokenId): tokenId is bigint => tokenId !== null);
+      } catch (error: any) {
+        throw new Error(`Failed to decode event ${eventName} from log at index ${index}: ${error.message || error}`);
+      }
+    });
+  
+    if (tokenIds.length === 0) {
+      throw new Error(`No valid token IDs extracted for event: ${eventName}`);
+    }
+  
+    return tokenIds;
   }
+  
+
+  public async mintStatus(txHash: string): Promise<MintStatusResponse> {
+    let receipt: TransactionReceipt | null = null;
+    try {
+      receipt = await this.provider.getTransactionReceipt(txHash);
+    } catch (error) {
+      console.error("Error getting transaction receipt:", error);
+      return {
+        status: MintAsyncStatus.INCORRECT_TX_HASH,
+        txHash: txHash,
+        message: "Transaction not found",
+      };
+    }
+    
+    if (!receipt) {
+      return {
+        status: MintAsyncStatus.NOT_FOUND,
+        txHash: txHash,
+        message: "This transaction hash has not been processed yet"
+      };
+    }
+  
+    if (receipt.status === 1) {
+      try {
+        const tokenIds = this.extractTokenIds(receipt, 'MintedWithExternalURI');
+        return {
+        status: MintAsyncStatus.SUCCESS,
+          txHash: txHash.toString(),
+          message: "Transaction is successful",
+          receipt: this.mapTransactionReceipt(receipt),
+          tokenIds: tokenIds.map(id => id.toString())
+        };
+      } catch (error) {
+        return {
+          status: MintAsyncStatus.INCORRECT_EVENT,
+          txHash: txHash,
+          message: "Unknown event",
+          receipt: this.mapTransactionReceipt(receipt),
+        };
+      }
+    } else if (receipt.status === 0) {
+      return {
+        status: MintAsyncStatus.REVERTED,
+        txHash: txHash,
+        message: "Transaction has been reverted",
+        receipt: this.mapTransactionReceipt(receipt)
+      };
+    }
+  
+    return {
+      status: MintAsyncStatus.REVERTED,
+      txHash: txHash,
+      message: "Transaction status is unknown",
+      receipt: this.mapTransactionReceipt(receipt)
+    };
+  }
+
+
+  private mapTransactionReceipt(receipt: TransactionReceipt): TransactionReceiptType {
+    return {
+      txHash: receipt.hash  ?? null,
+      blockHash: receipt.blockHash ?? null,
+      blockNumber: receipt.blockNumber ?? null,
+      gasUsed: receipt.gasUsed ? Number(receipt.gasUsed) : null,
+      cumulativeGasUsed: receipt.cumulativeGasUsed ? Number(receipt.cumulativeGasUsed) : null,
+      contractAddress: receipt.contractAddress ?? null,
+      status: receipt.status ?? null, // Explicitly set null if undefined
+    };
+  }
+
 
   private async retryOperation(operation: () => Promise<any>, maxRetries: number): Promise<any> {
     try {
