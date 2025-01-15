@@ -277,7 +277,7 @@ export class LaosService {
   }
   
 
-  public async mintStatus(txHash: string): Promise<MintStatusResponse> {
+  public async mintResponse(txHash: string): Promise<MintStatusResponse> {
     let receipt: TransactionReceipt | null = null;
     try {
       receipt = await this.provider.getTransactionReceipt(txHash);

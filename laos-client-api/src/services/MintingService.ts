@@ -99,8 +99,8 @@ export class MintingService {
     }
   }
 
-  public async mintStatus(txHash: string): Promise<MintStatusResponse> {
-    return this.serviceHelper.laosService.mintStatus(txHash);
+  public async mintResponse(txHash: string): Promise<MintStatusResponse> {
+    return this.serviceHelper.laosService.mintResponse(txHash);
   }
 
   public async mintAsync(input: MintInput, apiKey: string): Promise<MintAsyncResponse> {
