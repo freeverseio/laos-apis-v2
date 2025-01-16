@@ -62,7 +62,7 @@ export class EvolvingService {
             tokenIds: result.tokens.map(token => token.tokenId),
             status: EvolveAsyncStatus.PENDING,
             txHash: result.tx,
-            message: "Transaction submitted to blockchain"
+            message: "Transaction is being submitted to the blockchain"
           };
         } else {
           throw new Error(result.error ?? "Evolving failed");

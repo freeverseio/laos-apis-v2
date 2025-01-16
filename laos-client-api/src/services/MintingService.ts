@@ -147,7 +147,7 @@ export class MintingService {
         return { 
           txHash: result.tx,
           status: MintAsyncStatus.PENDING,
-          message: "Transaction submitted to blockchain",
+          message: "Transaction is being submitted to the blockchain",
           tokenIds: result.tokenIds,
           contractAddress: result.contractAddress
         };

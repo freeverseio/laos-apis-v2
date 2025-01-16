@@ -1,10 +1,10 @@
-import { ethers, TransactionReceipt } from "ethers";
+import { ethers, TransactionReceipt, TransactionResponse } from "ethers";
 import * as EvolutionCollection from "../../abi/EvolutionCollection";
 import BatchMinterAbi from '../../abi/contracts/BatchMinter.json';
 import { BatchMinterBytecode } from "../../abi/contracts/BatchMinterBytecode";
 import EvolutionCollectionAbi from '../../abi/contracts/EvolutionCollection.json';
 import EvolutionCollectionFactoryAbi from '../../abi/contracts/EvolutionCollectionFactory.json';
-import { AssetMetadata, BatchMintNFTParams, BatchMintResult, DeploymentResult, EventName, EvolveBatchResult, EvolveNFTParams, LaosConfig, MintAsyncResponse, MintAsyncStatus, MintStatusResponse, TokenOwners, TransactionReceiptType } from "../../types";
+import { AssetMetadata, BatchMintNFTParams, BatchMintResult, DeploymentResult, EventName, EvolveBatchResult, EvolveNFTParams, LaosConfig, LaosTransaction, MintAsyncResponse, MintAsyncStatus, MintStatusResponse, TokenOwners, TransactionReceiptType, TransactionType } from "../../types";
 import { IPFSService } from "../ipfs/IPFSService";
 import { ContractService } from "./ContractService";
 import { EvolveAsyncStatus, EvolveBatchResponse, EvolveStatusResponse } from "../../types/graphql/outputs/EvolveOutput";
@@ -309,6 +309,17 @@ export class LaosService {
     }
   }
 
+  public checkTransactionType(tx: TransactionResponse, eventName: string): boolean {
+    
+    const iface = new ethers.Interface(BatchMinterAbi);
+    try {
+      const decodedData = iface.parseTransaction({ data: tx.data, value: tx.value });
+      return decodedData?.name === eventName; // Replace with the expected method name
+    } catch (error) {
+      console.error("Error decoding transaction data:", error);
+      return false;
+    }
+  }
 
   private extractTokenIds(receipt: ethers.TransactionReceipt, eventName: EventName): bigint[] {
     if (!receipt) {
@@ -349,119 +360,192 @@ export class LaosService {
 
 
   public async mintResponse(txHash: string): Promise<MintStatusResponse> {
-    let receipt: TransactionReceipt | null = null;
+    let result: LaosTransaction;
+  
     try {
-      receipt = await this.provider.getTransactionReceipt(txHash);
+      result = await this.getTransaction(txHash);
+      console.log("Result:", result.type);
     } catch (error) {
-      console.error("Error getting transaction receipt:", error);
+      console.error("Error fetching transaction or receipt:", error);
       return {
         status: MintAsyncStatus.INCORRECT_TX_HASH,
         txHash: txHash,
-        message: "Transaction not found",
+        message: "The transaction hash is incorrect",
       };
     }
-
-    if (!receipt) {
+  
+    if (result.type === TransactionType.NOT_FOUND) {
       return {
         status: MintAsyncStatus.NOT_FOUND,
         txHash: txHash,
-        message: "This transaction hash has not been processed yet"
+        message: "This transaction is not known to the blockchain nodes",
       };
     }
-
-    if (receipt.status === 1) {
-      try {
-        const tokenIds = this.extractTokenIds(receipt, 'MintedWithExternalURI');
+  
+    if (result.type === TransactionType.RECEIPT) {
+      // If it's a receipt, check the status
+      const receipt = result.receipt!;
+      if (receipt.status === 1) {
+        try {
+          const tokenIds = this.extractTokenIds(receipt, 'MintedWithExternalURI');
+          return {
+            status: MintAsyncStatus.SUCCESS,
+            txHash: txHash.toString(),
+            message: "Transaction successful",
+            receipt: this.mapTransactionReceipt(receipt),
+            tokenIds: tokenIds.map(id => id.toString()),
+          };
+        } catch (error) {
+          return {
+            status: MintAsyncStatus.INCORRECT_EVENT,
+            txHash: txHash,
+            message: "This txHash does not correspond to a mint transaction",
+            receipt: this.mapTransactionReceipt(receipt),
+          };
+        }
+      } else if (receipt.status === 0) {
         return {
-          status: MintAsyncStatus.SUCCESS,
-          txHash: txHash.toString(),
-          message: "Transaction is successful",
-          receipt: this.mapTransactionReceipt(receipt),
-          tokenIds: tokenIds.map(id => id.toString())
-        };
-      } catch (error) {
-        return {
-          status: MintAsyncStatus.INCORRECT_EVENT,
+          status: MintAsyncStatus.REVERTED,
           txHash: txHash,
-          message: "Unknown event",
+          message: "Transaction has been reverted",
           receipt: this.mapTransactionReceipt(receipt),
         };
       }
-    } else if (receipt.status === 0) {
+  
       return {
         status: MintAsyncStatus.REVERTED,
         txHash: txHash,
-        message: "Transaction has been reverted",
-        receipt: this.mapTransactionReceipt(receipt)
+        message: "Transaction status is unknown",
+        receipt: this.mapTransactionReceipt(receipt),
       };
+    } else {
+      // If it's a transaction, it's still in the mempool
+      if (this.checkTransactionType(result.tx!, 'mintWithExternalURIBatch')) {
+        return {
+          status: MintAsyncStatus.PENDING,
+          txHash: txHash,
+          message: "Transaction is submitted to the blockchain but not included in a block yet",
+        };
+      } else {
+        return {
+          status: MintAsyncStatus.INCORRECT_EVENT,
+          txHash: txHash,
+          message: "This txHash does not correspond to a mint transaction",
+        };
+      }
     }
-
-    return {
-      status: MintAsyncStatus.REVERTED,
-      txHash: txHash,
-      message: "Transaction status is unknown",
-      receipt: this.mapTransactionReceipt(receipt)
-    };
   }
+  
 
   public async evolveBatchResponse(txHash: string): Promise<EvolveStatusResponse> {
-    let receipt: TransactionReceipt | null = null;
+    let result: LaosTransaction;
+
     try {
-      receipt = await this.provider.getTransactionReceipt(txHash);
+      result = await this.getTransaction(txHash);
     } catch (error) {
-      console.error("Error getting transaction receipt:", error);
+      console.error("Error fetching transaction or receipt:", error);
       return {
         status: EvolveAsyncStatus.INCORRECT_TX_HASH,
         txHash: txHash,
         message: "Transaction not found",
       };
     }
-
-    if (!receipt) {
+    if (result.type === TransactionType.NOT_FOUND) {
       return {
         status: EvolveAsyncStatus.NOT_FOUND,
         txHash: txHash,
-        message: "This transaction hash has not been processed yet"
+        message: "This transaction is not known to the blockchain nodes",
       };
     }
-
-    if (receipt.status === 1) {
-      try {
-        const evolvedTokenIds = this.extractTokenIds(receipt, 'EvolvedWithExternalURI');
-
+    if (result.type === TransactionType.RECEIPT) {
+      // If it's a receipt, check the status
+      const receipt = result.receipt as TransactionReceipt;
+      if (receipt.status === 1) {
+        try {
+          const evolvedTokenIds = this.extractTokenIds(receipt, 'EvolvedWithExternalURI');
+          return {
+            status: EvolveAsyncStatus.SUCCESS,
+            txHash: txHash.toString(),
+            message: "Transaction successful",
+            receipt: this.mapTransactionReceipt(receipt),
+            tokenIds: evolvedTokenIds.map(id => id.toString()),
+          };
+        } catch (error) {
+          return {
+            status: EvolveAsyncStatus.TRANSACTION_TYPE_MISTATCH,
+            txHash: txHash,
+            message: "This txHash does not correspond to a mint transaction",
+            receipt: this.mapTransactionReceipt(receipt),
+          };
+        }
+      } else if (receipt.status === 0) {
         return {
-          status: EvolveAsyncStatus.SUCCESS,
-          txHash: txHash.toString(),
-          message: "Transaction is successful",
-          receipt: this.mapTransactionReceipt(receipt),
-          tokenIds: evolvedTokenIds.map(id => id.toString())
-        };
-      } catch (error) {
-        return {
-          status: EvolveAsyncStatus.INCORRECT_EVENT,
+          status: EvolveAsyncStatus.REVERTED,
           txHash: txHash,
-          message: "Unknown event",
+          message: "Transaction has been reverted",
           receipt: this.mapTransactionReceipt(receipt),
         };
       }
-    } else if (receipt.status === 0) {
+
       return {
         status: EvolveAsyncStatus.REVERTED,
         txHash: txHash,
-        message: "Transaction has been reverted",
-        receipt: this.mapTransactionReceipt(receipt)
+        message: "Transaction status is unknown",
+        receipt: this.mapTransactionReceipt(receipt),
       };
+    } else {
+      // If it's a transaction, it's still in the mempool
+      if (this.checkTransactionType(result.tx!, 'evolveWithExternalURIBatch')) {
+        return {
+          status: EvolveAsyncStatus.PENDING,
+          txHash: txHash,
+          message: "Transaction is submitted to the blockchain but not included in a block yet",
+        };
+      } else {
+        return {
+          status: EvolveAsyncStatus.TRANSACTION_TYPE_MISTATCH,
+          txHash: txHash,
+          message: "This txHash does not correspond to a evolve transaction",
+        };
+      }
     }
-
-    return {
-      status: EvolveAsyncStatus.REVERTED,
-      txHash: txHash,
-      message: "Transaction status is unknown",
-      receipt: this.mapTransactionReceipt(receipt)
-    };
   }
 
 
+  private async getTransaction(txHash: string): Promise<LaosTransaction> {
+    try {
+      // Try to fetch the transaction receipt
+      const receipt: TransactionReceipt | null = await this.provider.getTransactionReceipt(txHash);
+      if (receipt) {
+        return {
+          tx: null,
+          receipt: receipt,
+          type: TransactionType.RECEIPT
+        }; // Return the receipt if it exists
+      }
+
+      // If no receipt, try to fetch the transaction itself
+      const transaction: TransactionResponse | null = await this.provider.getTransaction(txHash);
+      if (transaction) {
+        console.log("Transaction:", transaction);
+        return {
+          tx: transaction,
+          receipt: null,
+          type: TransactionType.TRANSACTION
+        }; // Return the transaction if it's found
+      }
+
+      // If both are null, the transaction doesn't exist or is pruned
+      return {
+        tx: null,
+        receipt: null,
+        type: TransactionType.NOT_FOUND
+      };
+    } catch (error) {
+      console.error("Error fetching transaction or receipt:", error);
+      throw error; // Re-throw error if necessary for upstream handling
+    }
+  }
 
   private mapTransactionReceipt(receipt: TransactionReceipt): TransactionReceiptType {
     return {
