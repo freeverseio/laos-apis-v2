@@ -51,10 +51,17 @@ export interface MintResult {
   error?: string;
 }
 
+export interface TokenOwners {
+  tokenId: string;
+  owner: string;
+  tokenUri?: string;
+}
+
 export interface BatchMintResult {
   status: string;
   numberOfTokens?: number;
   tokenIds?: string[];
+  tokens?: TokenOwners[];
   contractAddress?: string;
   tx?: string;
   error?: string;
@@ -75,6 +82,8 @@ export interface EvolveBatchResult {
   tx?: string;
   error?: string;
 }
+
+
 
 export interface EvolveTokenResult {
   tokenId: string;

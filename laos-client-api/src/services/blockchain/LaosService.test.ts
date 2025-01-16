@@ -13,6 +13,11 @@ jest.mock("../../types/graphql/outputs/MintOutput", () => ({
 jest.mock("../../types/graphql/inputs/MintInput", () => ({
   AttributeInput: jest.fn(),
 }));
+
+jest.mock("../../types/graphql/outputs/EvolveOutput", () => ({
+  EvolveResponse: jest.fn(),
+}));
+
 jest.mock("ethers");
 jest.mock("../ipfs/IPFSService");
 jest.mock("../../abi/EvolutionCollection", () => ({
@@ -81,7 +86,7 @@ describe("LaosService", () => {
       laosBatchMinterContractAddress: "mockMinterLaosCollection",
       tokens: [
         {
-          mintTo: "0x123",
+          mintTo: "0xAB95002fe661Dc5168b29307098E5985A3295232",
           tokenUri: "ipfs://testImage",
         },
       ],
@@ -227,4 +232,76 @@ describe("LaosService", () => {
     });
   });
 
+});
+
+describe("LaosService", () => {
+  let laosService: LaosService;
+  let mockIPFSService: jest.Mocked<IPFSService>;
+
+  beforeEach(() => {
+    //jest.spyOn(console, "log").mockImplementation(() => {});
+    //jest.spyOn(console, "error").mockImplementation(() => {});
+
+    
+
+    mockIPFSService = new IPFSService("mockApiKey", "mockApiSecret") as jest.Mocked<IPFSService>;
+
+    const config = {
+      minterPvks: "mockPrivateKey",
+      rpcMinter: "mockRpcMinter",
+    };
+
+    laosService = new LaosService(config, mockIPFSService);
+    
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const testCases = [
+    {
+      initOwner: "0x90abcdef1234567890abcdef1234567890abcdef",
+      slot: '0x1234567890abcdef',
+      expected: "1917151762750544880654683969214147817878133287987683378847961304559",
+      expectedToHex: "0x000000001234567890abcdef90abcdef1234567890abcdef1234567890abcdef",
+    },
+    {
+      initOwner: "0xffffffffffffffffffffffffffffffffffffffff",
+      slot: 0,
+      expected: "1461501637330902918203684832716283019655932542975",
+      expectedToHex: "0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff",
+    },
+    {
+      initOwner: "0x0000000000000000000000000000000000000000",
+      slot: 0,
+      expected: "0",
+      expectedToHex: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    },    {
+      initOwner: "0x0000000000000000000000000000000000000001",
+      slot: 1,
+      expected: "1461501637330902918203684832716283019655932542977",
+      expectedToHex: "0x0000000000000000000000010000000000000000000000000000000000000001",
+    },
+    {
+      initOwner: "0x1234567890abcdef1234567890abcdef12345678",
+      slot: '0xffffffffffffffffffff',
+      expected: "1766847064778384329583296143170286492852322417545392043886226158472418936",
+      expectedToHex:"0x0000ffffffffffffffffffff1234567890abcdef1234567890abcdef12345678",
+    },
+  ];
+
+  testCases.forEach((testCase) => {
+    it(`should get token id from slot number ${testCase.slot}`, () => {
+      const result = laosService.getTokenIdFromSlotNumber(testCase.initOwner, BigInt(testCase.slot));
+      expect(result).toEqual(testCase.expected);
+    });
+  });
+
+  it("should get token id from large slot number", () => {
+    const randomSlot = 2174978765669407158848668786n
+    console.log("randomSlot", Number(randomSlot));
+    const result = laosService.getTokenIdFromSlotNumber("0x883FE5b3766155f075a8E1f207a9689294fE528f", randomSlot);
+    expect(result).toEqual("3178735027185784784067903705027605327914747787316705371027793621268624724623");
+  });
 });

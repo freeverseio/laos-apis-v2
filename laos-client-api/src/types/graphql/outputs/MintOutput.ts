@@ -18,8 +18,6 @@ export class TransactionReceiptType {
   @Field(() => Float, { nullable: true })
   cumulativeGasUsed?: number | null;
 
-  @Field(() => String, { nullable: true })
-  contractAddress?: string | null;
 
   @Field(() => Int, { nullable: true })
   status?: number | null; // 1 for success, 0 for failure
@@ -57,6 +55,11 @@ export class MintAsyncResponse {
   @Field()
   message!: string;
 
+  @Field(() => [String], { nullable: true })
+  tokenIds?: string[];
+
+  @Field(() => String, { nullable: true })
+  contractAddress?: string | null;
 }
 
 @ObjectType()

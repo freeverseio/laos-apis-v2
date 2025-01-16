@@ -147,7 +147,9 @@ export class MintingService {
         return { 
           txHash: result.tx,
           status: MintAsyncStatus.PENDING,
-          message: "Transaction submitted to blockchain"
+          message: "Transaction submitted to blockchain",
+          tokenIds: result.tokenIds,
+          contractAddress: result.contractAddress
         };
       } else {
         throw new Error(result.error ?? "Minting failed");
