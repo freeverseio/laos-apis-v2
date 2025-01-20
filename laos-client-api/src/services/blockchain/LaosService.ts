@@ -514,8 +514,9 @@ export class LaosService {
 
   private async getTransaction(txHash: string): Promise<LaosTransaction> {
     try {
+      const normalizedTxHash = txHash.toLowerCase();
       // Try to fetch the transaction receipt
-      const receipt: TransactionReceipt | null = await this.provider.getTransactionReceipt(txHash);
+      const receipt: TransactionReceipt | null = await this.provider.getTransactionReceipt(normalizedTxHash);
       if (receipt) {
         return {
           tx: null,
