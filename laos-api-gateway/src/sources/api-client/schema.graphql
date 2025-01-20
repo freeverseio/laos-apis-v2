@@ -5,12 +5,41 @@ schema {
 
 type Query {
   status: String!
+  mintResponse(txHash: String!): MintStatusResponse!
+  evolveBatchResponse(txHash: String!): EvolveStatusResponse!
+}
+
+type MintStatusResponse {
+  txHash: String
+  status: String!
+  message: String!
+  receipt: TransactionReceiptType
+  tokenIds: [String!]
+}
+
+type TransactionReceiptType {
+  txHash: String
+  blockHash: String
+  blockNumber: Int
+  gasUsed: Float
+  cumulativeGasUsed: Float
+  status: Int
+}
+
+type EvolveStatusResponse {
+  txHash: String
+  status: String!
+  message: String!
+  receipt: TransactionReceiptType
+  tokenIds: [String!]
 }
 
 type Mutation {
   mint(input: MintInput!): MintResponse!
+  mintAsync(input: MintInput!): MintAsyncResponse!
   evolve(input: EvolveInput!): EvolveResponse!
   evolveBatch(input: EvolveBatchInput!): EvolveBatchResponse!
+  evolveBatchAsync(input: EvolveBatchInput!): EvolveAsyncResponse!
   broadcast(input: BroadcastInput!): BroadcastResponse!
   broadcastBatch(input: BroadcastBatchInput!): BroadcastBatchResponse!
   createCollection(input: CreateCollectionInput!): CreateCollectionResponse!
@@ -41,6 +70,14 @@ input AttributeInput {
   value: String!
 }
 
+type MintAsyncResponse {
+  txHash: String
+  status: String!
+  message: String!
+  tokenIds: [String!]
+  contractAddress: String
+}
+
 type EvolveResponse {
   tokenId: String!
   success: Boolean!
@@ -66,7 +103,7 @@ type EvolveBatchResponse {
 
 type EvolveTokenResponse {
   tokenId: String!
-  tokenUri: String!
+  tokenUri: String
 }
 
 input EvolveBatchInput {
@@ -81,6 +118,13 @@ input TokenEvolveInput {
   description: String
   attributes: [AttributeInput!]
   image: String
+}
+
+type EvolveAsyncResponse {
+  status: String!
+  message: String!
+  txHash: String!
+  tokenIds: [String!]
 }
 
 type BroadcastResponse {

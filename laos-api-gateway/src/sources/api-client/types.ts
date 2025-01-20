@@ -22,12 +22,51 @@ export type Scalars = {
 
 export type Query = {
   status: Scalars['String']['output'];
+  mintResponse: MintStatusResponse;
+  evolveBatchResponse: EvolveStatusResponse;
+};
+
+
+export type QuerymintResponseArgs = {
+  txHash: Scalars['String']['input'];
+};
+
+
+export type QueryevolveBatchResponseArgs = {
+  txHash: Scalars['String']['input'];
+};
+
+export type MintStatusResponse = {
+  txHash?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  receipt?: Maybe<TransactionReceiptType>;
+  tokenIds?: Maybe<Array<Scalars['String']['output']>>;
+};
+
+export type TransactionReceiptType = {
+  txHash?: Maybe<Scalars['String']['output']>;
+  blockHash?: Maybe<Scalars['String']['output']>;
+  blockNumber?: Maybe<Scalars['Int']['output']>;
+  gasUsed?: Maybe<Scalars['Float']['output']>;
+  cumulativeGasUsed?: Maybe<Scalars['Float']['output']>;
+  status?: Maybe<Scalars['Int']['output']>;
+};
+
+export type EvolveStatusResponse = {
+  txHash?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  receipt?: Maybe<TransactionReceiptType>;
+  tokenIds?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type Mutation = {
   mint: MintResponse;
+  mintAsync: MintAsyncResponse;
   evolve: EvolveResponse;
   evolveBatch: EvolveBatchResponse;
+  evolveBatchAsync: EvolveAsyncResponse;
   broadcast: BroadcastResponse;
   broadcastBatch: BroadcastBatchResponse;
   createCollection: CreateCollectionResponse;
@@ -39,12 +78,22 @@ export type MutationmintArgs = {
 };
 
 
+export type MutationmintAsyncArgs = {
+  input: MintInput;
+};
+
+
 export type MutationevolveArgs = {
   input: EvolveInput;
 };
 
 
 export type MutationevolveBatchArgs = {
+  input: EvolveBatchInput;
+};
+
+
+export type MutationevolveBatchAsyncArgs = {
   input: EvolveBatchInput;
 };
 
@@ -88,6 +137,14 @@ export type AttributeInput = {
   value: Scalars['String']['input'];
 };
 
+export type MintAsyncResponse = {
+  txHash?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  tokenIds?: Maybe<Array<Scalars['String']['output']>>;
+  contractAddress?: Maybe<Scalars['String']['output']>;
+};
+
 export type EvolveResponse = {
   tokenId: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
@@ -113,7 +170,7 @@ export type EvolveBatchResponse = {
 
 export type EvolveTokenResponse = {
   tokenId: Scalars['String']['output'];
-  tokenUri: Scalars['String']['output'];
+  tokenUri?: Maybe<Scalars['String']['output']>;
 };
 
 export type EvolveBatchInput = {
@@ -128,6 +185,13 @@ export type TokenEvolveInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   attributes?: InputMaybe<Array<AttributeInput>>;
   image?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type EvolveAsyncResponse = {
+  status: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  txHash: Scalars['String']['output'];
+  tokenIds?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type BroadcastResponse = {
@@ -172,16 +236,24 @@ export type CreateCollectionInput = {
 
   export type QuerySdk = {
       /** null **/
-  status: InContextSdkMethod<Query['status'], {}, MeshContext>
+  status: InContextSdkMethod<Query['status'], {}, MeshContext>,
+  /** null **/
+  mintResponse: InContextSdkMethod<Query['mintResponse'], QuerymintResponseArgs, MeshContext>,
+  /** null **/
+  evolveBatchResponse: InContextSdkMethod<Query['evolveBatchResponse'], QueryevolveBatchResponseArgs, MeshContext>
   };
 
   export type MutationSdk = {
       /** null **/
   mint: InContextSdkMethod<Mutation['mint'], MutationmintArgs, MeshContext>,
   /** null **/
+  mintAsync: InContextSdkMethod<Mutation['mintAsync'], MutationmintAsyncArgs, MeshContext>,
+  /** null **/
   evolve: InContextSdkMethod<Mutation['evolve'], MutationevolveArgs, MeshContext>,
   /** null **/
   evolveBatch: InContextSdkMethod<Mutation['evolveBatch'], MutationevolveBatchArgs, MeshContext>,
+  /** null **/
+  evolveBatchAsync: InContextSdkMethod<Mutation['evolveBatchAsync'], MutationevolveBatchAsyncArgs, MeshContext>,
   /** null **/
   broadcast: InContextSdkMethod<Mutation['broadcast'], MutationbroadcastArgs, MeshContext>,
   /** null **/
