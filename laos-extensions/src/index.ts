@@ -6,6 +6,7 @@ import { TokenController } from "./controllers/TokenController";
 dotenv.config();
 
 const app = createExpressServer({
+  cors: true,
   controllers: [TokenController],
 });
 
