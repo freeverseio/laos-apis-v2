@@ -1,11 +1,34 @@
-type Attribute {
-    traitType: String!
-    value: String!
-}
-type OwnershipContract @entity {
+type LaosAsset @entity {
   id: ID!
-  laosContract: String  @index
+  laosContract: String! @index
+  tokenId: BigInt!
+  initialOwner: String!
+  createdAt: DateTime!
+  logIndex: Int!
+  metadata: String  @index
+}
+
+type Metadata @entity {
+  id: ID!
+  laosAsset: LaosAsset!
+  tokenUri: TokenUri!
+  blockNumber: Int!
+  timestamp: DateTime!
+  txHash: String! @index
+}
+
+type TokenUri @entity {
+  id: ID! # token_uri
+  state: String!
   name: String
-  symbol: String
-  bytecodeHash: String
+  description: String
+  image: String
+  attributes: [Attribute!]
+  fetched: DateTime
+  metadata: [Metadata!]! @derivedFrom(field: "tokenUri")
+}
+
+type Attribute {
+  traitType: String!
+  value: String!
 }
