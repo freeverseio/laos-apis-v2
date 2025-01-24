@@ -44,17 +44,6 @@
         "description": "Generate data access classes for an ABI file(s) in the ./abi folder",
         "cmd": ["squid-evm-typegen", "./src/abi", {"glob": "./abi/*.json"}, "--multicall"]
       },
-      "process:ownership_chain": {
-        "description": "Load .env and start the squid processor",
-        "deps": ["build", "migration:apply"],
-        "cmd": ["node", "--require=dotenv/config", "lib/ownership_chain/main.js"]
-      },
-      "process:prod:ownership_chain": {
-        "description": "Start the squid processor",
-        "deps": ["migration:apply"],
-        "cmd": ["node", "lib/ownership_chain/main.js"],
-        "hidden": true
-      },
       "process:laos": {
         "description": "Load .env and start the squid processor",
         "deps": ["build", "migration:apply"],
@@ -97,18 +86,10 @@
         "description": "Open a local browser window",
         "cmd": ["npx", "--yes", "opener"]
       },
-      "copy-graphql:generation": {
-        "description": "Copy the schema_for_generation GraphQL to schema.graphql",
-        "cmd": ["node", "copySchemas.js", "generation"]
-      },
-      "copy-graphql:public": {
-        "description": "Copy the schema_for_public_queries GraphQL to schema.graphql",
-        "cmd": ["node", "copySchemas.js", "public"]
-      },
       "clean:all": {
         "description": "Restart",
-        "deps": ["down", "clean", "copy-graphql:generation", "migration:clean", "up", "codegen","migration:generate", "migration:apply"],
-        "cmd": ["node", "copySchemas.js", "public"]
+        "deps": ["down", "clean",  "migration:clean", "up", "codegen","migration:generate"],
+        "cmd": ["squid-typeorm-migration", "apply"]
       }
     }
   }
