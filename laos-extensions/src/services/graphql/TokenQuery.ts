@@ -28,7 +28,6 @@ export class TokenQuery {
     }
 
     const whereClauseString = whereClauses.length > 0 ? `{ ${whereClauses.join(", ")} }` : "";
-    console.log("wcs", whereClauseString)
     return gql`
       query MyQuery {
         ${input.chainName} {
