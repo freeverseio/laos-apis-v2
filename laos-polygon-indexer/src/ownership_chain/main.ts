@@ -1,6 +1,6 @@
 import { TypeormDatabase, TypeormDatabaseOptions, Store } from '@subsquid/typeorm-store';
 import { processor } from './processor';
-import { getGenericOwnershipContractModel, getOwnershipContract } from './factory'; 
+import { getGenericOwnershipContractModel } from './factory'; 
 import { EventDetectionService } from './service/EventDetectionService';
 import { createOwnershipContractsModel } from './mapper/ownershipContractMapper';
 import { createTransferModels } from './mapper/transferMapper';
