@@ -8,8 +8,6 @@
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
     "test": "jest",
-    "test:mint": "jest src/services/blockchain/LaosService.test.ts",
-    "test:slot": "jest src/services/blockchain/LaosService2.test.ts",
     "clear_jest": "jest --clearCache"
   },
   "keywords": [],
