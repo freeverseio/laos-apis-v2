@@ -1,0 +1,26 @@
+{
+  "name": "laos-indexer-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon src/index.ts",
+    "test": "jest",
+    "clear_jest": "jest --clearCache"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "apollo-server": "^3.13.0",
+    "dotenv": "^16.4.7",
+    "graphql": "^16.10.0",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
+    "type-graphql": "^2.0.0-rc.2"
+  }
+}
