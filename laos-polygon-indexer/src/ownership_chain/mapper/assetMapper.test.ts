@@ -5,7 +5,13 @@ import { generateAssetUUID } from '../util';
 jest.mock('../util', () => ({
   generateAssetUUID: jest.fn(),
 }));
-
+beforeEach(() => {
+  jest.clearAllMocks();
+  // Set the environment variables
+  process.env.ASSET_MODEL = 'PolygonAsset';
+  process.env.OWNERSHIP_CONTRACT_MODEL = 'PolygonOwnershipContract';
+  process.env.CHAIN_ID = '137';
+});
 describe('mapToAsset', () => {
   it('should map RawTransfer to Asset correctly', () => {
     const raw: RawTransfer = {
@@ -23,8 +29,9 @@ describe('mapToAsset', () => {
     (generateAssetUUID as jest.Mock).mockReturnValue(mockedUUID);
 
     const expected = new Asset({
+      chainId: 137,
       id: mockedUUID,
-      ownershipContract: new OwnershipContract({ id: 'contract1' }),
+      ownershipContract: new OwnershipContract({ id: 'contract1', chainId: 137 }),
       tokenId: BigInt(1),
       owner: 'address2',
       transfers: [],
@@ -33,7 +40,7 @@ describe('mapToAsset', () => {
     const result = mapToAsset(raw);
 
     expect(result).toEqual(expected);
-    expect(generateAssetUUID).toHaveBeenCalledWith(raw.tokenId, raw.ownershipContract);
+    expect(generateAssetUUID).toHaveBeenCalledWith(raw.tokenId, raw.ownershipContract, 137);
   });
 });
 
@@ -70,15 +77,17 @@ describe('createAssetModels', () => {
 
     const expected: Asset[] = [
       new Asset({
+        chainId: 137,
         id: mockedUUID1,
-        ownershipContract: new OwnershipContract({ id: 'contract1' }),
+        ownershipContract: new OwnershipContract({ id: 'contract1', chainId: 137 }),
         tokenId: BigInt(1),
         owner: 'address2',
         transfers: [],
       }),
       new Asset({
+        chainId: 137,
         id: mockedUUID2,
-        ownershipContract: new OwnershipContract({ id: 'contract2' }),
+        ownershipContract: new OwnershipContract({ id: 'contract2', chainId: 137 }),
         tokenId: BigInt(2),
         owner: 'address4',
         transfers: [],
@@ -88,7 +97,7 @@ describe('createAssetModels', () => {
     const result = createAssetModels(rawTransfers);
 
     expect(result).toEqual(expected);
-    expect(generateAssetUUID).toHaveBeenCalledWith(rawTransfers[0].tokenId, rawTransfers[0].ownershipContract);
-    expect(generateAssetUUID).toHaveBeenCalledWith(rawTransfers[1].tokenId, rawTransfers[1].ownershipContract);
+    expect(generateAssetUUID).toHaveBeenCalledWith(rawTransfers[0].tokenId, rawTransfers[0].ownershipContract, 137);
+    expect(generateAssetUUID).toHaveBeenCalledWith(rawTransfers[1].tokenId, rawTransfers[1].ownershipContract, 137);
   });
 });

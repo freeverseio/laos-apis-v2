@@ -11,7 +11,7 @@ export function mapToAsset(raw: RawTransfer): any {
 
   const asset = new Asset({
     id: generateAssetUUID(raw.tokenId, raw.ownershipContract, chainId),
-    ownershipContract: new OwnershipContract({ id: raw.ownershipContract }),
+    ownershipContract: new OwnershipContract({ id: raw.ownershipContract, chainId: chainId }),
     tokenId: raw.tokenId,
     owner: raw.to,
     transfers: [],

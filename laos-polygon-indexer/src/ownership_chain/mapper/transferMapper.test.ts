@@ -7,6 +7,14 @@ jest.mock('../util', () => ({
   generateAssetUUID: jest.fn(),
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+  // Set the environment variables
+  process.env.ASSET_MODEL = 'PolygonAsset';
+  process.env.OWNERSHIP_CONTRACT_MODEL = 'PolygonOwnershipContract';
+  process.env.CHAIN_ID = '137';
+});
+
 describe('mapToTransfer', () => {
   it('should map RawTransfer to Transfer correctly', () => {
     const raw: RawTransfer = {
