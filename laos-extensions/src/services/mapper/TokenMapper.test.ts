@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { TokenMapper } from "./TokenMapper";
 import { TokenIndexer, AttributeIndexer, ChainId } from "../../types";
 
