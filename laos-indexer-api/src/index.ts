@@ -2,24 +2,24 @@ import "reflect-metadata";
 import * as dotenv from 'dotenv';
 import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
-import { QueryResolver } from "./resolvers/QueryResolver";
-// import { MintingService } from "./services/MintingService"; 
-// import { EvolveResolver } from "./resolvers/EvolveResolver";
-// import { EvolvingService } from "./services/EvolvingService";
-// import { BroadcastResolver } from "./resolvers/BroadcastResolver";
-// import { BroadcastingService } from "./services/BroadcastingService";
-// import { CreateCollectionResolver } from "./resolvers/CreateCollection";
-// import { CreateCollectionService } from "./services/CreateCollectionService";
+import { TokenResolver } from "./resolvers/TokenResolver";
+import Database from "./services/db/Database";
 
 dotenv.config();
 
-async function startServer() {
+async function startServer() { 
+
+  const tx = async (query: string, params?: any[]): Promise<any[]> => {
+    const result = await Database.query(query, params);
+    return result.rows;
+  };
+
   const schema = await buildSchema({
-    resolvers: [QueryResolver],
+    resolvers: [TokenResolver],
     container: {
       get(someClass: any) {
-        if (someClass === QueryResolver) {
-          return new QueryResolver();       
+        if (someClass === TokenResolver) {
+          return new TokenResolver(tx);       
         }
         return undefined;
       },
@@ -39,7 +39,7 @@ async function startServer() {
     },
   });
 
-  server.listen({ port: 4001 }).then(({ url }: { url: string }) => {
+  server.listen({ port: process.env.GQL_PORT }).then(({ url }: { url: string }) => {
     console.log(`Server ready at ${url}`);
     
   });
