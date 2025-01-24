@@ -1,16 +1,18 @@
 import { TypeormDatabase, TypeormDatabaseOptions, Store } from '@subsquid/typeorm-store';
 import { processor } from './processor';
-import { PolygonOwnershipContract as OwnershipContract } from '../model';
+import { getOwnershipContract } from './factory'; 
 import { EventDetectionService } from './service/EventDetectionService';
 import { createOwnershipContractsModel } from './mapper/ownershipContractMapper';
 import { createTransferModels } from './mapper/transferMapper';
 import { createAssetModels } from './mapper/assetMapper';
 
-
 const options: TypeormDatabaseOptions = {
   supportHotBlocks: true,
-  stateSchema: 'ownership_chain_polygon_processor',
+  stateSchema: process.env.SCHEMA_NAME!,
 };
+
+const contractType = process.env.OWNERSHIP_CONTRACT_MODEL!;
+const OwnershipContract = getOwnershipContract(contractType); // Use the factory to get the correct contract
 
 processor.run<Store>(new TypeormDatabase(options), async (ctx) => {
   const ownerShipContracts = await ctx.store.find(OwnershipContract);
