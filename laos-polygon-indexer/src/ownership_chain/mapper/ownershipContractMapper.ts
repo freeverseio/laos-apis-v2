@@ -1,12 +1,12 @@
-import { RawOwnershipContract } from '../../model';
+import { RawOwnershipContract, BaseOwnershipContract } from '../../model';
 import { generateContractUUID } from '../util';
-import { getModel } from '../factory';
+import { getGenericOwnershipContractModel } from '../factory';
 
 export function mapToOwnershipContract(raw: RawOwnershipContract): any {
   const chainId = Number(process.env.CHAIN_ID!);
 
   // Dynamically retrieve the OwnershipContract model
-  const OwnershipContract = getModel(process.env.OWNERSHIP_CONTRACT_MODEL!);
+  const OwnershipContract = getGenericOwnershipContractModel<BaseOwnershipContract>(process.env.OWNERSHIP_CONTRACT_MODEL!);
 
   return new OwnershipContract({
     id: generateContractUUID(raw.id, chainId),

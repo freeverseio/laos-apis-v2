@@ -1,12 +1,12 @@
-import { RawTransfer } from '../../model';
-import { getModel } from '../factory';
+import { BaseAsset, BaseTransfer, RawTransfer } from '../../model';
+import { getGenericAssetModel, getGenericTransferModel } from '../factory';
 import { generateAssetUUID } from '../util';
 
 export function mapToTransfer(raw: RawTransfer): any {
   const chainId = Number(process.env.CHAIN_ID!);
   // Retrieve dynamic models
-  const Asset = getModel(process.env.ASSET_MODEL!);
-  const Transfer = getModel(process.env.TRANSFER_MODEL!);
+  const Asset = getGenericAssetModel<BaseAsset>(process.env.ASSET_MODEL!);
+  const Transfer = getGenericTransferModel<BaseTransfer>(process.env.TRANSFER_MODEL!);
   return new Transfer({
     id: raw.id,
     asset: new Asset({ id: generateAssetUUID(raw.tokenId, raw.ownershipContract, chainId) }),
