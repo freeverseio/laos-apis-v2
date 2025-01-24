@@ -8,4 +8,4 @@
 # Ignore the .env file in the root folder
 /.env
 # IDE files
-/.idea
+/laos-polygon-indexer
