@@ -4,6 +4,7 @@ import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
 import { TokenResolver } from "./resolvers/TokenResolver";
 import Database from "./services/db/Database";
+import { TransferResolver } from "./resolvers/TransferResolver";
 
 dotenv.config();
 
@@ -15,11 +16,13 @@ async function startServer() {
   };
 
   const schema = await buildSchema({
-    resolvers: [TokenResolver],
+    resolvers: [TokenResolver, TransferResolver],
     container: {
       get(someClass: any) {
         if (someClass === TokenResolver) {
-          return new TokenResolver(tx);       
+          return new TokenResolver(tx);
+        } else if (someClass === TransferResolver) {
+          return new TransferResolver(tx);
         }
         return undefined;
       },

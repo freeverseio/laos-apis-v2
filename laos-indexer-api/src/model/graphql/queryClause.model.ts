@@ -2,6 +2,10 @@ import { Field, InputType } from 'type-graphql';
 
 @InputType()
 export class TransferWhereInput {
+
+  @Field({ nullable: false })
+  chainId!: string;
+
   @Field({ nullable: true })
   tokenId?: string;
 

@@ -1,7 +1,6 @@
 import { Arg, Query, Resolver } from 'type-graphql';
 import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput } from '../model';
 import { QueryBuilderService } from '../services/QueryBuilderService';
-import Database from '../services/db/Database';
 
 @Resolver()
 export class TokenResolver {

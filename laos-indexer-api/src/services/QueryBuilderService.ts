@@ -1,4 +1,4 @@
-import { TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput } from '../model';
+import { TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
 
 // Supported chain IDs
@@ -27,7 +27,7 @@ interface CursorConditionResult {
 
 export class QueryBuilderService {
   
-  private buildWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput): WhereConditionsResult {
+  private buildTokenWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput): WhereConditionsResult {
     let conditions = [];
     let parameters = [];
     let paramIndex = 1;
@@ -92,25 +92,25 @@ export class QueryBuilderService {
   }  
 
   private buildTokenQueryBaseByChainId(chainId: string) {
-    let prefix = this.getChainPrefix(chainId);
+    const prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenQueryBase(prefix);
     return mainQuery;
   }
 
   private buildTokenByIdQueryByChainId(chainId: string) {
-    let prefix = this.getChainPrefix(chainId);
+    const prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenByIdQuery(prefix);
     return mainQuery;
   }
 
   private buildTokenCountQueryBaseByChainId(chainId: string) {
-    let prefix = this.getChainPrefix(chainId);
+    const prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenCountQueryBase(prefix);
     return mainQuery;
   }
 
   private buildTokenOwnerQueryByChainId(chainId: string) {
-    let prefix = this.getChainPrefix(chainId);
+    const prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenOwnerQuery(prefix);
     return mainQuery;
   }
@@ -123,7 +123,7 @@ export class QueryBuilderService {
     const effectiveFirst = pagination.first;
     const afterCursor = pagination.after;
     const { effectiveOrderBy, orderDirection } = this.getOrderDetails(orderBy);
-    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildWhereConditions(where);
+    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where);
     let paramIndex = initialParamIndex;
 
     if (afterCursor) {
@@ -140,16 +140,15 @@ export class QueryBuilderService {
       ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}, oc.id ASC
       LIMIT $${paramIndex}
     `;
-console.log('Query:', query); // Log the query
+
     parameters.push(effectiveFirst + 1);
     return { query, parameters };    
   }
 
   async buildTokenQueryCount(where: TokenWhereInput): Promise<{ query: string; parameters: any[] }> {
-    const { conditions, parameters } = this.buildWhereConditions(where);
-
+    const { conditions, parameters } = this.buildTokenWhereConditions(where);
     const mainQuery = this.buildTokenCountQueryBaseByChainId(where?.chainId);
-     const query = `
+    const query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
     `;
@@ -157,21 +156,102 @@ console.log('Query:', query); // Log the query
     return { query, parameters };
   }
 
-  async buildTokenByIdQuery(ownershipContractId: string, tokenId: string, chainId): Promise<{ query: string; parameters: any[] }> {
-    const normalizedOwnershipContractId = ownershipContractId.toLowerCase(); // Convert to lowercase
+  async buildTokenByIdQuery(ownershipContractId: string, tokenId: string, chainId: string): Promise<{ query: string; parameters: any[] }> {
+    const normalizedOwnershipContractId = ownershipContractId.toLowerCase();
     const parameters = [normalizedOwnershipContractId, tokenId];
     const mainQuery = this.buildTokenByIdQueryByChainId(chainId);
     return { query: mainQuery, parameters };
   }
 
   async buildTokenOwnerQuery(where: TokenOwnersWhereInput): Promise<{ query: string; parameters: any[] }> {
-    const { conditions, parameters } = this.buildWhereConditions(where);
-
+    const { conditions, parameters } = this.buildTokenWhereConditions(where);
     const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId);
     const query = `
-      ${buildTokenOwnerQuery}
+      ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
     `;
     return { query, parameters };
   }
+
+async buildTransferQuery(
+  where?: TransferWhereInput,
+  pagination?: TransferPaginationInput,
+  orderBy?: TransferOrderByOptions
+): Promise<{ query: string; parameters: any[] }> {
+  const conditions: string[] = [];
+  const parameters: any[] = [];
+  let paramIndex = 1;
+
+  const prefix = this.getChainPrefix(where?.chainId);
+  const baseQuery = `
+    SELECT 
+      t.from,
+      t.to,
+      t.timestamp,
+      t.block_number as "blockNumber",
+      t.tx_hash as "txHash",
+      la.token_id,
+      oc.id as contract_address
+    FROM ${prefix}_transfer t
+    INNER JOIN ${prefix}_asset a ON t.asset_id = a.id
+    INNER JOIN laos_asset la ON la.token_id = a.token_id
+    INNER JOIN ${prefix}_ownership_contract oc ON oc.laos_contract = la.laos_contract
+  `;
+
+  if (where) {
+    if (where.tokenId) {
+      conditions.push(`la.token_id = $${paramIndex}`);
+      parameters.push(where.tokenId);
+      paramIndex++;
+    }
+    if (where.contractAddress) {
+      conditions.push(`LOWER(oc.id) = LOWER($${paramIndex})`);
+      parameters.push(where.contractAddress);
+      paramIndex++;
+    }
+    if (where.to) {
+      conditions.push(`LOWER(t.to) = LOWER($${paramIndex})`);
+      parameters.push(where.to);
+      paramIndex++;
+    }
+    if (where.from) {
+      conditions.push(`LOWER(t.from) = LOWER($${paramIndex})`);
+      parameters.push(where.from);
+      paramIndex++;
+    }
+    if (where.to_startsWith) {
+      conditions.push(`t.to ILIKE $${paramIndex}`);
+      parameters.push(`${where.to_startsWith}%`);
+      paramIndex++;
+    }
+  }
+
+  let query = baseQuery;
+  
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(' AND ')}`;
+  }
+
+  if (orderBy) {
+    const [field, direction] = orderBy.split(' ');
+    query += ` ORDER BY t.${field} ${direction}`;
+  } else {
+    query += ` ORDER BY t.timestamp DESC`;
+  }
+
+  if (pagination) {
+    if (pagination.limit) {
+      query += ` LIMIT $${paramIndex}`;
+      parameters.push(pagination.limit);
+      paramIndex++;
+    }
+    if (pagination.offset) {
+      query += ` OFFSET $${paramIndex}`;
+      parameters.push(pagination.offset);
+      paramIndex++;
+    }
+  }
+
+  return { query, parameters };
+}
 }
