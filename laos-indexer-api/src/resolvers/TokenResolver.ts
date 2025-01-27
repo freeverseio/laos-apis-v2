@@ -80,30 +80,15 @@ export class TokenResolver {
   }
 
   @Query(() => [TokenOwnersQueryResult], { nullable: true })
-async tokenOwners(
-  @Arg('where', () => TokenOwnersWhereInput, { nullable: true }) where: TokenOwnersWhereInput
-): Promise<TokenOwnersQueryResult[] | null> { // Return an array or null
-  const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
-  const result = await this.tx(query, parameters);
+  async tokenOwners(
+    @Arg('where', () => TokenOwnersWhereInput, { nullable: true }) where: TokenOwnersWhereInput
+  ): Promise<TokenOwnersQueryResult[] | null> { // Return an array or null
+    const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
+    const result = await this.tx(query, parameters);
 
-  console.log(result);
+    console.log(result);
 
-  return result.map((item: any) => new TokenOwnersQueryResult(item));
-}
+    return result.map((item: any) => new TokenOwnersQueryResult(item));
+  }
 
-
-
-  //--
-
-  // @Query(() => [TokenOwnersQueryResult], { nullable: true })
-  // async tokenOwners(
-  //   @Arg('where', () => TokenOwnersWhereInput, { nullable: true }) where: TokenOwnersWhereInput
-  // ): Promise<TokenOwnersQueryResult | null> {
-  //   const manager = await this.tx();
-  //   const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
-  //   const result = await manager.query(query, parameters);
-  //   console.log(result);
-
-  //   return result.map((result: any) => new TokenOwnersQueryResult(result));
-  // }
 }

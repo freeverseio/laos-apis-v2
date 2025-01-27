@@ -1,6 +1,18 @@
 import { TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
 
+// Supported chain IDs
+enum ChainIds {
+  POLYGON = '137',
+  ETHEREUM = '1'
+}
+
+// Supported chain prefix names
+const ChainNames: Record<ChainIds, string> = {
+  [ChainIds.POLYGON]: 'polygon',
+  [ChainIds.ETHEREUM]: 'ethereum',
+};
+
 interface WhereConditionsResult {
   conditions: string[];
   parameters: any[];
@@ -70,41 +82,35 @@ export class QueryBuilderService {
     const orderDirection = effectiveOrderBy.split(' ')[1];
     return { effectiveOrderBy, orderDirection };
   }
-
-  private getPrefix(chainId: any) {
-    let prefix = '';
-    if (chainId === '137') {
-      prefix = 'polygon';
-  
-    } else if (chainId === '1') {
-      prefix = 'ethereum';
-  
-    } else {
-      throw new Error('Unsupported chain ID: ' + chainId);
+ 
+  private getChainPrefix(chainId: string): string {
+    const chainName = ChainNames[chainId as ChainIds];
+    if (!chainName) {
+      throw new Error(`Unsupported chain ID: ${chainId}`);
     }
-    return prefix;
-  }
+    return chainName;
+  }  
 
   private buildTokenQueryBaseByChainId(chainId: string) {
-    let prefix = this.getPrefix(chainId);
+    let prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenQueryBase(prefix);
     return mainQuery;
   }
 
   private buildTokenByIdQueryByChainId(chainId: string) {
-    let prefix = this.getPrefix(chainId);
+    let prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenByIdQuery(prefix);
     return mainQuery;
   }
 
   private buildTokenCountQueryBaseByChainId(chainId: string) {
-    let prefix = this.getPrefix(chainId);
+    let prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenCountQueryBase(prefix);
     return mainQuery;
   }
 
   private buildTokenOwnerQueryByChainId(chainId: string) {
-    let prefix = this.getPrefix(chainId);
+    let prefix = this.getChainPrefix(chainId);
     const mainQuery = buildTokenOwnerQuery(prefix);
     return mainQuery;
   }
