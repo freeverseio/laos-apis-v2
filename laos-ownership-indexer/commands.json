@@ -49,6 +49,10 @@
         "deps": ["build", "migration:apply"],
         "cmd": ["node", "--require=dotenv/config", "lib/ownership_chain/main.js"]
       },
+      "generate:schema": {
+        "description": "Generate the schema.graphql file",
+        "cmd": ["node", "createSchema.js"]
+      },
       "process:prod:ownership_chain": {
         "description": "Start the squid processor",
         "deps": ["migration:apply"],
