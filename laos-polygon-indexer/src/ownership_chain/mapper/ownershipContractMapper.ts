@@ -1,9 +1,13 @@
-import { RawOwnershipContract, PolygonOwnershipContract as OwnershipContract } from '../../model';
+import { RawOwnershipContract, BaseOwnershipContract } from '../../model';
 import { generateContractUUID } from '../util';
+import { getGenericOwnershipContractModel } from '../factory';
 
+export function mapToOwnershipContract(raw: RawOwnershipContract): any {
+  const chainId = Number(process.env.CHAIN_ID!);
 
-export function mapToOwnershipContract(raw: RawOwnershipContract): OwnershipContract {
-  const chainId = process.env.CHAIN_ID ? Number(process.env.CHAIN_ID) : 137;
+  // Dynamically retrieve the OwnershipContract model
+  const OwnershipContract = getGenericOwnershipContractModel<BaseOwnershipContract>(process.env.OWNERSHIP_CONTRACT_MODEL!);
+
   return new OwnershipContract({
     id: generateContractUUID(raw.id, chainId),
     address: raw.id,
@@ -16,7 +20,6 @@ export function mapToOwnershipContract(raw: RawOwnershipContract): OwnershipCont
   });
 }
 
-export function createOwnershipContractsModel(rawOwnershipContracts: RawOwnershipContract[]): OwnershipContract[] {
+export function createOwnershipContractsModel(rawOwnershipContracts: RawOwnershipContract[]): any[] {
   return rawOwnershipContracts.map(mapToOwnershipContract);
-
 }

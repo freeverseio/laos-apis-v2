@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "rm -rf lib && tsc",
-    "test": "jest"
+    "test": "jest",
+    "test:assetMapper": "jest src/ownership_chain/mapper/assetMapper.test.ts",
+    "test:transferMapper": "jest src/ownership_chain/mapper/transferMapper.test.ts",
+    "test:ownershipContractMapper": "jest src/ownership_chain/mapper/ownershipContractMapper.test.ts"
   },
   "author": "",
   "license": "ISC",

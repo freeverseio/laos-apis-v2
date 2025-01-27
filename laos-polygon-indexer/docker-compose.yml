@@ -2,7 +2,7 @@ services:
   db2:
     image: postgres:15
     environment:
-      POSTGRES_DB: squid2
+      POSTGRES_DB: squid
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
