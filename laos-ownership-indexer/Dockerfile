@@ -53,7 +53,6 @@ COPY --from=builder /squid/lib lib
 COPY --from=builder /squid/db db
 COPY --from=builder /squid/schema.graphql schema.graphql
 ADD commands.json .
-ADD main.js .
 RUN echo -e "loglevel=silent\\nupdate-notifier=false" > /squid/.npmrc
 RUN npm i -g @subsquid/commands && mv $(which squid-commands) /usr/local/bin/sqd
 ENV PROCESSOR_PROMETHEUS_PORT 3000
