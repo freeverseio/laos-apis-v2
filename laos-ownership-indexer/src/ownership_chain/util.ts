@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 import { v5 as uuidv5, v4 } from 'uuid';
 
-export function generateAssetUUID(tokenId: bigint, contractAddress: string, chainId: number): string {
-    const combinedString = tokenId + contractAddress + chainId;
+export function generateAssetUUID(tokenId: bigint, contractAddress: string): string {
+    const combinedString = tokenId + contractAddress;
     const hash = createHash('sha256').update(combinedString).digest('hex');
     // Use the hash as the name for a namespace-based UUID (UUID v5)
     const namespace = 'c80dfd13-4025-4b97-ac1b-cde3aca8cf31';
@@ -10,8 +10,8 @@ export function generateAssetUUID(tokenId: bigint, contractAddress: string, chai
     return uuid;
 }
 
-export function generateContractUUID(address: string, chainId: number): string {
-    const combinedString = address + chainId;
+export function generateContractUUID(address: string): string {
+    const combinedString = address;
     const hash = createHash('sha256').update(combinedString).digest('hex');
     const namespace = 'c80dfd13-4025-4b97-ac1b-cde3aca8cf31';
     const uuid = uuidv5(hash, namespace);

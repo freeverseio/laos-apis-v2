@@ -9,7 +9,7 @@ export function mapToTransfer(raw: RawTransfer): any {
   const Transfer = getGenericTransferModel<BaseTransfer>(process.env.TRANSFER_MODEL!);
   return new Transfer({
     id: raw.id,
-    asset: new Asset({ id: generateAssetUUID(raw.tokenId, raw.ownershipContract, chainId) }),
+    asset: new Asset({ id: generateAssetUUID(raw.tokenId, raw.ownershipContract) }),
     from: raw.from,
     to: raw.to,
     timestamp: raw.timestamp,

@@ -1,7 +1,6 @@
 type ${chainName}OwnershipContract @entity {
   id: ID! 
   address: String @index
-  chainId: Int!
   laosContract: String  @index
   name: String
   symbol: String
@@ -12,7 +11,6 @@ type ${chainName}OwnershipContract @entity {
 type ${chainName}Asset @entity {
   id: ID! # ownership_contract + token_id constraint unique missing
   ownershipContract: ${chainName}OwnershipContract!
-  chainId: Int!
   tokenId: BigInt!
   owner: String!
   transfers: [${chainName}Transfer]! @derivedFrom(field: "asset")
@@ -20,7 +18,6 @@ type ${chainName}Asset @entity {
 
 type ${chainName}Transfer @entity {
   id: ID!
-  chainId: Int!
   asset: ${chainName}Asset!
   from: String!
   to: String!

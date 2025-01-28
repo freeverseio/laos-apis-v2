@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, StringColumn as StringColumn_, Index as Index_, IntColumn as IntColumn_, OneToMany as OneToMany_} from "@subsquid/typeorm-store"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, StringColumn as StringColumn_, Index as Index_, OneToMany as OneToMany_} from "@subsquid/typeorm-store"
 import {PolygonAsset} from "./polygonAsset.model"
 
 @Entity_()
@@ -13,9 +13,6 @@ export class PolygonOwnershipContract {
     @Index_()
     @StringColumn_({nullable: true})
     address!: string | undefined | null
-
-    @IntColumn_({nullable: false})
-    chainId!: number
 
     @Index_()
     @StringColumn_({nullable: true})

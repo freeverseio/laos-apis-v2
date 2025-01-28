@@ -51,7 +51,7 @@
       },
       "generate:schema": {
         "description": "Generate the schema.graphql file",
-        "cmd": ["node", "createSchema.js"]
+        "cmd": ["node", "generateSchema.js"]
       },
       "process:prod:ownership_chain": {
         "description": "Start the squid processor",
