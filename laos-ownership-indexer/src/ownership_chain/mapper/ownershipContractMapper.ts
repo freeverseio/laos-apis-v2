@@ -1,5 +1,4 @@
 import { RawOwnershipContract, BaseOwnershipContract } from '../../model';
-import { generateContractUUID } from '../util';
 import { getGenericOwnershipContractModel } from '../factory';
 
 export function mapToOwnershipContract(raw: RawOwnershipContract): any {
@@ -9,7 +8,7 @@ export function mapToOwnershipContract(raw: RawOwnershipContract): any {
   const OwnershipContract = getGenericOwnershipContractModel<BaseOwnershipContract>(process.env.OWNERSHIP_CONTRACT_MODEL!);
 
   return new OwnershipContract({
-    id: generateContractUUID(raw.id, chainId),
+    id: raw.id,
     address: raw.id,
     laosContract: raw.laosContract,
     bytecodeHash: raw.bytecodeHash,

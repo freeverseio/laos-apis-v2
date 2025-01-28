@@ -2,13 +2,11 @@ export interface BaseAsset {
   id: string;
   tokenId: bigint;
   owner: string;
-  chainId: number;
   transfers: BaseTransfer[];
 }
 
 export interface BaseOwnershipContract {
   id: string;
-  chainId: number;
   address: string;
   name: string;
   symbol: string;

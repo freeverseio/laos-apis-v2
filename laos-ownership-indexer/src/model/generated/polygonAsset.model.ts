@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, IntColumn as IntColumn_, BigIntColumn as BigIntColumn_, StringColumn as StringColumn_, OneToMany as OneToMany_} from "@subsquid/typeorm-store"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, BigIntColumn as BigIntColumn_, StringColumn as StringColumn_, OneToMany as OneToMany_} from "@subsquid/typeorm-store"
 import {PolygonOwnershipContract} from "./polygonOwnershipContract.model"
 import {PolygonTransfer} from "./polygonTransfer.model"
 
@@ -14,9 +14,6 @@ export class PolygonAsset {
     @Index_()
     @ManyToOne_(() => PolygonOwnershipContract, {nullable: true})
     ownershipContract!: PolygonOwnershipContract
-
-    @IntColumn_({nullable: false})
-    chainId!: number
 
     @BigIntColumn_({nullable: false})
     tokenId!: bigint

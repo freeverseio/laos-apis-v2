@@ -18,8 +18,8 @@ describe('generateUUID', () => {
   it('should combine tokenId and contractAddress and generate a UUID', () => {
     const tokenId = 73650113464448320614314146005078575017174739311147380597791116992882814864680n;
     const contractAddress = '0xfec1af3e023432ef364ef88653094442cfc00020';
-    expect(generateAssetUUID(tokenId, contractAddress, 1)).toBe('f63a3eac-6a89-5692-897e-c6a48ded2bf4');
-    expect(generateAssetUUID(tokenId, contractAddress, 1)).toBe('f63a3eac-6a89-5692-897e-c6a48ded2bf4');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('f63a3eac-6a89-5692-897e-c6a48ded2bf4');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('f63a3eac-6a89-5692-897e-c6a48ded2bf4');
 
 
   });
@@ -27,8 +27,8 @@ describe('generateUUID', () => {
   it('should combine tokenId and contractAddress and generate a UUID', () => {
     const tokenId = 860693765837880643717743864570872188823830693415160471676824633488737684776n;
     const contractAddress = '0xfec1af3e023432ef364ef88653094442cfc00020';
-    expect(generateAssetUUID(tokenId, contractAddress, 1)).toBe('17437574-bffc-57c5-adb2-193f17399c2e');
-    expect(generateAssetUUID(tokenId, contractAddress, 1)).toBe('17437574-bffc-57c5-adb2-193f17399c2e');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('17437574-bffc-57c5-adb2-193f17399c2e');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('17437574-bffc-57c5-adb2-193f17399c2e');
 
     
   });
