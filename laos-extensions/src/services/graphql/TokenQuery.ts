@@ -15,13 +15,26 @@ export class TokenQuery {
   }
 
   createQueryByOwner(input: GetTokenBalancesQueryInput) {
+
+    let whereClauses = []
+    if (input.contractAddress) {
+      whereClauses.push(`contractAddress: "${input.contractAddress}"`);
+    }
+    if (input.owner) {
+      whereClauses.push(`owner: "${input.owner}"`);
+    }
+    if (input.tokenId) {
+      whereClauses.push(`tokenId: "${input.tokenId}"`);
+    }
+
+    const whereClauseString = whereClauses.length > 0 ? `{ ${whereClauses.join(", ")} }` : "";
     return gql`
       query MyQuery {
         ${input.chainName} {
           tokens(
             orderBy: ${input.orderBy || 'CREATED_AT_DESC'}
             pagination: {first: ${input.first} ${input.after ? `, after: "${input.after}"` : ''}}
-            where: {${input.contractAddress ? `contractAddress: "${input.contractAddress}",` : ''} owner: "${input.owner}"}
+            ${whereClauseString ? `where: ${whereClauseString}` : ''}
           ) {
             totalCount
             edges {
