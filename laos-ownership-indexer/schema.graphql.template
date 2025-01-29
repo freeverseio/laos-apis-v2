@@ -1,0 +1,30 @@
+type ${chainName}OwnershipContract @entity {
+  id: ID! 
+  address: String @index
+  laosContract: String  @index
+  name: String
+  symbol: String
+  bytecodeHash: String
+  assets: [${chainName}Asset]! @derivedFrom(field: "ownershipContract")
+}
+
+type ${chainName}Asset @entity {
+  id: ID! # ownership_contract + token_id constraint unique missing
+  ownershipContract: ${chainName}OwnershipContract!
+  tokenId: BigInt!
+  owner: String!
+  transfers: [${chainName}Transfer]! @derivedFrom(field: "asset")
+}
+
+type ${chainName}Transfer @entity {
+  id: ID!
+  asset: ${chainName}Asset!
+  from: String!
+  to: String!
+  timestamp: DateTime!
+  blockNumber: Int!
+  txHash: String! @index
+}
+
+
+

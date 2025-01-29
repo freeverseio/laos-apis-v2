@@ -1,0 +1,30 @@
+type PolygonOwnershipContract @entity {
+  id: ID! 
+  address: String @index
+  laosContract: String  @index
+  name: String
+  symbol: String
+  bytecodeHash: String
+  assets: [PolygonAsset]! @derivedFrom(field: "ownershipContract")
+}
+
+type PolygonAsset @entity {
+  id: ID! # ownership_contract + token_id constraint unique missing
+  ownershipContract: PolygonOwnershipContract!
+  tokenId: BigInt!
+  owner: String!
+  transfers: [PolygonTransfer]! @derivedFrom(field: "asset")
+}
+
+type PolygonTransfer @entity {
+  id: ID!
+  asset: PolygonAsset!
+  from: String!
+  to: String!
+  timestamp: DateTime!
+  blockNumber: Int!
+  txHash: String! @index
+}
+
+
+

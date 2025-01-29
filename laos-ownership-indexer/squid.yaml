@@ -7,7 +7,7 @@ deploy:
   addons:
     postgres: 
   processor:
-    - name: laos-processor
-      cmd: [ "sqd", "process:prod:laos" ]
+    - name: ownership_chain-processor
+      cmd: [ "sqd", "process:prod:ownership_chain" ]
   api:
     cmd: [ "sqd", "serve:prod" ]
