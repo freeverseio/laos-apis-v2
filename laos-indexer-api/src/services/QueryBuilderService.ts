@@ -1,4 +1,4 @@
-import { TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
+import { TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
 
 // Supported chain IDs
@@ -173,85 +173,142 @@ export class QueryBuilderService {
     return { query, parameters };
   }
 
-async buildTransferQuery(
-  where?: TransferWhereInput,
-  pagination?: TransferPaginationInput,
-  orderBy?: TransferOrderByOptions
-): Promise<{ query: string; parameters: any[] }> {
-  const conditions: string[] = [];
-  const parameters: any[] = [];
-  let paramIndex = 1;
+  async buildTransferQuery(
+    where?: TransferWhereInput,
+    pagination?: TransferPaginationInput,
+    orderBy?: TransferOrderByOptions
+  ): Promise<{ query: string; parameters: any[] }> {
+    const conditions: string[] = [];
+    const parameters: any[] = [];
+    let paramIndex = 1;
 
-  const prefix = this.getChainPrefix(where?.chainId);
-  const baseQuery = `
-    SELECT 
-      t.from,
-      t.to,
-      t.timestamp,
-      t.block_number as "blockNumber",
-      t.tx_hash as "txHash",
-      la.token_id,
-      oc.id as contract_address
-    FROM ${prefix}_transfer t
-    INNER JOIN ${prefix}_asset a ON t.asset_id = a.id
-    INNER JOIN laos_asset la ON la.token_id = a.token_id
-    INNER JOIN ${prefix}_ownership_contract oc ON oc.laos_contract = la.laos_contract
-  `;
+    const ownershipPrefix = this.getChainPrefix(where?.chainId);
+    const baseQuery = `
+      SELECT 
+        t.from,
+        t.to,
+        t.timestamp,
+        t.block_number as "blockNumber",
+        t.tx_hash as "txHash",
+        la.token_id,
+        oc.id as contract_address
+      FROM ${ownershipPrefix}_transfer t
+      INNER JOIN ${ownershipPrefix}_asset a ON t.asset_id = a.id
+      INNER JOIN laos_asset la ON la.token_id = a.token_id
+      INNER JOIN ${ownershipPrefix}_ownership_contract oc ON oc.laos_contract = la.laos_contract
+    `;
 
-  if (where) {
-    if (where.tokenId) {
-      conditions.push(`la.token_id = $${paramIndex}`);
-      parameters.push(where.tokenId);
-      paramIndex++;
+    if (where) {
+      if (where.tokenId) {
+        conditions.push(`la.token_id = $${paramIndex}`);
+        parameters.push(where.tokenId);
+        paramIndex++;
+      }
+      if (where.contractAddress) {
+        conditions.push(`LOWER(oc.id) = LOWER($${paramIndex})`);
+        parameters.push(where.contractAddress);
+        paramIndex++;
+      }
+      if (where.to) {
+        conditions.push(`LOWER(t.to) = LOWER($${paramIndex})`);
+        parameters.push(where.to);
+        paramIndex++;
+      }
+      if (where.from) {
+        conditions.push(`LOWER(t.from) = LOWER($${paramIndex})`);
+        parameters.push(where.from);
+        paramIndex++;
+      }
+      if (where.to_startsWith) {
+        conditions.push(`t.to ILIKE $${paramIndex}`);
+        parameters.push(`${where.to_startsWith}%`);
+        paramIndex++;
+      }
     }
-    if (where.contractAddress) {
-      conditions.push(`LOWER(oc.id) = LOWER($${paramIndex})`);
-      parameters.push(where.contractAddress);
-      paramIndex++;
+
+    let query = baseQuery;
+    
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
     }
-    if (where.to) {
-      conditions.push(`LOWER(t.to) = LOWER($${paramIndex})`);
-      parameters.push(where.to);
-      paramIndex++;
+
+    if (orderBy) {
+      const [field, direction] = orderBy.split(' ');
+      query += ` ORDER BY t.${field} ${direction}`;
+    } else {
+      query += ` ORDER BY t.timestamp DESC`;
     }
-    if (where.from) {
-      conditions.push(`LOWER(t.from) = LOWER($${paramIndex})`);
-      parameters.push(where.from);
-      paramIndex++;
+
+    if (pagination) {
+      if (pagination.limit) {
+        query += ` LIMIT $${paramIndex}`;
+        parameters.push(pagination.limit);
+        paramIndex++;
+      }
+      if (pagination.offset) {
+        query += ` OFFSET $${paramIndex}`;
+        parameters.push(pagination.offset);
+        paramIndex++;
+      }
     }
-    if (where.to_startsWith) {
-      conditions.push(`t.to ILIKE $${paramIndex}`);
-      parameters.push(`${where.to_startsWith}%`);
-      paramIndex++;
-    }
+
+    return { query, parameters };
   }
 
-  let query = baseQuery;
+
+  async buildTokenHistoryQuery(
+    contractAddress: string,
+    tokenId: string,
+    chainId: string,
+    pagination?: TokenHistoryPaginationInput
+  ): Promise<{ query: string; parameters: any[] }> {
+    const parameters: any[] = [tokenId, contractAddress];
+    let paramIndex = 3;
+    const ownershipPrefix = this.getChainPrefix(chainId);
   
-  if (conditions.length > 0) {
-    query += ` WHERE ${conditions.join(' AND ')}`;
-  }
-
-  if (orderBy) {
-    const [field, direction] = orderBy.split(' ');
-    query += ` ORDER BY t.${field} ${direction}`;
-  } else {
-    query += ` ORDER BY t.timestamp DESC`;
-  }
-
-  if (pagination) {
-    if (pagination.limit) {
+    let query = `
+      SELECT 
+        tu.id AS "tokenUri",
+        tu.name AS name,
+        tu.description AS description,
+        tu.image AS image,
+        tu.attributes AS attributes,
+        tu.state AS "tokenUriFetchState",
+        m.block_number,
+        m.tx_hash,
+        m."timestamp" as "updatedAt",
+        oc.id AS "contractAddress"
+      FROM 
+        metadata m
+      INNER JOIN 
+        laos_asset la ON m.laos_asset_id = la.id
+      INNER JOIN 
+        ${ownershipPrefix}_ownership_contract oc ON LOWER(la.laos_contract) = LOWER(oc.laos_contract)
+      INNER JOIN 
+        token_uri tu ON m.token_uri_id = tu.id
+      WHERE 
+        la.token_id = $1
+        AND LOWER(oc.id) = $2
+    `;
+  
+    if (pagination?.orderBy) {
+      query += ` ORDER BY ${pagination.orderBy}`;
+    } else {
+      query += ` ORDER BY m."timestamp" DESC`;
+    }
+  
+    if (pagination?.limit) {
       query += ` LIMIT $${paramIndex}`;
       parameters.push(pagination.limit);
       paramIndex++;
     }
-    if (pagination.offset) {
+  
+    if (pagination?.offset) {
       query += ` OFFSET $${paramIndex}`;
       parameters.push(pagination.offset);
-      paramIndex++;
     }
-  }
+  
+    return { query, parameters };
+  }  
 
-  return { query, parameters };
-}
 }

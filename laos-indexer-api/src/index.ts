@@ -5,6 +5,7 @@ import { buildSchema } from "type-graphql";
 import { TokenResolver } from "./resolvers/TokenResolver";
 import Database from "./services/db/Database";
 import { TransferResolver } from "./resolvers/TransferResolver";
+import { TokenHistoryResolver } from "./resolvers/TokenHistoryResolver";
 
 dotenv.config();
 
@@ -16,13 +17,15 @@ async function startServer() {
   };
 
   const schema = await buildSchema({
-    resolvers: [TokenResolver, TransferResolver],
+    resolvers: [TokenResolver, TransferResolver, TokenHistoryResolver],
     container: {
       get(someClass: any) {
         if (someClass === TokenResolver) {
           return new TokenResolver(tx);
         } else if (someClass === TransferResolver) {
           return new TransferResolver(tx);
+        } else if (someClass === TokenHistoryResolver) {
+          return new TokenHistoryResolver(tx);
         }
         return undefined;
       },
