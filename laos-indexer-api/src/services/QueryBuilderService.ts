@@ -1,17 +1,13 @@
+import * as dotenv from 'dotenv';
 import { TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
 
-// Supported chain IDs
-enum ChainIds {
-  POLYGON = '137',
-  ETHEREUM = '1'
-}
+// Load supported chains from environment variable
+dotenv.config();
+const supportedChains = process.env.SUPPORTED_CHAINS ? JSON.parse(process.env.SUPPORTED_CHAINS) : {};
 
 // Supported chain prefix names
-const ChainNames: Record<ChainIds, string> = {
-  [ChainIds.POLYGON]: 'polygon',
-  [ChainIds.ETHEREUM]: 'ethereum',
-};
+const ChainNames: Record<string, string> = supportedChains;
 
 interface WhereConditionsResult {
   conditions: string[];
@@ -84,7 +80,7 @@ export class QueryBuilderService {
   }
  
   private getChainPrefix(chainId: string): string {
-    const chainName = ChainNames[chainId as ChainIds];
+    const chainName = ChainNames[chainId];
     if (!chainName) {
       throw new Error(`Unsupported chain ID: ${chainId}`);
     }
