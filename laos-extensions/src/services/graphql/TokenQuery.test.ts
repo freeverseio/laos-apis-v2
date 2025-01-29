@@ -1,4 +1,5 @@
 // Import dependencies
+import 'reflect-metadata';
 import { TokenQuery } from './TokenQuery';
 import { GqlClient } from './GqlClient';
 import { ApolloQueryResult } from '@apollo/client';

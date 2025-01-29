@@ -109,6 +109,7 @@ export type GetTokenBalancesQueryInput = {
   chainName: string;
   contractAddress?: string;
   owner: string;
+  tokenId?: string;
   after?: string;
   first?: number;
   includeMetadata?: boolean;
