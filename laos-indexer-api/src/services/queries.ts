@@ -1,4 +1,4 @@
-export const buildTokenQueryBase = (ownershipPrefix: string) => `
+export const buildTokenQueryBase = (ownershipPrefix: string, orderByClause: string) => `
   SELECT 
     la.token_id AS "tokenId", 
     COALESCE(a.owner, la.initial_owner) AS "owner",
@@ -18,7 +18,8 @@ export const buildTokenQueryBase = (ownershipPrefix: string) => `
     oc.id AS "contractAddress",
     oc.name AS "contractName",
     oc.symbol AS "contractSymbol",
-    oc.bytecode_hash AS "contractBytecodeHash"
+    oc.bytecode_hash AS "contractBytecodeHash",
+    ROW_NUMBER() OVER (${orderByClause}) AS row_num
   FROM laos_asset la
   INNER JOIN ${ownershipPrefix}_ownership_contract oc ON LOWER(la.laos_contract) = LOWER(oc.laos_contract)
   INNER JOIN metadata m ON la.metadata = m.id

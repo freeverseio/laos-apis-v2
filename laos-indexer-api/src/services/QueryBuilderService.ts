@@ -87,9 +87,9 @@ export class QueryBuilderService {
     return chainName;
   }  
 
-  private buildTokenQueryBaseByChainId(chainId: string) {
+  private buildTokenQueryBaseByChainId(chainId: string, orderByClause: string) {
     const prefix = this.getChainPrefix(chainId);
-    const mainQuery = buildTokenQueryBase(prefix);
+    const mainQuery = buildTokenQueryBase(prefix, orderByClause);
     return mainQuery;
   }
 
@@ -129,12 +129,17 @@ export class QueryBuilderService {
       paramIndex = newParamIndex;
     }
 
-    const mainQuery = this.buildTokenQueryBaseByChainId(where?.chainId); 
+    // build query with subquery to prevent ordering all the set and then appply limit. Around 90% more efficient
+    const orderByClause = `ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}, oc.id ASC`;
+    const mainQuery = this.buildTokenQueryBaseByChainId(where!.chainId, orderByClause); 
     const query = `
-      ${mainQuery}
-      ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
-      ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}, oc.id ASC
-      LIMIT $${paramIndex}
+      WITH ranked AS (
+        ${mainQuery}
+        ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
+      )
+      SELECT *
+      FROM ranked
+      WHERE row_num <= $${paramIndex};     
     `;
 
     parameters.push(effectiveFirst + 1);
