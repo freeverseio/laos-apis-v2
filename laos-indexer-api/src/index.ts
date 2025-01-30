@@ -6,10 +6,14 @@ import { TokenResolver } from "./resolvers/TokenResolver";
 import Database from "./services/db/Database";
 import { TransferResolver } from "./resolvers/TransferResolver";
 import { TokenHistoryResolver } from "./resolvers/TokenHistoryResolver";
+import Config from "./config/config";
 
 dotenv.config();
 
-async function startServer() { 
+async function startServer() {
+
+  Config.loadConfig();
+  console.log('Supported Chains Loaded:', Config.getSupportedChains());
 
   const tx = async (query: string, params?: any[]): Promise<any[]> => {
     const result = await Database.query(query, params);
