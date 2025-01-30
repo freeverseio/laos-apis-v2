@@ -106,7 +106,7 @@ type TokenIndexer = {
 }
 
 export type GetTokenBalancesQueryInput = {
-  chainId: number;
+  chainId: string;
   contractAddress?: string;
   owner: string;
   tokenId?: string;
@@ -117,7 +117,7 @@ export type GetTokenBalancesQueryInput = {
 }
 
 export type GetTokenSuppliesQueryInput = {
-  chainId: number;
+  chainId: string;
   contractAddress?: string;
   after?: string;
   first?: number;

@@ -109,7 +109,7 @@ export class TokenQuery {
       const sortBy = this.createSortBy(input.page?.sort || []);
       const query = this.createQueryByOwner({
         ...input,
-        chainId: Number(input.chainId),
+        chainId: input.chainId,
         owner: input.accountAddress,
         first: input.page?.pageSize ?? 100,
         orderBy: sortBy,
@@ -156,19 +156,17 @@ export class TokenQuery {
     try {
       const sortBy = this.createSortBy(body.page?.sort || []);
       const query = this.createQueryTokens({
-        chainId: Number(body.chainId),
+        chainId: body.chainId,
         contractAddress: body.contractAddress,
         after: body.page?.after as string | undefined,
         first: body.page?.pageSize ?? 100,
         includeMetadata: body.includeMetadata,
         orderBy: sortBy,
       });
-      console.log(query.loc?.source.body);
       const response = await this.gqlClient.query({
         query,
         fetchPolicy: 'no-cache',
       });
-      console.log(response);
       if (!response.data || response.data.tokens.edges.length === 0) {
         return {
           page: {
