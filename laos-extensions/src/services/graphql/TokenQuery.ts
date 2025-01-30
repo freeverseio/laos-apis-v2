@@ -5,11 +5,6 @@ import { GetTokenBalancesInput, GetTokenBalancesQueryInput, GetTokenSuppliesQuer
 export class TokenQuery {
   private gqlClient: GqlClient;
 
-  private chainNameMap = {
-    "1": "ethereum",
-    "137": "polygon",
-    "296": "hederatestnet"
-  };
 
   constructor() {
     this.gqlClient = new GqlClient();
@@ -112,11 +107,9 @@ export class TokenQuery {
   async fetchTokensByOwner(input: GetTokenBalancesInput): Promise<TokenResponse> {
     try {
       const sortBy = this.createSortBy(input.page?.sort || []);
-      const chainName = this.chainNameMap[input.chainId];
       const query = this.createQueryByOwner({
         ...input,
         chainId: Number(input.chainId),
-        chainName: chainName,
         owner: input.accountAddress,
         first: input.page?.pageSize ?? 100,
         orderBy: sortBy,
@@ -162,9 +155,7 @@ export class TokenQuery {
   async fetchTokens(body: TokenSupplyInput): Promise<TokenResponse> {
     try {
       const sortBy = this.createSortBy(body.page?.sort || []);
-      const chainName = this.chainNameMap[body.chainId];
       const query = this.createQueryTokens({
-        chainName: chainName,
         chainId: Number(body.chainId),
         contractAddress: body.contractAddress,
         after: body.page?.after as string | undefined,
