@@ -12,7 +12,7 @@ dotenv.config();
 
 async function startServer() {
 
-  Config.loadConfig();
+  await Config.loadConfig();
   console.log('Supported Chains Loaded:', Config.getSupportedChains());
 
   const tx = async (query: string, params?: any[]): Promise<any[]> => {

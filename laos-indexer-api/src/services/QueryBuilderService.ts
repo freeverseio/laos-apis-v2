@@ -2,9 +2,6 @@ import { TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
 import Config from '../config/config';
 
-// Supported chain prefix names
-const ChainNames: Record<string, string> = Config.getSupportedChains();
-
 interface WhereConditionsResult {
   conditions: string[];
   parameters: any[];
@@ -18,7 +15,20 @@ interface CursorConditionResult {
 }
 
 export class QueryBuilderService {
-  
+  private supportedChains: Record<string, string>;
+
+  constructor() {
+    this.supportedChains = Config.getSupportedChains();
+  }
+
+  private getChainPrefix(chainId: string): string {
+    const chainName = this.supportedChains[chainId];
+    if (!chainName) {
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+    }
+    return chainName;
+  }
+
   private buildTokenWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput): WhereConditionsResult {
     let conditions = [];
     let parameters = [];
@@ -74,14 +84,6 @@ export class QueryBuilderService {
     const orderDirection = effectiveOrderBy.split(' ')[1];
     return { effectiveOrderBy, orderDirection };
   }
- 
-  private getChainPrefix(chainId: string): string {
-    const chainName = ChainNames[chainId];
-    if (!chainName) {
-      throw new Error(`Unsupported chain ID: ${chainId}`);
-    }
-    return chainName;
-  }  
 
   private buildTokenQueryBaseByChainId(chainId: string, orderByClause: string) {
     const prefix = this.getChainPrefix(chainId);
@@ -91,22 +93,18 @@ export class QueryBuilderService {
 
   private buildTokenByIdQueryByChainId(chainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    const mainQuery = buildTokenByIdQuery(prefix);
-    return mainQuery;
+    return buildTokenByIdQuery(prefix);
   }
 
   private buildTokenCountQueryBaseByChainId(chainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    const mainQuery = buildTokenCountQueryBase(prefix);
-    return mainQuery;
+    return buildTokenCountQueryBase(prefix);
   }
 
   private buildTokenOwnerQueryByChainId(chainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    const mainQuery = buildTokenOwnerQuery(prefix);
-    return mainQuery;
+    return buildTokenOwnerQuery(prefix);
   }
-
   async buildTokenQuery(
     where: TokenWhereInput,
     pagination: TokenPaginationInput,
