@@ -4,6 +4,7 @@ import { GetTokenBalancesInput, GetTokenBalancesQueryInput, GetTokenSuppliesQuer
 
 export class TokenQuery {
   private gqlClient: GqlClient;
+
   private chainNameMap = {
     "1": "ethereum",
     "137": "polygon",
@@ -26,11 +27,13 @@ export class TokenQuery {
     if (input.tokenId) {
       whereClauses.push(`tokenId: "${input.tokenId}"`);
     }
+    if (input.chainId) {
+      whereClauses.push(`chainId: "${input.chainId}"`);
+    }
 
     const whereClauseString = whereClauses.length > 0 ? `{ ${whereClauses.join(", ")} }` : "";
     return gql`
       query MyQuery {
-        ${input.chainName} {
           tokens(
             orderBy: ${input.orderBy || 'CREATED_AT_DESC'}
             pagination: {first: ${input.first} ${input.after ? `, after: "${input.after}"` : ''}}
@@ -61,7 +64,6 @@ export class TokenQuery {
             }
           }
         }
-      }
     `;
 
   }
@@ -69,9 +71,11 @@ export class TokenQuery {
   createQueryTokens(input: GetTokenSuppliesQueryInput) {
     return gql`
       query MyQuery {
-        ${input.chainName} {
           tokens(
-            where: {contractAddress: "${input.contractAddress}"}
+            where: {
+            contractAddress: "${input.contractAddress}"
+            chainId: "${input.chainId}"
+            }
             orderBy: ${input.orderBy || 'CREATED_AT_DESC'}
             pagination: {first: ${input.first} ${input.after ? `, after: "${input.after}"` : ''}}
           ) {
@@ -100,7 +104,6 @@ export class TokenQuery {
             }
           }
         }
-      }
     `;
   }
 
@@ -112,6 +115,7 @@ export class TokenQuery {
       const chainName = this.chainNameMap[input.chainId];
       const query = this.createQueryByOwner({
         ...input,
+        chainId: Number(input.chainId),
         chainName: chainName,
         owner: input.accountAddress,
         first: input.page?.pageSize ?? 100,
@@ -122,13 +126,13 @@ export class TokenQuery {
         fetchPolicy: 'no-cache',
       });
       const pageSize = input.page?.pageSize ? input.page?.pageSize : 100;
-      const tokens: TokenIndexer[] = response.data[chainName].tokens.edges.map((edge: any) => {
+      const tokens: TokenIndexer[] = response.data.tokens.edges.map((edge: any) => {
         return {
           ...edge.node,
           blockNumber: edge.node.block_number,
         }
       });
-      if (!response.data || response.data[chainName].tokens.edges.length === 0) {
+      if (!response.data || response.data.tokens.edges.length === 0) {
         return {
           page: {
             after: "",
@@ -138,9 +142,9 @@ export class TokenQuery {
           tokens: [],
         };
       }
-      const after = response.data[chainName].tokens.edges[response.data[chainName].tokens.edges.length - 1].cursor;
-      const totalCount = response.data[chainName].tokens.totalCount;
-      const more = pageSize === response.data[chainName].tokens.edges.length;
+      const after = response.data.tokens.edges[response.data.tokens.edges.length - 1].cursor;
+      const totalCount = response.data.tokens.totalCount;
+      const more = pageSize === response.data.tokens.edges.length;
       return {
         page: {
           after: after,
@@ -161,6 +165,7 @@ export class TokenQuery {
       const chainName = this.chainNameMap[body.chainId];
       const query = this.createQueryTokens({
         chainName: chainName,
+        chainId: Number(body.chainId),
         contractAddress: body.contractAddress,
         after: body.page?.after as string | undefined,
         first: body.page?.pageSize ?? 100,
@@ -172,7 +177,8 @@ export class TokenQuery {
         query,
         fetchPolicy: 'no-cache',
       });
-      if (!response.data || response.data[chainName].tokens.edges.length === 0) {
+      console.log(response);
+      if (!response.data || response.data.tokens.edges.length === 0) {
         return {
           page: {
             after: "",
@@ -183,10 +189,10 @@ export class TokenQuery {
         };
       }
       const pageSize = body.page?.pageSize ? body.page?.pageSize : 100;
-      const tokens: TokenIndexer[] = response.data[chainName].tokens.edges.map((edge: any) => edge.node);
-      const after = response.data[chainName].tokens.edges[response.data[chainName].tokens.edges.length - 1].cursor;
-      const totalCount = response.data[chainName].tokens.totalCount;
-      const more = pageSize === response.data[chainName].tokens.edges.length;
+      const tokens: TokenIndexer[] = response.data.tokens.edges.map((edge: any) => edge.node);
+      const after = response.data.tokens.edges[response.data.tokens.edges.length - 1].cursor;
+      const totalCount = response.data.tokens.totalCount;
+      const more = pageSize === response.data.tokens.edges.length;
       return {
         page: {
           after: after,

@@ -63,6 +63,7 @@ export class TokenMapper {
   }
 
   static mapTokenSupplies(tokenResponse: TokenResponse, request: TokenSupplyInput, chainId: number, contractAddress: string): TokenSuppliesResponse {
+    console.log(tokenResponse);
     const tokens = tokenResponse.tokens;
     const tokenSupplies = tokens.map((token) => this.mapTokenSupply(token, chainId, contractAddress, request.includeMetadata));
     const pageSize = tokenResponse.page?.pageSize !== undefined  ? tokenResponse.page?.pageSize : 100;
