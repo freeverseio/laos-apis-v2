@@ -1,0 +1,32 @@
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, StringColumn as StringColumn_, DateTimeColumn as DateTimeColumn_, IntColumn as IntColumn_} from "@subsquid/typeorm-store"
+import {PolygonAsset} from "./polygonAsset.model"
+
+@Entity_()
+export class PolygonTransfer {
+    constructor(props?: Partial<PolygonTransfer>) {
+        Object.assign(this, props)
+    }
+
+    @PrimaryColumn_()
+    id!: string
+
+    @Index_()
+    @ManyToOne_(() => PolygonAsset, {nullable: true})
+    asset!: PolygonAsset
+
+    @StringColumn_({nullable: false})
+    from!: string
+
+    @StringColumn_({nullable: false})
+    to!: string
+
+    @DateTimeColumn_({nullable: false})
+    timestamp!: Date
+
+    @IntColumn_({nullable: false})
+    blockNumber!: number
+
+    @Index_()
+    @StringColumn_({nullable: false})
+    txHash!: string
+}

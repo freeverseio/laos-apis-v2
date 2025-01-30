@@ -14,7 +14,6 @@ jest.mock('./GqlClient', () => ({
 describe('TokenQuery - fetchTokensByOwner', () => {
   const mockData = {
     data: {
-      polygon: {
         tokens: {
           totalCount: 18,
           edges: [
@@ -35,7 +34,6 @@ describe('TokenQuery - fetchTokensByOwner', () => {
               },
             },
           ],
-        },
       },
     },
   };
@@ -81,7 +79,7 @@ describe('TokenQuery - fetchTokensByOwner', () => {
   it('should handle empty token results', async () => {
     gqlClient.query.mockResolvedValueOnce({
       data: {
-        polygon: { tokens: { totalCount: 0, edges: [] } },
+        tokens: { totalCount: 0, edges: [] } 
       },
     });
 

@@ -1,6 +1,8 @@
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 
+dotenv.config();
+
 const endpoint = 'http://localhost:4001/graphql';
 const apiKey = process.env.API_KEY;
 

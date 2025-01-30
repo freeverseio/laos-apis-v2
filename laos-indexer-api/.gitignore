@@ -8,3 +8,7 @@
 # Ignore the .env file in the root folder
 /.env
 # IDE files
+/.idea
+
+/certs/*
+/supported-chains/*

@@ -44,17 +44,23 @@
         "description": "Generate data access classes for an ABI file(s) in the ./abi folder",
         "cmd": ["squid-evm-typegen", "./src/abi", {"glob": "./abi/*.json"}, "--multicall"]
       },
-      "process:laos": {
+      "process:ownership_chain": {
         "description": "Load .env and start the squid processor",
         "deps": ["build", "migration:apply"],
-        "cmd": ["node", "--require=dotenv/config", "lib/laos/main.js"]
+        "cmd": ["node", "--require=dotenv/config", "lib/ownership_chain/main.js"]
       },
-      "process:prod:laos": {
+      "generate:schema": {
+        "description": "Generate the schema.graphql file",
+        "cmd": ["node", "generateSchema.js"]
+      },
+      "process:prod:ownership_chain": {
         "description": "Start the squid processor",
         "deps": ["migration:apply"],
-        "cmd": ["node", "lib/laos/main.js"],
+        "cmd": ["node", "lib/ownership_chain/main.js"],
         "hidden": true
       },
+      
+     
       "process:cron": {
         "description": "Start the tokenUriProcessor",
         "cmd": ["node", "lib/laos/tokenUriProcessor.js"],
