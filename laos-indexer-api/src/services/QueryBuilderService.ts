@@ -87,7 +87,8 @@ export class QueryBuilderService {
 
   private buildTokenQueryBaseByChainId(chainId: string, orderByClause: string) {
     const prefix = this.getChainPrefix(chainId);
-    return buildTokenQueryBase(prefix);
+    const mainQuery = buildTokenQueryBase(prefix, orderByClause);
+    return mainQuery;
   }
 
   private buildTokenByIdQueryByChainId(chainId: string) {
