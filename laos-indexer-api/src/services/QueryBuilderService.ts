@@ -1,13 +1,9 @@
-import * as dotenv from 'dotenv';
 import { TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
-
-// Load supported chains from environment variable
-dotenv.config();
-const supportedChains = process.env.SUPPORTED_CHAINS ? JSON.parse(process.env.SUPPORTED_CHAINS) : {};
+import Config from '../config/config';
 
 // Supported chain prefix names
-const ChainNames: Record<string, string> = supportedChains;
+const ChainNames: Record<string, string> = Config.getSupportedChains();
 
 interface WhereConditionsResult {
   conditions: string[];

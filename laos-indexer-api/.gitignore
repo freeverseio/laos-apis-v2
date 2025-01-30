@@ -11,3 +11,4 @@
 /.idea
 
 /certs/*
+/supported-chains/*
