@@ -52,7 +52,7 @@ A GraphQL playground will be available at http://localhost:4350/graphql.
 2. **Generte the schema.graphql file**
 
 ```bash
-generate:schema
+sqd generate:schema
 ```
 or
 ```bash
@@ -63,8 +63,9 @@ node generateSchema.js --chainName=Polygon
 
 ```bash
 sqd codegen
-sqd build
+sqd clean:all
 ```
+
 
 4. **Generate migration file**
 
