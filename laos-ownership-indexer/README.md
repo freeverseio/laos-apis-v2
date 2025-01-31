@@ -42,7 +42,26 @@ A GraphQL playground will be available at http://localhost:4350/graphql.
 1. **Specify the EVM chain** where bridgeless minting will operate, e.g. Ethereum, Polygon, Base, etc., by creating an `.env` file.
    - Use `example.env` as a reference.
    - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
-   - Note: Public RPC endpoints often have transaction limits.
+   - adapt the following env vars :
+     - CHAIN_ID=137
+     - CHAIN_NAME=Polygon
+     - OWNERSHIP_CONTRACT_MODEL=PolygonOwnershipContract
+     - ASSET_MODEL=PolygonAsset
+     - TRANSFER_MODEL=PolygonTransfer
+     - SCHEMA_NAME=ownership_chain_polygon_processor
+2. **Generte the schema.graphql file**
+
+```bash
+generate:schema
+```
+or
+```bash
+node generateSchema.js --chainName=Polygon
+```
+
+
+
+
 
 
 
