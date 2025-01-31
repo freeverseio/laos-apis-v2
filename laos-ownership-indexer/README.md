@@ -43,12 +43,13 @@ A GraphQL playground will be available at http://localhost:4350/graphql.
    - Use `example.env` as a reference.
    - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
    - adapt the following env vars :
-     - CHAIN_ID=137
-     - CHAIN_NAME=Polygon
-     - OWNERSHIP_CONTRACT_MODEL=PolygonOwnershipContract
-     - ASSET_MODEL=PolygonAsset
-     - TRANSFER_MODEL=PolygonTransfer
-     - SCHEMA_NAME=ownership_chain_polygon_processor
+     - CHAIN_ID=1
+     - CHAIN_NAME=Ethereum
+     - OWNERSHIP_CONTRACT_MODEL=EthereumOwnershipContract
+     - ASSET_MODEL=EthereumAsset
+     - TRANSFER_MODEL=EthereumTransfer
+     - SCHEMA_NAME=ownership_chain_ethereum_processor
+
 2. **Generte the schema.graphql file**
 
 ```bash
