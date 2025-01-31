@@ -59,6 +59,27 @@ or
 node generateSchema.js --chainName=Polygon
 ```
 
+3. **Build orm entities**
+
+```bash
+sqd codegen
+sqd build
+```
+
+4. **Generate migration file**
+
+```bash
+sqd migration:generate
+```
+
+5. **Start the processor**
+
+
+```bash
+sqd run .
+```
+
+
 
 
 
