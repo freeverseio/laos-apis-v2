@@ -1,4 +1,4 @@
-# LAOS Indexer
+# LAOS EVM Ownership Indexer
 
 This code provides an indexer that tracks all NFTs minted on any EVM chain using LAOS Network's bridgeless minting technology.
 
@@ -11,7 +11,7 @@ The code is a minimal extension of Subsquid's framework, leveraging its multi-ch
 
 A custom GraphQL API is provided for real-time data retrieval.
 
-## Quickstart
+## Quickstart with Polygon
 
 1. **Specify the EVM chain** where bridgeless minting will operate, e.g. Ethereum, Polygon, Base, etc., by creating an `.env` file.
    - Use `example.env` as a reference.
@@ -37,11 +37,57 @@ sqd run .
 A GraphQL playground will be available at http://localhost:4350/graphql.
 
 
-##  GraphQL queries:
-`tokens`: Lists NFTs based on the owner's address or a collection address.
-`token`: Retrieves current details about a particular NFT.
-`transfers`: Shows all transfer events associated with a specific NFT.
-`tokenHistory`: Returns all changes associated with the NFT's metadata.
+## Using a different chain
+
+1. **Specify the EVM chain** where bridgeless minting will operate, e.g. Ethereum, Polygon, Base, etc., by creating an `.env` file.
+   - Use `example.env` as a reference.
+   - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
+   - adapt the following env vars :
+     - CHAIN_ID=1
+     - CHAIN_NAME=Ethereum
+     - OWNERSHIP_CONTRACT_MODEL=EthereumOwnershipContract
+     - ASSET_MODEL=EthereumAsset
+     - TRANSFER_MODEL=EthereumTransfer
+     - SCHEMA_NAME=ownership_chain_ethereum_processor
+
+2. **Generte the schema.graphql file**
+
+```bash
+sqd generate:schema
+```
+or
+```bash
+node generateSchema.js --chainName=Polygon
+```
+
+3. **Build orm entities**
+
+```bash
+sqd codegen
+sqd clean:all
+```
+
+
+4. **Generate migration file**
+
+```bash
+sqd migration:generate
+```
+
+5. **Start the processor**
+
+
+```bash
+sqd run .
+```
+
+
+
+
+
+
+
+
 
 ## Contributing
 
