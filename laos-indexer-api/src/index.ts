@@ -14,6 +14,7 @@ async function startServer() {
 
   await Config.loadConfig();
   console.log('Supported Chains Loaded:', Config.getSupportedChains());
+  console.log('Supported LAOS Chains Loaded:', Config.getSupportedLaosChains());
 
   const tx = async (query: string, params?: any[]): Promise<any[]> => {
     const result = await Database.query(query, params);

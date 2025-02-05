@@ -16,15 +16,25 @@ interface CursorConditionResult {
 
 export class QueryBuilderService {
   private supportedChains: Record<string, string>;
+  private supportedLaosChains: Record<string, string>;
 
   constructor() {
     this.supportedChains = Config.getSupportedChains();
+    this.supportedLaosChains = Config.getSupportedLaosChains();
   }
 
   private getChainPrefix(chainId: string): string {
     const chainName = this.supportedChains[chainId];
     if (!chainName) {
       throw new Error(`Unsupported chain ID: ${chainId}`);
+    }
+    return chainName;
+  }
+
+  private getLaosChainPrefix(laosChainId: string): string {
+    const chainName = this.supportedLaosChains[laosChainId];
+    if (!chainName) {
+      throw new Error(`Unsupported LAOS chain ID: ${laosChainId}`);
     }
     return chainName;
   }
