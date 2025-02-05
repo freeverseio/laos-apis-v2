@@ -13,7 +13,7 @@ const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  ssl:  process.env.DB_SSL_CA_FILE
+  ssl:  process.env.DB_SSL_CA_FILE!=undefined
     ? {
       rejectUnauthorized: false,
       ca: process.env.DB_SSL_CA_FILE,
@@ -27,6 +27,7 @@ export async function processTokenURIs() {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
+    console.log('process.env.DB_SSL_CA_FILE', AppDataSource.isInitialized);
     const entityManager = AppDataSource.manager;
     const tokenURIDataService = TokenURIDataService.getInstance(entityManager);
     await tokenURIDataService.updatePendingTokenUris();
