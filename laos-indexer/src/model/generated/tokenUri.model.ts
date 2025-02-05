@@ -1,7 +1,7 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, StringColumn as StringColumn_, DateTimeColumn as DateTimeColumn_, OneToMany as OneToMany_} from "@subsquid/typeorm-store"
 import * as marshal from "./marshal"
 import {Attribute} from "./_attribute"
-import {Metadata} from "./metadata.model"
+import {MainnetMetadata} from "./mainnetMetadata.model"
 
 @Entity_()
 export class TokenUri {
@@ -30,6 +30,6 @@ export class TokenUri {
     @DateTimeColumn_({nullable: true})
     fetched!: Date | undefined | null
 
-    @OneToMany_(() => Metadata, e => e.tokenUri)
-    metadata!: Metadata[]
+    @OneToMany_(() => MainnetMetadata, e => e.tokenUri)
+    metadata!: MainnetMetadata[]
 }

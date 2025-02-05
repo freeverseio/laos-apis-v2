@@ -1,5 +1,6 @@
 import { EntityManager, UpdateResult } from 'typeorm';
-import { LaosAsset } from '../../model';
+import { BaseLaosAsset } from '../../model';
+import { getGenericAssetModel } from '../factory';
 
 export class CustomStore {
   private entityManager: EntityManager;
@@ -8,9 +9,10 @@ export class CustomStore {
     this.entityManager = em;
   }
 
-  async evolve(entities: LaosAsset[]): Promise<{ updatedIds: string[]; updatedTokenIds: bigint[] }> {
+  async evolve(entities: BaseLaosAsset[]): Promise<{ updatedIds: string[]; updatedTokenIds: bigint[] }> {
     const updatedIds: string[] = [];
     const updatedTokenIds: bigint[] = [];
+    const LaosAsset = getGenericAssetModel<BaseLaosAsset>(process.env.ASSET_MODEL!);
   
     for (const entity of entities) {
       const { id, ...attributes } = entity;

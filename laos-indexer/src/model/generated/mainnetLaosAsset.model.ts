@@ -1,8 +1,8 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, StringColumn as StringColumn_, Index as Index_, BigIntColumn as BigIntColumn_, DateTimeColumn as DateTimeColumn_, IntColumn as IntColumn_} from "@subsquid/typeorm-store"
 
 @Entity_()
-export class LaosAsset {
-    constructor(props?: Partial<LaosAsset>) {
+export class MainnetLaosAsset {
+    constructor(props?: Partial<MainnetLaosAsset>) {
         Object.assign(this, props)
     }
 
