@@ -9,7 +9,7 @@ import { processTokenURIs } from './tokenUriProcessor';
 
 const options: TypeormDatabaseOptions = {
   supportHotBlocks: true,
-  stateSchema: 'laos_processor',
+  stateSchema: process.env.SCHEMA_NAME!,
 };
 
 processor.run<Store>(new TypeormDatabase(options) as any, async (ctx) => {
