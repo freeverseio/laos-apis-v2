@@ -1,6 +1,6 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, IntColumn as IntColumn_, DateTimeColumn as DateTimeColumn_, StringColumn as StringColumn_} from "@subsquid/typeorm-store"
 import {MainnetLaosAsset} from "./mainnetLaosAsset.model"
-import {TokenUri} from "./tokenUri.model"
+import {MainnetTokenUri} from "./mainnetTokenUri.model"
 
 @Entity_()
 export class MainnetMetadata {
@@ -16,8 +16,8 @@ export class MainnetMetadata {
     laosAsset!: MainnetLaosAsset
 
     @Index_()
-    @ManyToOne_(() => TokenUri, {nullable: true})
-    tokenUri!: TokenUri
+    @ManyToOne_(() => MainnetTokenUri, {nullable: true})
+    tokenUri!: MainnetTokenUri
 
     @IntColumn_({nullable: false})
     blockNumber!: number

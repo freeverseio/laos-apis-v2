@@ -4,8 +4,8 @@ import {Attribute} from "./_attribute"
 import {MainnetMetadata} from "./mainnetMetadata.model"
 
 @Entity_()
-export class TokenUri {
-    constructor(props?: Partial<TokenUri>) {
+export class MainnetTokenUri {
+    constructor(props?: Partial<MainnetTokenUri>) {
         Object.assign(this, props)
     }
 

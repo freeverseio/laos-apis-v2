@@ -35,7 +35,6 @@ RUN sqd codegen
 
 # Step 4: Build the project
 RUN npm run build
-
 # Step 5: Install production dependencies
 FROM node-with-gyp AS deps
 WORKDIR /squid

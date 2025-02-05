@@ -11,13 +11,13 @@ type ${chainName}LaosAsset @entity {
 type ${chainName}Metadata @entity {
   id: ID!
   laosAsset: ${chainName}LaosAsset!
-  tokenUri: TokenUri!
+  tokenUri: ${chainName}TokenUri!
   blockNumber: Int!
   timestamp: DateTime!
   txHash: String! @index
 }
 
-type TokenUri @entity {
+type ${chainName}TokenUri @entity {
   id: ID! # token_uri
   state: String!
   name: String

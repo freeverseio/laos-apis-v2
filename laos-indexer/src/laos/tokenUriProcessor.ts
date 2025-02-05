@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { TokenURIDataService } from './service/TokenURIDataService';
 import * as dotenv from 'dotenv';
-import { TokenUri, MainnetMetadata as Metadata, MainnetLaosAsset as LaosAsset } from '../model';
+import { MainnetTokenUri as TokenUri, MainnetMetadata as Metadata, MainnetLaosAsset as LaosAsset } from '../model';
 
 dotenv.config();
 

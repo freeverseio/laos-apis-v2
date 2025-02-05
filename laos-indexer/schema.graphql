@@ -11,13 +11,13 @@ type MainnetLaosAsset @entity {
 type MainnetMetadata @entity {
   id: ID!
   laosAsset: MainnetLaosAsset!
-  tokenUri: TokenUri!
+  tokenUri: MainnetTokenUri!
   blockNumber: Int!
   timestamp: DateTime!
   txHash: String! @index
 }
 
-type TokenUri @entity {
+type MainnetTokenUri @entity {
   id: ID! # token_uri
   state: String!
   name: String

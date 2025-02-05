@@ -1,4 +1,5 @@
-import { RawMintedWithExternalURI, TokenUri, RawEvolvedWithExternalURI, TokenUriFetchState, BaseMetadata, BaseLaosAsset} from "../../model";
+import { RawMintedWithExternalURI, RawEvolvedWithExternalURI, TokenUriFetchState, BaseMetadata, BaseLaosAsset, BaseTokenUri} from "../../model";
+import { getGenericTokenUriModel } from "../factory";
 import { getGenericAssetModel } from "../factory";
 import { getGenericMetadataModel } from "../factory";
 import { generateLaosAssetUUID, generateLaosAssetMetadataUUID } from "../util";
@@ -6,6 +7,7 @@ import { generateLaosAssetUUID, generateLaosAssetMetadataUUID } from "../util";
 export function mapMintedWithExternalURItoMetadata(raw: RawMintedWithExternalURI): BaseMetadata {
   const Metadata = getGenericMetadataModel<BaseMetadata>(process.env.METADATA_MODEL!);
   const LaosAsset = getGenericAssetModel<BaseLaosAsset>(process.env.ASSET_MODEL!);
+  const TokenUri = getGenericTokenUriModel<BaseTokenUri>(process.env.TOKEN_URI_MODEL!);
   const metadata = new Metadata({
     id: generateLaosAssetMetadataUUID(raw._tokenId, raw.contract),
     tokenUri: new TokenUri({id: raw._tokenURI, state: TokenUriFetchState.Pending}),
@@ -27,6 +29,7 @@ export function mapMintedWithExternalURItoMetadata(raw: RawMintedWithExternalURI
 export function mapEvolvedWithExternalURItoMetadata(raw: RawEvolvedWithExternalURI): BaseMetadata {
   const Metadata = getGenericMetadataModel<BaseMetadata>(process.env.METADATA_MODEL!);
   const LaosAsset = getGenericAssetModel<BaseLaosAsset>(process.env.ASSET_MODEL!);
+  const TokenUri = getGenericTokenUriModel<BaseTokenUri>(process.env.TOKEN_URI_MODEL!);
   const metadata = new Metadata({
     id: generateLaosAssetMetadataUUID(raw._tokenId, raw.contract),
     tokenUri: new TokenUri({id: raw._tokenURI, state: TokenUriFetchState.Pending}),

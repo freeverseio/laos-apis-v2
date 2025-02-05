@@ -1,6 +1,7 @@
 import { EntityManager } from 'typeorm';
-import { TokenUri, TokenUriFetchState } from '../../model';
+import {  TokenUriFetchState, BaseTokenUri } from '../../model';
 import { IpfsService } from './IpfsService';
+import { getGenericTokenUriModel } from '../factory';
 
 export class TokenURIDataService {
   private static instance: TokenURIDataService;
@@ -36,7 +37,7 @@ export class TokenURIDataService {
     }
 
     this.isUpdating = true;
-
+    const TokenUri = getGenericTokenUriModel<BaseTokenUri>(process.env.TOKEN_URI_MODEL!);
     try {
       const tokenUris = await this.entityManager.find(TokenUri, { where: { state: TokenUriFetchState.Pending } });      
       // store in DB in batches of 100
