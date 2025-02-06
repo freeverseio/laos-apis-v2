@@ -7,6 +7,9 @@ export class TransferWhereInput {
   chainId!: string;
 
   @Field({ nullable: true })
+  laosChainId?: string;
+
+  @Field({ nullable: true })
   tokenId?: string;
 
   @Field({ nullable: true })
@@ -29,6 +32,9 @@ export class TokenWhereInput {
   chainId!: string;
 
   @Field({ nullable: true })
+  laosChainId?: string;
+
+  @Field({ nullable: true })
   contractAddress?: string;
 
   @Field({ nullable: true })
@@ -46,6 +52,9 @@ export class TokenOwnersWhereInput {
 
   @Field({ nullable: false })
   chainId!: string;
+
+  @Field({ nullable: true })
+  laosChainId?: string;
   
   @Field({ nullable: true })
   laosContract?: string;

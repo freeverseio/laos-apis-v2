@@ -23,11 +23,12 @@ export class TokenResolver {
 
   @Query(() => TokenQueryResult, { nullable: true })
   async token(
-    @Arg('chainId', () => String) chianId: string,
+    @Arg('chainId', () => String) chainId: string,
     @Arg('contractAddress', () => String) contractAddress: string,
-    @Arg('tokenId', () => String) tokenId: string
+    @Arg('tokenId', () => String) tokenId: string,
+    @Arg('laosChainId', () => String, { nullable: true }) laosChainId: string
   ): Promise<TokenQueryResult | null> {
-    const { query, parameters } = await this.queryBuilderService.buildTokenByIdQuery(contractAddress, tokenId, chianId);
+    const { query, parameters } = await this.queryBuilderService.buildTokenByIdQuery(contractAddress, tokenId, chainId, laosChainId);
     const result = await this.tx(query, parameters);
 
     if (result.length === 0) {
@@ -84,9 +85,6 @@ export class TokenResolver {
   ): Promise<TokenOwnersQueryResult[] | null> { // Return an array or null
     const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
     const result = await this.tx(query, parameters);
-
-    console.log(result);
-
     return result.map((item: any) => new TokenOwnersQueryResult(item));
   }
 

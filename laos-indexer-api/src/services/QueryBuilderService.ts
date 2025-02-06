@@ -16,17 +16,33 @@ interface CursorConditionResult {
 
 export class QueryBuilderService {
   private supportedChains: Record<string, string>;
+  private supportedLaosChains: Record<string, string>;
+  private defaultOwnershipLaosChain: Record<string, string>;
 
   constructor() {
     this.supportedChains = Config.getSupportedChains();
+    this.supportedLaosChains = Config.getSupportedLaosChains();
+    this.defaultOwnershipLaosChain = Config.getDefaultOwnershipLaosChain();
   }
 
   private getChainPrefix(chainId: string): string {
-    const chainName = this.supportedChains[chainId];
-    if (!chainName) {
+    const chainPrefix = this.supportedChains[chainId];
+    if (!chainPrefix) {
       throw new Error(`Unsupported chain ID: ${chainId}`);
     }
-    return chainName;
+    return chainPrefix;
+  }
+
+  private getLaosChainPrefix(chainId: string, laosChainId: string): string {
+    let useLaosChainId = laosChainId;
+    if (!useLaosChainId) {
+      useLaosChainId = this.defaultOwnershipLaosChain[chainId];
+    }
+    const laosChainPrefix = this.supportedLaosChains[useLaosChainId];
+    if (!laosChainPrefix) {
+      throw new Error(`Unsupported LAOS chain ID: ${useLaosChainId}`);
+    }
+    return laosChainPrefix;
   }
 
   private buildTokenWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput): WhereConditionsResult {
@@ -85,25 +101,29 @@ export class QueryBuilderService {
     return { effectiveOrderBy, orderDirection };
   }
 
-  private buildTokenQueryBaseByChainId(chainId: string, orderByClause: string) {
+  private buildTokenQueryBaseByChainId(chainId: string, laosChainId: string, orderByClause: string) {
     const prefix = this.getChainPrefix(chainId);
-    const mainQuery = buildTokenQueryBase(prefix, orderByClause);
+    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
+    const mainQuery = buildTokenQueryBase(prefix, laosPrefix, orderByClause);
     return mainQuery;
   }
 
-  private buildTokenByIdQueryByChainId(chainId: string) {
+  private buildTokenByIdQueryByChainId(chainId: string, laosChainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    return buildTokenByIdQuery(prefix);
+    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
+    return buildTokenByIdQuery(prefix, laosPrefix);
   }
 
-  private buildTokenCountQueryBaseByChainId(chainId: string) {
+  private buildTokenCountQueryBaseByChainId(chainId: string, laosChainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    return buildTokenCountQueryBase(prefix);
+    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
+    return buildTokenCountQueryBase(prefix, laosPrefix);
   }
 
-  private buildTokenOwnerQueryByChainId(chainId: string) {
+  private buildTokenOwnerQueryByChainId(chainId: string, laosChainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    return buildTokenOwnerQuery(prefix);
+    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
+    return buildTokenOwnerQuery(prefix, laosPrefix);
   }
   async buildTokenQuery(
     where: TokenWhereInput,
@@ -125,7 +145,7 @@ export class QueryBuilderService {
 
     // build query with subquery to prevent ordering all the set and then appply limit. Around 90% more efficient
     const orderByClause = `ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}, oc.id ASC`;
-    const mainQuery = this.buildTokenQueryBaseByChainId(where!.chainId, orderByClause); 
+    const mainQuery = this.buildTokenQueryBaseByChainId(where!.chainId, where!.laosChainId, orderByClause); 
     const query = `
       WITH ranked AS (
         ${mainQuery}
@@ -142,7 +162,7 @@ export class QueryBuilderService {
 
   async buildTokenQueryCount(where: TokenWhereInput): Promise<{ query: string; parameters: any[] }> {
     const { conditions, parameters } = this.buildTokenWhereConditions(where);
-    const mainQuery = this.buildTokenCountQueryBaseByChainId(where?.chainId);
+    const mainQuery = this.buildTokenCountQueryBaseByChainId(where!.chainId, where!.laosChainId);
     const query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
@@ -151,16 +171,16 @@ export class QueryBuilderService {
     return { query, parameters };
   }
 
-  async buildTokenByIdQuery(ownershipContractId: string, tokenId: string, chainId: string): Promise<{ query: string; parameters: any[] }> {
+  async buildTokenByIdQuery(ownershipContractId: string, tokenId: string, chainId: string, laosChainId?: string): Promise<{ query: string; parameters: any[] }> {
     const normalizedOwnershipContractId = ownershipContractId.toLowerCase();
     const parameters = [normalizedOwnershipContractId, tokenId];
-    const mainQuery = this.buildTokenByIdQueryByChainId(chainId);
+    const mainQuery = this.buildTokenByIdQueryByChainId(chainId, laosChainId);
     return { query: mainQuery, parameters };
   }
 
   async buildTokenOwnerQuery(where: TokenOwnersWhereInput): Promise<{ query: string; parameters: any[] }> {
     const { conditions, parameters } = this.buildTokenWhereConditions(where);
-    const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId);
+    const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId, where?.laosChainId);
     const query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
@@ -178,6 +198,8 @@ export class QueryBuilderService {
     let paramIndex = 1;
 
     const ownershipPrefix = this.getChainPrefix(where?.chainId);
+    // TODO get default laosChainId depending on chainId if not provied
+    const laosPrefix = this.getLaosChainPrefix(where?.chainId, where?.laosChainId);
     const baseQuery = `
       SELECT 
         t.from,
@@ -189,7 +211,7 @@ export class QueryBuilderService {
         oc.id as contract_address
       FROM ${ownershipPrefix}_transfer t
       INNER JOIN ${ownershipPrefix}_asset a ON t.asset_id = a.id
-      INNER JOIN laos_asset la ON la.token_id = a.token_id
+      INNER JOIN ${laosPrefix}_laos_asset la ON la.token_id = a.token_id
       INNER JOIN ${ownershipPrefix}_ownership_contract oc ON oc.laos_contract = la.laos_contract
     `;
 
@@ -255,11 +277,14 @@ export class QueryBuilderService {
     contractAddress: string,
     tokenId: string,
     chainId: string,
+    laosChainId?: string,
     pagination?: TokenHistoryPaginationInput
   ): Promise<{ query: string; parameters: any[] }> {
     const parameters: any[] = [tokenId, contractAddress];
     let paramIndex = 3;
     const ownershipPrefix = this.getChainPrefix(chainId);
+    // TODO get default laosChainId depending on chainId if not provied
+    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
   
     let query = `
       SELECT 
@@ -274,13 +299,13 @@ export class QueryBuilderService {
         m."timestamp" as "updatedAt",
         oc.id AS "contractAddress"
       FROM 
-        metadata m
+        ${laosPrefix}_metadata m
       INNER JOIN 
-        laos_asset la ON m.laos_asset_id = la.id
+        ${laosPrefix}_laos_asset la ON m.laos_asset_id = la.id
       INNER JOIN 
         ${ownershipPrefix}_ownership_contract oc ON LOWER(la.laos_contract) = LOWER(oc.laos_contract)
       INNER JOIN 
-        token_uri tu ON m.token_uri_id = tu.id
+        ${laosPrefix}_token_uri tu ON m.token_uri_id = tu.id
       WHERE 
         la.token_id = $1
         AND LOWER(oc.id) = $2
