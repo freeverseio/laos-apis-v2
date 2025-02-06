@@ -1,10 +1,10 @@
-import e from "cors";
-import { RawEvent, TokenUri, TokenUriFetchState } from "../../model";
-import { generateLaosAssetUUID } from "../util";
+import { BaseTokenUri, RawEvent, TokenUriFetchState } from "../../model";
+import { getGenericTokenUriModel } from "../factory";
 
 
 
-export function mapEventWithExternalURIToTokenUri(raw: RawEvent): TokenUri {
+export function mapEventWithExternalURIToTokenUri(raw: RawEvent): BaseTokenUri {
+  const TokenUri = getGenericTokenUriModel<BaseTokenUri>(process.env.TOKEN_URI_MODEL!);
   const tokenUri = new TokenUri({
     id: raw._tokenURI,
     state: TokenUriFetchState.Pending,
@@ -12,7 +12,7 @@ export function mapEventWithExternalURIToTokenUri(raw: RawEvent): TokenUri {
   return tokenUri;
 }
 
-export function createTokenUriModels(rawEvents: RawEvent[]): TokenUri[] {
+export function createTokenUriModels(rawEvents: RawEvent[]): BaseTokenUri[] {
   const tokenUris = rawEvents.map((raw) => mapEventWithExternalURIToTokenUri(raw));
   // remove duplicated ids
   return tokenUris.filter((tokenUri, index, self) =>

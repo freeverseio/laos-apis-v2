@@ -3,7 +3,6 @@ import { getGenericAssetModel, getGenericTransferModel } from '../factory';
 import { generateAssetUUID } from '../util';
 
 export function mapToTransfer(raw: RawTransfer): any {
-  const chainId = Number(process.env.CHAIN_ID!);
   // Retrieve dynamic models
   const Asset = getGenericAssetModel<BaseAsset>(process.env.ASSET_MODEL!);
   const Transfer = getGenericTransferModel<BaseTransfer>(process.env.TRANSFER_MODEL!);
@@ -15,7 +14,6 @@ export function mapToTransfer(raw: RawTransfer): any {
     timestamp: raw.timestamp,
     blockNumber: raw.blockNumber,
     txHash: raw.txHash,
-    chainId: chainId,
   });
 }
 

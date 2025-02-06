@@ -1,10 +1,10 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, IntColumn as IntColumn_, DateTimeColumn as DateTimeColumn_, StringColumn as StringColumn_} from "@subsquid/typeorm-store"
-import {LaosAsset} from "./laosAsset.model"
-import {TokenUri} from "./tokenUri.model"
+import {MainnetLaosAsset} from "./mainnetLaosAsset.model"
+import {MainnetTokenUri} from "./mainnetTokenUri.model"
 
 @Entity_()
-export class Metadata {
-    constructor(props?: Partial<Metadata>) {
+export class MainnetMetadata {
+    constructor(props?: Partial<MainnetMetadata>) {
         Object.assign(this, props)
     }
 
@@ -12,12 +12,12 @@ export class Metadata {
     id!: string
 
     @Index_()
-    @ManyToOne_(() => LaosAsset, {nullable: true})
-    laosAsset!: LaosAsset
+    @ManyToOne_(() => MainnetLaosAsset, {nullable: true})
+    laosAsset!: MainnetLaosAsset
 
     @Index_()
-    @ManyToOne_(() => TokenUri, {nullable: true})
-    tokenUri!: TokenUri
+    @ManyToOne_(() => MainnetTokenUri, {nullable: true})
+    tokenUri!: MainnetTokenUri
 
     @IntColumn_({nullable: false})
     blockNumber!: number
