@@ -1,6 +1,6 @@
 
 import { EventDetectionService } from './EventDetectionService';
-import { RawOwnershipContract } from '../../model';
+import { RawOwnershipContract, LaosChain } from '../../model';
 import { Context } from '../../__mocks__/Context'
 import { mockLogs } from '../../__mocks__/mockdata'
 
@@ -31,8 +31,16 @@ describe('EventDetectionService', () => {
     ownershipContractsToCheck.add('0xb176c21d6b66d2fe1b0e7c697610163d28000a65');
     ownershipContractsToCheck.add('0xD1EA24C0d5a9cFe0fd6AE3a75f8047Ba37ee5dC5');
     ownershipContractsToCheck.add('0x31E1818e4ca0f7DEFe50009a2B99485C4B6B795F');
-    
-    const service = new EventDetectionService(ctx, ownershipContractsToCheck);
+    const supportedLaosChains: LaosChain[] = [
+      {
+        name: 'mainnet',
+        chainId: 6283,
+        globalConsensus: '0:0x4756c4042a431ad2bbe61d8c4b966c1328e7a8daa0110e9bbd3d4013138a0bd4',  
+        parachainId: '2000',
+        palletInstance: '51'
+      }
+    ]
+    const service = new EventDetectionService(ctx, ownershipContractsToCheck, supportedLaosChains);
     const detectedEvents = service.detectEvents();
 
     // Validate ownershipContracts
@@ -42,7 +50,9 @@ describe('EventDetectionService', () => {
       laosContract: '0xfffffffffffffffffffffffe0000000000000021'.toLowerCase(),
       bytecodeHash: null,
       name: null,
-      symbol: null
+      symbol: null,
+      baseUri: "https://uloc.io/GlobalConsensus(0:0x4756c4042a431ad2bbe61d8c4b966c1328e7a8daa0110e9bbd3d4013138a0bd4)/Parachain(2000)/PalletInstance(51)/AccountKey20(0xfffffffffffffffffffffffe0000000000000021)/",
+      laosChainId: 6283
     });
 
     // Validate transfers
@@ -57,8 +67,17 @@ describe('EventDetectionService', () => {
     process.env.LAOS_PALLET_INSTANCE= '51'
     ctx = new Context(mockLogs);
     ownershipContractsToCheck.add('0xb176c21d6b66d2fe1b0e7c697610163d28000a65');
+    const supportedLaosChains: LaosChain[] = [
+      {
+        name: 'mainnet',
+        chainId: 6283,
+        globalConsensus: '0:0x4756c4042a431ad2bbe61d8c4b966c1328e7a8daa0110e9bbd3d4013138a0bd4',
+        parachainId: '2000',
+        palletInstance: '51'
+      }
+    ]
     
-    const service = new EventDetectionService(ctx, ownershipContractsToCheck);
+    const service = new EventDetectionService(ctx, ownershipContractsToCheck, supportedLaosChains);
     const detectedEvents = service.detectEvents();
 
     // Validate ownershipContracts
@@ -68,7 +87,9 @@ describe('EventDetectionService', () => {
       laosContract: '0xfffffffffffffffffffffffe0000000000000021'.toLowerCase(),
       bytecodeHash: null,
       name: null,
-      symbol: null
+      symbol: null,
+      baseUri: "https://uloc.io/GlobalConsensus(0:0x4756c4042a431ad2bbe61d8c4b966c1328e7a8daa0110e9bbd3d4013138a0bd4)/Parachain(2000)/PalletInstance(51)/AccountKey20(0xfffffffffffffffffffffffe0000000000000021)/",
+      laosChainId: 6283
     });
 
     // Validate transfers

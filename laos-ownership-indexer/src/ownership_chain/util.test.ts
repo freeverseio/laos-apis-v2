@@ -18,8 +18,8 @@ describe('generateUUID', () => {
   it('should combine tokenId and contractAddress and generate a UUID', () => {
     const tokenId = 73650113464448320614314146005078575017174739311147380597791116992882814864680n;
     const contractAddress = '0xfec1af3e023432ef364ef88653094442cfc00020';
-    expect(generateAssetUUID(tokenId, contractAddress)).toBe('f63a3eac-6a89-5692-897e-c6a48ded2bf4');
-    expect(generateAssetUUID(tokenId, contractAddress)).toBe('f63a3eac-6a89-5692-897e-c6a48ded2bf4');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('eb86bf56-9060-5369-8314-447743cfb20b');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('eb86bf56-9060-5369-8314-447743cfb20b');
 
 
   });
@@ -27,8 +27,8 @@ describe('generateUUID', () => {
   it('should combine tokenId and contractAddress and generate a UUID', () => {
     const tokenId = 860693765837880643717743864570872188823830693415160471676824633488737684776n;
     const contractAddress = '0xfec1af3e023432ef364ef88653094442cfc00020';
-    expect(generateAssetUUID(tokenId, contractAddress)).toBe('17437574-bffc-57c5-adb2-193f17399c2e');
-    expect(generateAssetUUID(tokenId, contractAddress)).toBe('17437574-bffc-57c5-adb2-193f17399c2e');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('5258bdfa-3b2e-58c7-a686-17d1e8406586');
+    expect(generateAssetUUID(tokenId, contractAddress)).toBe('5258bdfa-3b2e-58c7-a686-17d1e8406586');
 
     
   });
@@ -49,9 +49,9 @@ describe('parseBaseURI', () => {
         const result = parseBaseURI(baseUri);
 
         expect(result).toEqual({
-            globalConsensus: 'GlobalConsensus(0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f)',
-            parachain: 'Parachain(4006)',
-            palletInstance: 'PalletInstance(51)',
+            globalConsensus: '0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f',
+            parachain: '4006',
+            palletInstance: '51',
             accountKey20: '0xfFfFffffffFFFFFFFfFFFFfE000000000000007a',
             generalKey: null,
             ulocPrefix: 'GlobalConsensus(0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f)/Parachain(4006)/PalletInstance(51)/',
@@ -62,6 +62,13 @@ describe('parseBaseURI', () => {
         const baseUri = 'https://uloc.io/InvalidData/Parachain(2)/PalletInstance(3)/AccountKey20(0x123abc)';
         const result = parseBaseURI(baseUri);
 
-        expect(result).toBeNull();
+        expect(result).toEqual({
+            globalConsensus: null,
+            parachain: "2",
+            palletInstance: "3",
+            accountKey20: "0x123abc",
+            generalKey: null,
+            ulocPrefix: "InvalidData/Parachain(2)/PalletInstance(3)/",
+        });
     });
 });

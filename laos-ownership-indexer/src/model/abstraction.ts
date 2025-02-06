@@ -11,6 +11,8 @@ export interface BaseOwnershipContract {
   name: string;
   symbol: string;
   decimals: number;
+  baseUri: string;
+  laosChainId: number;
   bytecodeHash: string;
   assets: BaseAsset[];
 }

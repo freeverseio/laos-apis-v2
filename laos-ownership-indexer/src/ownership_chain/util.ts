@@ -32,28 +32,16 @@ export function getAccountKey20FromBaseUri(baseUri: string): string | null {
 
     return accountKey20Value
 }
-
+const extractValue = (token: string, prefix: string): string | null => {
+  const match = token.match(new RegExp(`^${prefix}\\((.*?)\\)$`));
+  return match ? match[1] : null;
+};
 export const parseBaseURI = (baseUri: string) => {
     const tokens = getBaseURITokens(baseUri);
-    if (!tokens) {
+    if (!tokens || tokens.length < 3) {
       return null
     }
 
-    const laosGlobalConsensusValue: string = process.env.LAOS_GLOBAL_CONSENSUS!
-    const laosParachainValue: string  = process.env.LAOS_PARACHAIN!
-    const laosPalletInstanceValue: string = process.env.LAOS_PALLET_INSTANCE!
-    const laosGlobalConsensus = `GlobalConsensus(${laosGlobalConsensusValue})`
-    const laosParachain = `Parachain(${laosParachainValue})`
-    const laosPalletInstance = `PalletInstance(${laosPalletInstanceValue})`
-    if (tokens.length < 3 || tokens[0] !== laosGlobalConsensus || tokens[1] !== laosParachain || tokens[2] !== laosPalletInstance) {
-      console.warn(
-        `Invalid baseURI: ${baseUri}`
-      )
-      console.log('GlobalConsensus: ',tokens[0], tokens[0] === laosGlobalConsensus)
-      console.log('Parachain: ',tokens[1], tokens[1] === laosParachain)
-      console.log('PalletInstance: ',tokens[2], tokens[2] === laosPalletInstance)
-      return null
-    }
   
     const accountKey20 = getAccountKey20(tokens[3]);
     let generalKey: string | null = null;
@@ -62,11 +50,16 @@ export const parseBaseURI = (baseUri: string) => {
     }
   
     const ulocPrefix = tokens[0] + '/' + tokens[1] + '/' + tokens[2] + '/'
+
+    const globalConsensus = extractValue(tokens[0], 'GlobalConsensus');
+    const parachain = extractValue(tokens[1], 'Parachain');
+    const palletInstance = extractValue(tokens[2], 'PalletInstance');
+    
   
     return {
-      globalConsensus: tokens[0],
-      parachain: tokens[1],
-      palletInstance: tokens[2],
+      globalConsensus: globalConsensus,
+      parachain: parachain,
+      palletInstance: palletInstance,
       accountKey20: accountKey20,
       generalKey: generalKey,
       ulocPrefix: ulocPrefix,
