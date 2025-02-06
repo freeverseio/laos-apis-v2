@@ -25,9 +25,10 @@ export class TokenResolver {
   async token(
     @Arg('chainId', () => String) chainId: string,
     @Arg('contractAddress', () => String) contractAddress: string,
-    @Arg('tokenId', () => String) tokenId: string
+    @Arg('tokenId', () => String) tokenId: string,
+    @Arg('laosChainId', () => String, { nullable: true }) laosChainId: string
   ): Promise<TokenQueryResult | null> {
-    const { query, parameters } = await this.queryBuilderService.buildTokenByIdQuery(contractAddress, tokenId, chainId);
+    const { query, parameters } = await this.queryBuilderService.buildTokenByIdQuery(contractAddress, tokenId, chainId, laosChainId);
     const result = await this.tx(query, parameters);
 
     if (result.length === 0) {
