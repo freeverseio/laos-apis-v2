@@ -68,3 +68,26 @@ export class TokenOwnersWhereInput {
   @Field({ nullable: true })
   owner?: string;
 }
+
+
+@InputType()
+export class OwnershipContractsWhereInput {
+
+  @Field({ nullable: false })
+  chainId!: string;
+
+  @Field({ nullable: true })
+  laosChainId?: string;
+  
+  @Field({ nullable: true })
+  contractAddress?: string;
+  
+  @Field({ nullable: true })
+  laosContract?: string;
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field({ nullable: true })
+  symbol?: string;
+}

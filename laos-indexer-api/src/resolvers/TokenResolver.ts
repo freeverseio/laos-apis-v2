@@ -1,5 +1,5 @@
 import { Arg, Query, Resolver } from 'type-graphql';
-import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput } from '../model';
+import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput, OwnershipContractsWhereInput, OwnershipContractsQueryResult } from '../model';
 import { QueryBuilderService } from '../services/QueryBuilderService';
 
 @Resolver()
@@ -86,6 +86,24 @@ export class TokenResolver {
     const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
     const result = await this.tx(query, parameters);
     return result.map((item: any) => new TokenOwnersQueryResult(item));
+  }
+
+
+
+  @Query(() => [OwnershipContractsQueryResult], { nullable: true })
+  async ownershipContracts(
+    @Arg('where', () => OwnershipContractsWhereInput, { nullable: true }) where: OwnershipContractsWhereInput
+  ): Promise<OwnershipContractsQueryResult[] | null> { // Return an array or null
+    const { query, parameters } = await this.queryBuilderService.buildOwnershipContractsQuery(where);
+    const result = await this.tx(query, parameters);
+    return result.map((item: any) => new OwnershipContractsQueryResult({
+      contractAddress: item.id,
+      laosChainId: item.laos_chain_id,
+      laosContract: item.laos_contract,
+      name: item.name,
+      symbol: item.symbol,
+      bytecodeHash: item.bytecode_hash
+    }));    
   }
 
 }
