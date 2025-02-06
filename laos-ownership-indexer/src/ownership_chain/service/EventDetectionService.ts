@@ -3,17 +3,19 @@ import * as ERC721UniversalContract from '../../abi/UniversalContract';
 import * as ERC721UniversalContract2 from '../../abi/UniversalContract2';
 import { parseBaseURI } from '../util';
 import { v4 as uuidv4 } from 'uuid';
-import { RawTransfer, DetectedEvents, RawOwnershipContract } from '../../model';
+import { RawTransfer, DetectedEvents, RawOwnershipContract, LaosChain } from '../../model';
 import { BlockData } from '@subsquid/evm-processor';
 import { ethers } from 'ethers';
 
 export class EventDetectionService {
   private ctx: Context;
   private ownershipContractsToCheck: Set<string>;
+  private supportedLaosChains: LaosChain[];
 
-  constructor(ctx: Context, ownershipContractsToCheck: Set<string>) {
+  constructor(ctx: Context, ownershipContractsToCheck: Set<string>, supportedLaosChains: LaosChain[]) {
     this.ctx = ctx;
     this.ownershipContractsToCheck = ownershipContractsToCheck;
+    this.supportedLaosChains = supportedLaosChains;
   }
 
   public detectEvents(): DetectedEvents {
@@ -42,8 +44,14 @@ export class EventDetectionService {
     if (logDecoded) {      
       console.log('New ERC721 Universal contract detected:', logDecoded.newContractAddress);
       const baseURITokens = parseBaseURI(logDecoded.baseURI);
-      if (baseURITokens === null) return // If the baseURI is not valid, skip the ERC721Universal contract
-      const laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
+      let laosContractAddress = null;
+      let laosChainId = null;
+      if (baseURITokens != null)  {
+        laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
+        if (baseURITokens.globalConsensus != null) {
+          laosChainId = this.getLaosChainId(baseURITokens.globalConsensus);
+        }
+      }
       this.ownershipContractsToCheck.add(logDecoded.newContractAddress.toLowerCase());
 
       const bytecodeHash = this.getBytecodeHash(logDecoded, block);
@@ -57,9 +65,11 @@ export class EventDetectionService {
       ownershipContractsToInsertInDb.push({
         id: logDecoded.newContractAddress.toLowerCase(),
         laosContract: laosContractAddress,
-        bytecodeHash: bytecodeHash,
-        name: name,
-        symbol: symbol,
+        baseUri: logDecoded.baseURI,
+        laosChainId,
+        bytecodeHash,
+        name,
+        symbol,
       });
     }
   }
@@ -102,5 +112,12 @@ export class EventDetectionService {
         ownershipContract: log.address.toLowerCase(),
       });
     }
+  }
+
+  private getLaosChainId(globalConsensus: string): number | null {
+    console.log('Global Consensus:', globalConsensus);
+    const laosChain = this.supportedLaosChains.find(chain => chain.globalConsensus === globalConsensus);
+    console.log('Laos Chain:', laosChain);
+    return laosChain?.chainId ?? null;
   }
 }
