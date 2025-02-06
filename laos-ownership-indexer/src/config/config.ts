@@ -17,7 +17,7 @@ class Config {
   public async loadConfig(): Promise<void> {
     if (!this.supportedLaosChains || this.supportedLaosChains.length === 0) {
       try {
-        const data = await fs.readFile('supported-chains/laos-consensus.json', 'utf8');
+        const data = await fs.readFile('laos-consensus/laos-consensus.json', 'utf8');
         this.supportedLaosChains = (JSON.parse(data) as any).chains;
       } catch (error) {
         console.error('Error reading supported chains:', error);
