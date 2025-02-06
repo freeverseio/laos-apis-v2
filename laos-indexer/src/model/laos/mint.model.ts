@@ -1,6 +1,6 @@
-import { LaosAsset, Metadata } from "../generated";
+import { BaseLaosAsset, BaseMetadata } from "../abstraction";
 
 export interface MintedModels {
-  asset: LaosAsset,
-  metadata: Metadata
+  asset: BaseLaosAsset,
+  metadata: BaseMetadata
 }

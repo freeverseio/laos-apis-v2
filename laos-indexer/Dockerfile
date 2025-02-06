@@ -1,21 +1,43 @@
 FROM node:16-alpine AS node
 FROM node AS node-with-gyp
 RUN apk add g++ make python3
+
 FROM node-with-gyp AS builder
 WORKDIR /squid
 ADD package.json .
 ADD package-lock.json .
 ADD db db
-ADD schema.graphql .
 RUN npm ci
-ADD tsconfig.json .
+
+# Step 2: Install subsquid CLI globally
+RUN npm i -g @subsquid/commands && mv $(which squid-commands) /usr/local/bin/sqd
+
+# Step 3: Add the rest of the files, generate schema, and create TypeORM entities
+ADD schema.graphql.template .
+ADD generateSchema.js .
+ADD commands.json .
 ADD src src
+ADD tsconfig.json .
+
+ARG CHAIN_NAME="Mainnet"
+ENV CHAIN_NAME=${CHAIN_NAME}
+# Print the value of CHAIN_NAME for debugging
+RUN echo "CHAIN_NAME is set to: $CHAIN_NAME"
+
+# Run the schema generation command
+RUN node generateSchema.js --chainName=$CHAIN_NAME
+
+RUN sqd codegen
+
+# Step 4: Build the project
 RUN npm run build
 FROM node-with-gyp AS deps
 WORKDIR /squid
 ADD package.json .
 ADD package-lock.json .
 RUN npm ci --production
+
+
 FROM node AS squid
 WORKDIR /squid
 COPY --from=deps /squid/package.json .

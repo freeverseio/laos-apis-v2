@@ -1,4 +1,4 @@
-type MainnetLaosAsset @entity {
+type ${chainName}LaosAsset @entity {
   id: ID!
   laosContract: String! @index
   tokenId: BigInt!
@@ -8,16 +8,16 @@ type MainnetLaosAsset @entity {
   metadata: String  @index
 }
 
-type MainnetMetadata @entity {
+type ${chainName}Metadata @entity {
   id: ID!
-  laosAsset: MainnetLaosAsset!
-  tokenUri: MainnetTokenUri!
+  laosAsset: ${chainName}LaosAsset!
+  tokenUri: ${chainName}TokenUri!
   blockNumber: Int!
   timestamp: DateTime!
   txHash: String! @index
 }
 
-type MainnetTokenUri @entity {
+type ${chainName}TokenUri @entity {
   id: ID! # token_uri
   state: String!
   name: String
@@ -25,7 +25,7 @@ type MainnetTokenUri @entity {
   image: String
   attributes: [Attribute!]
   fetched: DateTime
-  metadata: [MainnetMetadata!]! @derivedFrom(field: "tokenUri")
+  metadata: [${chainName}Metadata!]! @derivedFrom(field: "tokenUri")
 }
 
 type Attribute {

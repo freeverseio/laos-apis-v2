@@ -3,7 +3,6 @@ import { generateAssetUUID } from '../util';
 import { getGenericAssetModel, getGenericOwnershipContractModel } from '../factory';
 
 export function mapToAsset(raw: RawTransfer): any {
-  const chainId = Number(process.env.CHAIN_ID!);
 
   // Retrieve dynamic models
   const Asset = getGenericAssetModel<BaseAsset>(process.env.ASSET_MODEL!);
@@ -15,7 +14,6 @@ export function mapToAsset(raw: RawTransfer): any {
     tokenId: raw.tokenId,
     owner: raw.to,
     transfers: [],
-    chainId: chainId,
   });
 
   return asset;
