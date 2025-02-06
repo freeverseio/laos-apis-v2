@@ -4,6 +4,7 @@ class Config {
   private static instance: Config;
   private supportedChains: any = null;
   private supportedLaosChains: any = null;
+  private defaultOwnershipLaosChain: any = null;
 
   private constructor() {}
 
@@ -34,6 +35,16 @@ class Config {
         throw error;
       }
     }
+
+    if (!this.defaultOwnershipLaosChain) {
+      try {
+        const data = await fs.readFile('supported-chains/default-ownership-laos-chain.json', 'utf8');
+        this.defaultOwnershipLaosChain = JSON.parse(data);
+      } catch (error) {
+        console.error('Error reading default ownership LAOS chain JSON:', error);
+        throw error;
+      }
+    }
   }
 
   public getSupportedChains(): any {
@@ -48,6 +59,13 @@ class Config {
       throw new Error('Config not initialized. Call loadConfig() first.');
     }
     return this.supportedLaosChains;
+  }
+
+  public getDefaultOwnershipLaosChain(): any {
+    if (!this.defaultOwnershipLaosChain) {
+      throw new Error('Config not initialized. Call loadConfig() first.');
+    }
+    return this.defaultOwnershipLaosChain;
   }
 }
 
