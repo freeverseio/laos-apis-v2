@@ -1,0 +1,18 @@
+{
+  "chains": [
+    {
+      "name": "mainnet",
+      "chainId": 6283,
+      "globalConsensus": "2",
+      "parachainId": "3370",
+      "palletInstance": "51"
+    },
+      {
+      "name": "sigma",
+      "chainId": 62850,
+      "globalConsensus": "0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f",
+      "parachainId": "4006",
+      "palletInstance": "51"
+    }
+  ]
+}
