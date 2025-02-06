@@ -16,7 +16,6 @@ const OwnershipContract = getGenericOwnershipContractModel<BaseOwnershipContract
 
 processor.run<Store>(new TypeormDatabase(options), async (ctx) => {
   const supportedLaosChains = await Config.getSupportedLaosChains();
-  console.log('Supported Laos Chains:', supportedLaosChains);
   const ownerShipContracts = await ctx.store.find(OwnershipContract);
   const ownershipContractIds = new Set(ownerShipContracts.map(contract => contract.id));
 
