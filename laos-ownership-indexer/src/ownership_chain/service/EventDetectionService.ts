@@ -47,9 +47,11 @@ export class EventDetectionService {
       let laosContractAddress = null;
       let laosChainId = null;
       if (baseURITokens != null)  {
-        laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
         if (baseURITokens.globalConsensus != null) {
           laosChainId = this.getLaosChainId(baseURITokens.globalConsensus);
+          if (laosChainId != null) {
+            laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
+          }
         }
       }
       this.ownershipContractsToCheck.add(logDecoded.newContractAddress.toLowerCase());
