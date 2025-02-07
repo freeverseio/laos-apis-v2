@@ -46,10 +46,10 @@ export class EventDetectionService {
       const baseURITokens = parseBaseURI(logDecoded.baseURI);
       let laosContractAddress = null;
       let laosChainId = null;
-      if (baseURITokens != null)  {
-        laosContractAddress = baseURITokens?.accountKey20 ? baseURITokens.accountKey20.toLowerCase() : null;
-        if (baseURITokens.globalConsensus != null) {
-          laosChainId = this.getLaosChainId(baseURITokens.globalConsensus);
+      if (baseURITokens?.globalConsensus) {
+        laosChainId = this.getLaosChainId(baseURITokens.globalConsensus);
+        if (laosChainId) {
+          laosContractAddress = baseURITokens.accountKey20?.toLowerCase() || null;
         }
       }
       this.ownershipContractsToCheck.add(logDecoded.newContractAddress.toLowerCase());
