@@ -1,5 +1,5 @@
 import { Arg, Query, Resolver } from 'type-graphql';
-import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput } from '../model';
+import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput, OwnershipContractsWhereInput, OwnershipContractsQueryResult, OwnershipContractsPaginationInput } from '../model';
 import { QueryBuilderService } from '../services/QueryBuilderService';
 
 @Resolver()
@@ -86,6 +86,26 @@ export class TokenResolver {
     const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
     const result = await this.tx(query, parameters);
     return result.map((item: any) => new TokenOwnersQueryResult(item));
+  }
+
+
+
+  @Query(() => [OwnershipContractsQueryResult], { nullable: true })
+  async ownershipContracts(
+    @Arg('where', () => OwnershipContractsWhereInput, { nullable: true }) where: OwnershipContractsWhereInput,
+    @Arg('pagination', () => OwnershipContractsPaginationInput, { nullable: true, defaultValue: { limit: 10, offset: 0 } }) pagination: OwnershipContractsPaginationInput
+  ): Promise<OwnershipContractsQueryResult[] | null> { // Return an array or null
+    const { query, parameters } = await this.queryBuilderService.buildOwnershipContractsQuery(where, pagination);
+    const result = await this.tx(query, parameters);
+    return result.map((item: any) => new OwnershipContractsQueryResult({
+      chainId: where.chainId,
+      contractAddress: item.id,
+      laosChainId: item.laos_chain_id,
+      laosContract: item.laos_contract,
+      name: item.name,
+      symbol: item.symbol,
+      bytecodeHash: item.bytecode_hash
+    }));    
   }
 
 }

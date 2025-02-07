@@ -82,3 +82,8 @@ export const buildTokenOwnerQuery = (ownershipPrefix: string, laosPrefix: string
       ON la.token_id = a.token_id 
       AND a.ownership_contract_id = oc.id
   `;
+
+export const buildOwnershipContractsQueryByPrefix = (ownershipPrefix: string) => `
+  SELECT id, laos_contract, name, symbol, bytecode_hash, laos_chain_id
+  FROM ${ownershipPrefix}_ownership_contract poc
+`;

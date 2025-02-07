@@ -201,3 +201,33 @@ export class TokenOwnersQueryResult {
     Object.assign(this, props);
   }
 }
+
+
+@ObjectType()
+export class OwnershipContractsQueryResult {
+
+  @Field(() => String, { nullable: false })
+  chainId?: string;
+
+  @Field(() => String, { nullable: false })
+  contractAddress!: string;
+  
+  @Field(() => String, { nullable: true })
+  laosChainId?: string;
+
+  @Field(() => String, { nullable: true })
+  laosContract?: string;
+
+  @Field(() => String, { nullable: true })
+  name?: string;
+
+  @Field(() => String, { nullable: true })
+  symbol?: string;
+
+  @Field(() => String, { nullable: true })
+  bytecodeHash?: string;
+
+  constructor(props: Partial<OwnershipContractsQueryResult>) {
+    Object.assign(this, props);
+  }
+}

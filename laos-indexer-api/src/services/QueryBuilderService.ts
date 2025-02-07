@@ -1,5 +1,5 @@
-import { TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
-import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery } from './queries';
+import { OwnershipContractsPaginationInput, OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
+import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery, buildOwnershipContractsQueryByPrefix } from './queries';
 import Config from '../config/config';
 
 interface WhereConditionsResult {
@@ -70,6 +70,35 @@ export class QueryBuilderService {
     return { conditions, parameters, paramIndex };
   }
 
+  private buildOwnershipContractsWhereConditions(where: OwnershipContractsWhereInput): WhereConditionsResult {
+    let conditions = [];
+    let parameters = [];
+    let paramIndex = 1;
+
+    if (where?.contractAddress) {
+      conditions.push(`id = $${paramIndex++}`); // same as address but with index
+      parameters.push(where.contractAddress.toLowerCase());
+    }
+    if (where?.laosContract) {
+      conditions.push(`laos_contract = $${paramIndex++}`);
+      parameters.push(where.laosContract.toLowerCase());
+    }
+    if (where?.name) {
+      conditions.push(`LOWER(name) = LOWER($${paramIndex++})`);
+      parameters.push(where.name.toLowerCase());
+    }
+    if (where?.symbol) {
+      conditions.push(`LOWER(symbol) = LOWER($${paramIndex++})`);
+      parameters.push(where.symbol.toLowerCase());
+    }
+    if (where?.laosChainId) {
+      conditions.push(`laos_chain_id = $${paramIndex++}`);
+      parameters.push(where.laosChainId);
+    }
+
+    return { conditions, parameters, paramIndex };
+  }
+
   private buildCursorCondition(afterCursor: string, effectiveOrderBy: string, paramIndex: number): CursorConditionResult {
     const decodedCursor = Buffer.from(afterCursor, 'base64').toString('ascii');
     const [afterCreatedAt, afterLogIndex, afterContractId] = decodedCursor.split(':').map(part => part.trim());
@@ -125,6 +154,12 @@ export class QueryBuilderService {
     const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
     return buildTokenOwnerQuery(prefix, laosPrefix);
   }
+
+  private buildOwnershipContractsQueryByChainId(chainId: string) {
+    const prefix = this.getChainPrefix(chainId);
+    return buildOwnershipContractsQueryByPrefix(prefix);
+  }
+
   async buildTokenQuery(
     where: TokenWhereInput,
     pagination: TokenPaginationInput,
@@ -185,6 +220,27 @@ export class QueryBuilderService {
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
     `;
+    return { query, parameters };
+  }
+
+  async buildOwnershipContractsQuery(where: OwnershipContractsWhereInput, pagination: OwnershipContractsPaginationInput): Promise<{ query: string; parameters: any[] }> {
+    const { conditions, parameters } = this.buildOwnershipContractsWhereConditions(where);
+    const mainQuery = this.buildOwnershipContractsQueryByChainId(where?.chainId);
+
+    let query = `
+      ${mainQuery}
+      ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
+    `;
+
+    if (pagination) {
+      if (pagination.limit && (typeof pagination.limit === 'number' && pagination.limit >= 0)) {
+        query += ` LIMIT ${pagination.limit}`;
+      }
+      if (pagination.offset && typeof pagination.offset === 'number' && pagination.offset >= 0) {
+        query += ` OFFSET ${pagination.offset}`;
+      }
+    }
+
     return { query, parameters };
   }
 
