@@ -10,6 +10,8 @@ export function mapToOwnershipContract(raw: RawOwnershipContract): any {
     id: raw.id,
     address: raw.id,
     laosContract: raw.laosContract,
+    laosChainId: raw.laosChainId,
+    baseUri: raw.baseUri,
     bytecodeHash: raw.bytecodeHash,
     name: raw.name,
     symbol: raw.symbol,

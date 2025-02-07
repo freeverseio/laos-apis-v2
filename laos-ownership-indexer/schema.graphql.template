@@ -2,6 +2,8 @@ type ${chainName}OwnershipContract @entity {
   id: ID! 
   address: String @index
   laosContract: String  @index
+  baseUri: String
+  laosChainId: Int
   name: String
   symbol: String
   bytecodeHash: String
