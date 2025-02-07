@@ -207,6 +207,9 @@ export class TokenOwnersQueryResult {
 export class OwnershipContractsQueryResult {
 
   @Field(() => String, { nullable: false })
+  chainId?: string;
+
+  @Field(() => String, { nullable: false })
   contractAddress!: string;
   
   @Field(() => String, { nullable: true })

@@ -91,3 +91,12 @@ export class OwnershipContractsWhereInput {
   @Field({ nullable: true })
   symbol?: string;
 }
+
+@InputType()
+export class OwnershipContractsPaginationInput {
+  @Field({ nullable: true })
+  limit?: number;
+
+  @Field({ nullable: true })
+  offset?: number;
+}

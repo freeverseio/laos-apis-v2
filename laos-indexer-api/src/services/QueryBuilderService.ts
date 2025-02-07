@@ -1,4 +1,4 @@
-import { OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
+import { OwnershipContractsPaginationInput, OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery, buildOwnershipContractsQueryByPrefix } from './queries';
 import Config from '../config/config';
 
@@ -70,7 +70,7 @@ export class QueryBuilderService {
     return { conditions, parameters, paramIndex };
   }
 
-  private buildOwnershipContractsWhereConditions(where: OwnershipContractsWhereInput ): WhereConditionsResult {
+  private buildOwnershipContractsWhereConditions(where: OwnershipContractsWhereInput): WhereConditionsResult {
     let conditions = [];
     let parameters = [];
     let paramIndex = 1;
@@ -223,13 +223,24 @@ export class QueryBuilderService {
     return { query, parameters };
   }
 
-  async buildOwnershipContractsQuery(where: OwnershipContractsWhereInput): Promise<{ query: string; parameters: any[] }> {
+  async buildOwnershipContractsQuery(where: OwnershipContractsWhereInput, pagination: OwnershipContractsPaginationInput): Promise<{ query: string; parameters: any[] }> {
     const { conditions, parameters } = this.buildOwnershipContractsWhereConditions(where);
     const mainQuery = this.buildOwnershipContractsQueryByChainId(where?.chainId);
-    const query = `
+
+    let query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
     `;
+
+    if (pagination) {
+      if (pagination.limit && (typeof pagination.limit === 'number' && pagination.limit >= 0)) {
+        query += ` LIMIT ${pagination.limit}`;
+      }
+      if (pagination.offset && typeof pagination.offset === 'number' && pagination.offset >= 0) {
+        query += ` OFFSET ${pagination.offset}`;
+      }
+    }
+
     return { query, parameters };
   }
 
