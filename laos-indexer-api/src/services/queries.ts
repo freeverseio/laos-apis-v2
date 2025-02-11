@@ -36,10 +36,11 @@ export const buildTokenCountQueryBase = (ownershipPrefix: string, laosPrefix: st
   LEFT JOIN ${ownershipPrefix}_asset a ON la.token_id = a.token_id AND a.ownership_contract_id = oc.id
 `;
 
-export const buildTokenByIdQuery = (ownershipPrefix: string, laosPrefix: string) => `
+export const buildTokenByIdQuery = (ownershipPrefix: string, laosPrefix: string, laosChainId: string) => `
   WITH contract_data AS (
     SELECT LOWER(laos_contract) AS laos_contract,
-    LOWER(id) as ownership_contract
+    LOWER(id) as ownership_contract,
+    laos_chain_id
     FROM ${ownershipPrefix}_ownership_contract
     WHERE LOWER(id) = $1
   )
@@ -64,7 +65,7 @@ export const buildTokenByIdQuery = (ownershipPrefix: string, laosPrefix: string)
   INNER JOIN ${laosPrefix}_metadata m ON la.metadata = m.id
   INNER JOIN ${laosPrefix}_token_uri tu ON m.token_uri_id = tu.id
   LEFT JOIN ${ownershipPrefix}_asset a ON (la.token_id = a.token_id AND LOWER(cd.ownership_contract) = LOWER(a.ownership_contract_id))
-  WHERE la.token_id = $2 AND cd.laos_contract IS NOT null
+  WHERE la.token_id = $2 AND cd.laos_contract IS NOT null AND cd.laos_chain_id = ${laosChainId}
 `;
 
 export const buildTokenOwnerQuery = (ownershipPrefix: string, laosPrefix: string) => `
