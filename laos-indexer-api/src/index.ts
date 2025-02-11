@@ -47,6 +47,7 @@ async function startServer() {
           headers: req.headers,
         };
       },
+      graphqlEndpoint: '/',
       maskedErrors: false,
       cors: {
         origin: '*',
@@ -57,7 +58,7 @@ async function startServer() {
   
   
     const server = createServer(gatewayApp);
-    server.listen(process.env.GQL_PORT, () => console.log(`Gateway running at http://localhost:${process.env.GQL_PORT}/graphql`));
+    server.listen(process.env.GQL_PORT, () => console.log(`Gateway running at http://localhost:${process.env.GQL_PORT}/`));
 }
 
 startServer();
