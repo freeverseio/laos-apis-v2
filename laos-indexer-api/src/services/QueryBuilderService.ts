@@ -1,6 +1,7 @@
 import { OwnershipContractsPaginationInput, OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery, buildOwnershipContractsQueryByPrefix } from './queries';
 import Config from '../config/config';
+import { LaosChain } from '../model/laosChain.model';
 
 interface WhereConditionsResult {
   conditions: string[];
@@ -33,7 +34,7 @@ export class QueryBuilderService {
     return chainPrefix;
   }
 
-  private getLaosChainPrefix(chainId: string, laosChainId: string): string {
+  private getLaosChain(chainId: string, laosChainId: string): LaosChain {
     let useLaosChainId = laosChainId;
     if (!useLaosChainId) {
       useLaosChainId = this.defaultOwnershipLaosChain[chainId];
@@ -42,10 +43,13 @@ export class QueryBuilderService {
     if (!laosChainPrefix) {
       throw new Error(`Unsupported LAOS chain ID: ${useLaosChainId}`);
     }
-    return laosChainPrefix;
+    return { 
+      id: useLaosChainId, 
+      prefix: laosChainPrefix 
+    };
   }
 
-  private buildTokenWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput): WhereConditionsResult {
+  private buildTokenWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput, laosChain: LaosChain): WhereConditionsResult {
     let conditions = [];
     let parameters = [];
     let paramIndex = 1;
@@ -65,6 +69,11 @@ export class QueryBuilderService {
     if (where?.tokenId) {
       conditions.push(`la.token_id = $${paramIndex++}`);
       parameters.push(where.tokenId);
+    }
+
+    if(laosChain && laosChain.id) {
+      conditions.push(`oc.laos_chain_id = $${paramIndex++}`);
+      parameters.push(laosChain.id);
     }
 
     return { conditions, parameters, paramIndex };
@@ -130,29 +139,26 @@ export class QueryBuilderService {
     return { effectiveOrderBy, orderDirection };
   }
 
-  private buildTokenQueryBaseByChainId(chainId: string, laosChainId: string, orderByClause: string) {
+  private buildTokenQueryBaseByChainId(chainId: string, laosChain: LaosChain, orderByClause: string) {
     const prefix = this.getChainPrefix(chainId);
-    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
-    const mainQuery = buildTokenQueryBase(prefix, laosPrefix, orderByClause);
+    const mainQuery = buildTokenQueryBase(prefix, laosChain.prefix, orderByClause);
     return mainQuery;
   }
 
   private buildTokenByIdQueryByChainId(chainId: string, laosChainId: string) {
     const prefix = this.getChainPrefix(chainId);
-    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
-    return buildTokenByIdQuery(prefix, laosPrefix);
+    const laosChain = this.getLaosChain(chainId, laosChainId);
+    return buildTokenByIdQuery(prefix, laosChain.prefix, laosChain.id);
   }
 
-  private buildTokenCountQueryBaseByChainId(chainId: string, laosChainId: string) {
+  private buildTokenCountQueryBaseByChainId(chainId: string, laosChain: LaosChain) {
     const prefix = this.getChainPrefix(chainId);
-    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
-    return buildTokenCountQueryBase(prefix, laosPrefix);
+    return buildTokenCountQueryBase(prefix, laosChain.prefix);
   }
 
-  private buildTokenOwnerQueryByChainId(chainId: string, laosChainId: string) {
-    const prefix = this.getChainPrefix(chainId);
-    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
-    return buildTokenOwnerQuery(prefix, laosPrefix);
+  private buildTokenOwnerQueryByChainId(chainId: string, laosChain: LaosChain) {
+    const prefix = this.getChainPrefix(chainId);    
+    return buildTokenOwnerQuery(prefix, laosChain.prefix);
   }
 
   private buildOwnershipContractsQueryByChainId(chainId: string) {
@@ -168,7 +174,8 @@ export class QueryBuilderService {
     const effectiveFirst = pagination.first;
     const afterCursor = pagination.after;
     const { effectiveOrderBy, orderDirection } = this.getOrderDetails(orderBy);
-    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where);
+    const laosChain = this.getLaosChain(where!.chainId, where!.laosChainId);
+    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where, laosChain);
     let paramIndex = initialParamIndex;
 
     if (afterCursor) {
@@ -180,7 +187,7 @@ export class QueryBuilderService {
 
     // build query with subquery to prevent ordering all the set and then appply limit. Around 90% more efficient
     const orderByClause = `ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}, oc.id ASC`;
-    const mainQuery = this.buildTokenQueryBaseByChainId(where!.chainId, where!.laosChainId, orderByClause); 
+    const mainQuery = this.buildTokenQueryBaseByChainId(where!.chainId, laosChain, orderByClause); 
     const query = `
       WITH ranked AS (
         ${mainQuery}
@@ -196,8 +203,9 @@ export class QueryBuilderService {
   }
 
   async buildTokenQueryCount(where: TokenWhereInput): Promise<{ query: string; parameters: any[] }> {
-    const { conditions, parameters } = this.buildTokenWhereConditions(where);
-    const mainQuery = this.buildTokenCountQueryBaseByChainId(where!.chainId, where!.laosChainId);
+    const laosChain = this.getLaosChain(where!.chainId, where!.laosChainId);
+    const { conditions, parameters } = this.buildTokenWhereConditions(where, laosChain);
+    const mainQuery = this.buildTokenCountQueryBaseByChainId(where!.chainId, laosChain);
     const query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
@@ -214,8 +222,9 @@ export class QueryBuilderService {
   }
 
   async buildTokenOwnerQuery(where: TokenOwnersWhereInput): Promise<{ query: string; parameters: any[] }> {
-    const { conditions, parameters } = this.buildTokenWhereConditions(where);
-    const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId, where?.laosChainId);
+    const laosChain = this.getLaosChain(where?.chainId, where?.laosChainId);
+    const { conditions, parameters } = this.buildTokenWhereConditions(where, laosChain);
+    const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId, laosChain);
     const query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
@@ -255,7 +264,7 @@ export class QueryBuilderService {
 
     const ownershipPrefix = this.getChainPrefix(where?.chainId);
     // TODO get default laosChainId depending on chainId if not provied
-    const laosPrefix = this.getLaosChainPrefix(where?.chainId, where?.laosChainId);
+    const laosChain = this.getLaosChain(where?.chainId, where?.laosChainId);
     const baseQuery = `
       SELECT 
         t.from,
@@ -267,11 +276,15 @@ export class QueryBuilderService {
         oc.id as contract_address
       FROM ${ownershipPrefix}_transfer t
       INNER JOIN ${ownershipPrefix}_asset a ON t.asset_id = a.id
-      INNER JOIN ${laosPrefix}_laos_asset la ON la.token_id = a.token_id
+      INNER JOIN ${laosChain.prefix}_laos_asset la ON la.token_id = a.token_id
       INNER JOIN ${ownershipPrefix}_ownership_contract oc ON oc.laos_contract = la.laos_contract
     `;
 
     if (where) {
+      conditions.push(`oc.laos_chain_id = $${paramIndex}`);
+      parameters.push(laosChain.id); // always informed (default value)
+      paramIndex++;
+
       if (where.tokenId) {
         conditions.push(`la.token_id = $${paramIndex}`);
         parameters.push(where.tokenId);
@@ -296,7 +309,7 @@ export class QueryBuilderService {
         conditions.push(`t.to ILIKE $${paramIndex}`);
         parameters.push(`${where.to_startsWith}%`);
         paramIndex++;
-      }
+      }      
     }
 
     let query = baseQuery;
@@ -339,8 +352,7 @@ export class QueryBuilderService {
     const parameters: any[] = [tokenId, contractAddress];
     let paramIndex = 3;
     const ownershipPrefix = this.getChainPrefix(chainId);
-    // TODO get default laosChainId depending on chainId if not provied
-    const laosPrefix = this.getLaosChainPrefix(chainId, laosChainId);
+    const laosChain = this.getLaosChain(chainId, laosChainId);
   
     let query = `
       SELECT 
@@ -355,16 +367,17 @@ export class QueryBuilderService {
         m."timestamp" as "updatedAt",
         oc.id AS "contractAddress"
       FROM 
-        ${laosPrefix}_metadata m
+        ${laosChain.prefix}_metadata m
       INNER JOIN 
-        ${laosPrefix}_laos_asset la ON m.laos_asset_id = la.id
+        ${laosChain.prefix}_laos_asset la ON m.laos_asset_id = la.id
       INNER JOIN 
         ${ownershipPrefix}_ownership_contract oc ON LOWER(la.laos_contract) = LOWER(oc.laos_contract)
       INNER JOIN 
-        ${laosPrefix}_token_uri tu ON m.token_uri_id = tu.id
+        ${laosChain.prefix}_token_uri tu ON m.token_uri_id = tu.id
       WHERE 
-        la.token_id = $1
-        AND LOWER(oc.id) = $2
+        oc.laos_chain_id = ${laosChain.id}
+        AND la.token_id = $1
+        AND LOWER(oc.id) = $2        
     `;
   
     if (pagination?.orderBy) {
