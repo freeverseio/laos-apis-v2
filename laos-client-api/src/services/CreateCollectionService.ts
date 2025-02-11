@@ -6,6 +6,7 @@ import { ServiceHelper } from "./ServiceHelper";
 import ClientService from "./db/ClientService";
 import ContractService from "./db/ContractService";
 import { OwnershipChainService } from "./blockchain/OwnershipChainService";
+import fs from "fs";
 
 export class CreateCollectionService {
   private serviceHelper: ServiceHelper;
@@ -60,10 +61,18 @@ export class CreateCollectionService {
       }
       
 
-      let evochainTarget = "LAOS";
-      if (process.env.LAOS_CHAIN?.toLocaleLowerCase().includes("sigma")) {
-        evochainTarget = "LAOS_SIGMA";
+      const configPath = "./supported-chains/default-ownership-laos-chain.json";
+      const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+
+      let evochainTarget: string;
+      let laosChainId: string | undefined = config[chainId];
+
+      if (laosChainId) {
+        evochainTarget = laosChainId === "62850" ? "LAOS_SIGMA" : "LAOS";
+      } else {
+        throw new Error(`chainId not recognized: ${chainId}`);
       }
+      console.log("Evochain target: ", evochainTarget)
       const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
       console.log("BatchMinter contract deployed at: ", contractAddress);
 
