@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import * as dotenv from 'dotenv';
-import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
 import { TokenResolver } from "./resolvers/TokenResolver";
 import Database from "./services/db/Database";
 import { TransferResolver } from "./resolvers/TransferResolver";
 import { TokenHistoryResolver } from "./resolvers/TokenHistoryResolver";
 import Config from "./config/config";
+import { createYoga } from 'graphql-yoga';
+import { createServer } from 'http';
 
 dotenv.config();
 
@@ -39,22 +40,24 @@ async function startServer() {
     validate: true,
   });
 
-  const server = new ApolloServer({
-    schema,
-    introspection: true, // Enables introspection of the schema
-    plugins: [
-    ],
-    context: ({ req }: { req: any }) => {
-      return {
-        headers: req.headers,
-      };
-    },
-  });
-
-  server.listen({ port: process.env.GQL_PORT }).then(({ url }: { url: string }) => {
-    console.log(`Server ready at ${url}`);
-    
-  });
+    const gatewayApp = createYoga({
+      schema,
+      context: ({ req }: { req: any }) => {
+        return {
+          headers: req.headers,
+        };
+      },
+      maskedErrors: false,
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+      },
+    });
+  
+  
+    const server = createServer(gatewayApp);
+    server.listen(process.env.GQL_PORT, () => console.log(`Gateway running at http://localhost:${process.env.GQL_PORT}/graphql`));
 }
 
 startServer();
