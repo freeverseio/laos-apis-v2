@@ -8,7 +8,7 @@ WORKDIR /app
 # Install required packages for building native dependencies
 RUN apk add --no-cache libc6-compat g++ make python3
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Build the project
 FROM base as builder
