@@ -13,7 +13,7 @@ export class CreateCollectionResolver {
 
   @Mutation(() => CreateCollectionResponse)
   async createCollection(@Arg("input") input: CreateCollectionInput, @Ctx() context: Context): Promise<CreateCollectionResponse> {
-    let apiKey = context.headers['authorization'];
+    let apiKey = context.headers.headersInit['x-api-key'];
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.createCollectionService.createCollection(input, apiKey);

@@ -23,7 +23,14 @@ dotenv.config();
 async function createRemoteSchema(uri: string) {
   return await loadSchema(uri, {
     loaders: [new UrlLoader()],
-    fetch,
+    fetch: (url: string, options?: RequestInit) => {
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...options?.headers,
+        },
+      });
+    },
   });
 }
 
@@ -57,9 +64,11 @@ async function startServer() {
 
   const yogaApp = createYoga({
     schema: mergedSchema,
-    context: ({ request }: { request: any }) => ({
-      headers: request.headers,
-    }),
+    context: ({ request }) => {
+      return {
+        headers: request.headers,
+      };
+    },
     graphqlEndpoint: '/',
     maskedErrors: false,
     cors: {
