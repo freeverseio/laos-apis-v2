@@ -49,7 +49,7 @@ async function startServer() {
     validate: true,
   });
 
-  const remoteSchema = await createRemoteSchema(process.env.REMOTE_SCHEMA || 'laos-indexer-api.indexers.svc.cluster:4001');
+  const remoteSchema = await createRemoteSchema(process.env.REMOTE_SCHEMA || 'http://laos-indexer-api.indexers.svc.cluster:4001');
 
   const mergedSchema = stitchSchemas({
     subschemas: [localSchema, remoteSchema],
