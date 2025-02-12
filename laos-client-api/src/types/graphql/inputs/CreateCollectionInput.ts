@@ -10,4 +10,7 @@ export class CreateCollectionInput {
 
   @Field({ nullable: false })
   symbol!: string;
+
+  @Field({ nullable: true })
+  laosChainId!: string;
 }

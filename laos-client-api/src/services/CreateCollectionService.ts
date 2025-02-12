@@ -32,7 +32,7 @@ export class CreateCollectionService {
    * @returns {Promise<CreateCollectionResponse>} - The result of the createCollection operation.
    */
   public async createCollection(input: CreateCollectionInput, apiKey: string): Promise<CreateCollectionResponse> {
-    const { chainId, name, symbol } = input;
+    const { chainId, name, symbol, laosChainId } = input;
 
     if (chainId === "296" || chainId === "295") {
       throw new Error("Create collection on Hedera is not supported yet");
@@ -64,15 +64,25 @@ export class CreateCollectionService {
       const configPath = "./supported-chains/default-ownership-laos-chain.json";
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
 
-      let evochainTarget: string;
-      let laosChainId: string | undefined = config[chainId];
+      let evochainTarget: string | undefined;
 
       if (laosChainId) {
         evochainTarget = laosChainId === "62850" ? "LAOS_SIGMA" : "LAOS";
       } else {
-        throw new Error(`chainId not recognized: ${chainId}`);
+        let defaultLaosChainId: string | undefined = config[chainId];
+      
+        if (defaultLaosChainId) {
+          evochainTarget = defaultLaosChainId === "62850" ? "LAOS_SIGMA" : "LAOS";
+        } else {
+          throw new Error(`chainId not recognized: ${chainId}`);
+        }
       }
-      console.log("Evochain target: ", evochainTarget)
+      
+      if (!evochainTarget) {
+        console.log("Evochain target was not assigned:", evochainTarget);
+        throw new Error("laosChainId not recognized");
+      }
+
       const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
       console.log("BatchMinter contract deployed at: ", contractAddress);
 
