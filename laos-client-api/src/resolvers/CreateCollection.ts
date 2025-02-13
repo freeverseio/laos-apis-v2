@@ -14,6 +14,10 @@ export class CreateCollectionResolver {
   @Mutation(() => CreateCollectionResponse)
   async createCollection(@Arg("input") input: CreateCollectionInput, @Ctx() context: Context): Promise<CreateCollectionResponse> {
     let apiKey = context.headers.headersInit['x-api-key'];
+
+    if (!apiKey) {
+      throw new Error("x-api-key header must be informed.")
+    }
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.createCollectionService.createCollection(input, apiKey);

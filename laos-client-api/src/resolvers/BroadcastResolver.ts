@@ -14,6 +14,9 @@ export class BroadcastResolver {
   @Mutation(() => BroadcastResponse)
   async broadcast(@Arg("input") input: BroadcastInput, @Ctx() context: Context): Promise<BroadcastResponse> {
     let apiKey = context.headers.headersInit['x-api-key'];
+    if (!apiKey) {
+      throw new Error("x-api-key header must be informed.")
+    }
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.broadcastService.broadcast(input, apiKey);
