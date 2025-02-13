@@ -13,7 +13,8 @@ export class EvolveResolver {
 
   @Mutation(() => EvolveResponse)
   async evolve(@Arg("input") input: EvolveInput, @Ctx() context: Context): Promise<EvolveResponse> {
-    let apiKey = context.headers['authorization'];
+    let apiKey = context.headers.headersInit['x-api-key'];
+
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.evolvingService.evolve(input, apiKey);
@@ -21,7 +22,8 @@ export class EvolveResolver {
 
   @Mutation(() => EvolveBatchResponse)
   async evolveBatch(@Arg("input") input: EvolveBatchInput, @Ctx() context: Context): Promise<EvolveBatchResponse> {
-    let apiKey = context.headers['authorization'];
+    let apiKey = context.headers.headersInit['x-api-key'];
+
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.evolvingService.evolveBatch(input, apiKey);
@@ -29,7 +31,8 @@ export class EvolveResolver {
 
   @Mutation(() => EvolveAsyncResponse)
   async evolveBatchAsync(@Arg("input") input: EvolveBatchInput, @Ctx() context: Context): Promise<EvolveAsyncResponse> {
-    let apiKey = context.headers['authorization'];
+    let apiKey = context.headers.headersInit['x-api-key'];
+
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.evolvingService.evolveBatchAsync(input, apiKey);

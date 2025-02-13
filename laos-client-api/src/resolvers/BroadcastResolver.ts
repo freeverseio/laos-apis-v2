@@ -13,14 +13,14 @@ export class BroadcastResolver {
 
   @Mutation(() => BroadcastResponse)
   async broadcast(@Arg("input") input: BroadcastInput, @Ctx() context: Context): Promise<BroadcastResponse> {
-    let apiKey = context.headers['authorization'];
+    let apiKey = context.headers.headersInit['x-api-key'];
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.broadcastService.broadcast(input, apiKey);
   }
   @Mutation(() => BroadcastBatchResponse)
   async broadcastBatch(@Arg("input") input: BroadcastBatchInput, @Ctx() context: Context): Promise<BroadcastBatchResponse> {
-    let apiKey = context.headers['authorization'];
+    let apiKey = context.headers.headersInit['x-api-key'];
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.broadcastService.broadcastBatch(input, apiKey);
