@@ -45,7 +45,7 @@ export class TokenResolver {
 
   @Query(() => TokenConnection, { nullable: true })
   async tokens(
-    @Arg('where', () => TokenWhereInput, { nullable: true }) where: TokenWhereInput,
+    @Arg('where', () => TokenWhereInput, { nullable: false }) where: TokenWhereInput,
     @Arg('pagination', () => TokenPaginationInput, { nullable: false, defaultValue: { first: 10 } }) pagination: TokenPaginationInput,
     @Arg('orderBy', () => TokenOrderByOptions, { nullable: true }) orderBy?: TokenOrderByOptions
   ): Promise<TokenConnection> {
@@ -81,7 +81,7 @@ export class TokenResolver {
 
   @Query(() => [TokenOwnersQueryResult], { nullable: true })
   async tokenOwners(
-    @Arg('where', () => TokenOwnersWhereInput, { nullable: true }) where: TokenOwnersWhereInput
+    @Arg('where', () => TokenOwnersWhereInput, { nullable: false }) where: TokenOwnersWhereInput
   ): Promise<TokenOwnersQueryResult[] | null> { // Return an array or null
     const { query, parameters } = await this.queryBuilderService.buildTokenOwnerQuery(where);
     const result = await this.tx(query, parameters);
@@ -92,7 +92,7 @@ export class TokenResolver {
 
   @Query(() => [OwnershipContractsQueryResult], { nullable: true })
   async ownershipContracts(
-    @Arg('where', () => OwnershipContractsWhereInput, { nullable: true }) where: OwnershipContractsWhereInput,
+    @Arg('where', () => OwnershipContractsWhereInput, { nullable: false }) where: OwnershipContractsWhereInput,
     @Arg('pagination', () => OwnershipContractsPaginationInput, { nullable: true, defaultValue: { limit: 10, offset: 0 } }) pagination: OwnershipContractsPaginationInput
   ): Promise<OwnershipContractsQueryResult[] | null> { // Return an array or null
     const { query, parameters } = await this.queryBuilderService.buildOwnershipContractsQuery(where, pagination);
