@@ -76,6 +76,9 @@ async function startServer() {
       methods: ['GET', 'POST', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     },
+    graphiql: {
+      title: 'Laos GraphQL API',
+    },
   });
 
   const server = createServer(yogaApp);
