@@ -16,7 +16,8 @@ export class MintResolver {
 
   @Mutation(() => MintResponse)
   async mint(@Arg("input") input: MintInput, @Ctx() context: Context): Promise<MintResponse> {
-    let apiKey = context.headers['authorization'];
+  let apiKey = context.headers.headersInit['x-api-key'];
+
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.mintingService.mint(input, apiKey);
@@ -24,7 +25,8 @@ export class MintResolver {
 
   @Mutation(() => MintAsyncResponse)
   async mintAsync(@Arg("input") input: MintInput, @Ctx() context: Context): Promise<MintAsyncResponse> {
-    let apiKey = context.headers['authorization'];
+  let apiKey = context.headers.headersInit['x-api-key'];
+
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.mintingService.mintAsync(input, apiKey);
