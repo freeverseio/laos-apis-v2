@@ -54,6 +54,9 @@ async function startServer() {
         methods: ['GET', 'POST', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
       },
+      graphiql: {
+        title: 'Laos Indexer API',
+      },
     });
   
   
