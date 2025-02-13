@@ -16,7 +16,10 @@ export class MintResolver {
 
   @Mutation(() => MintResponse)
   async mint(@Arg("input") input: MintInput, @Ctx() context: Context): Promise<MintResponse> {
-  let apiKey = context.headers.headersInit['x-api-key'];
+    let apiKey = context.headers.headersInit['x-api-key'];
+    if (!apiKey) {
+      throw new Error("x-api-key header must be informed.")
+    }
 
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
@@ -25,7 +28,10 @@ export class MintResolver {
 
   @Mutation(() => MintAsyncResponse)
   async mintAsync(@Arg("input") input: MintInput, @Ctx() context: Context): Promise<MintAsyncResponse> {
-  let apiKey = context.headers.headersInit['x-api-key'];
+    let apiKey = context.headers.headersInit['x-api-key'];
+    if (!apiKey) {
+      throw new Error("x-api-key header must be informed.")
+    }
 
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
