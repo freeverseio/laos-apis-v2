@@ -12,7 +12,7 @@ export class TransferResolver {
 
   @Query(() => [TransferQueryResult], { nullable: true })
   async transfers(
-    @Arg('where', () => TransferWhereInput, { nullable: true }) where?: TransferWhereInput,
+    @Arg('where', () => TransferWhereInput, { nullable: false }) where?: TransferWhereInput,
     @Arg('pagination', () => TransferPaginationInput, { nullable: true }) pagination?: TransferPaginationInput,
     @Arg('orderBy', () => TransferOrderByOptions, { nullable: true }) orderBy?: TransferOrderByOptions
   ): Promise<TransferQueryResult[]> {

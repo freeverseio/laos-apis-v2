@@ -234,7 +234,7 @@ export class QueryBuilderService {
 
   async buildOwnershipContractsQuery(where: OwnershipContractsWhereInput, pagination: OwnershipContractsPaginationInput): Promise<{ query: string; parameters: any[] }> {
     const { conditions, parameters } = this.buildOwnershipContractsWhereConditions(where);
-    const mainQuery = this.buildOwnershipContractsQueryByChainId(where?.chainId);
+    const mainQuery = this.buildOwnershipContractsQueryByChainId(where!.chainId);
 
     let query = `
       ${mainQuery}

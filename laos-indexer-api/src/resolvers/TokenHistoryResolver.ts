@@ -13,9 +13,9 @@ export class TokenHistoryResolver {
   @Query(() => [TokenHistoryQueryResult], { nullable: true })
   async tokenHistory(
     @Arg('chainId', () => String) chainId: string,
-    @Arg('laosChainId', () => String, { nullable: true }) laosChainId: string,
     @Arg('contractAddress', () => String) contractAddress: string,
     @Arg('tokenId', () => String) tokenId: string,
+    @Arg('laosChainId', () => String, { nullable: true }) laosChainId: string,
     @Arg('pagination', () => TokenHistoryPaginationInput, { nullable: true }) pagination?: TokenHistoryPaginationInput
   ): Promise<TokenHistoryQueryResult[] | null> {
     const normalizedContractAddress = contractAddress.toLowerCase();
