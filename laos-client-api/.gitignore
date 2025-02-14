@@ -13,3 +13,5 @@
 /certs/*
 
 /data/*
+
+/supported-chains/*
