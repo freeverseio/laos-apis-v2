@@ -4,21 +4,35 @@ import { EvolveAsyncStatus, EvolveAsyncResponse, EvolveStatusResponse, EvolveRes
 import { ServiceHelper } from "./ServiceHelper";
 import ClientService from "./db/ClientService";
 import ContractService from "./db/ContractService";
+import IndexerService from "./indexer/IndexerService";
+import fs from "fs";
 
 export class EvolvingService {
-  private serviceHelper: ServiceHelper;
+ // private serviceHelper: ServiceHelper;
 
   constructor() {
-    const evolveConfig: LaosConfig = {
-      minterPvks: process.env.MINTER_KEYS || '',
-      rpcMinter: process.env.RPC_MINTER || '',
-    };
-    this.serviceHelper = new ServiceHelper(evolveConfig);
+    // const evolveConfig: LaosConfig = {
+    //   minterPvks: process.env.MINTER_KEYS || '',
+    //   rpcMinter: process.env.RPC_MINTER || '',
+    // };
+    // this.serviceHelper = new ServiceHelper(evolveConfig);
   }
 
 
   public async evolveBatchResponse(txHash: string): Promise<EvolveStatusResponse> {
-    return this.serviceHelper.laosService.evolveBatchResponse(txHash);
+    // TODO:
+    // option 1:  iterate configMap to ask to all evochains? Start with laos
+    // option 2:  add parameter laosChainId to this function
+    const laosChainId = "6283"; // TODO
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+
+    const serviceHelper = new ServiceHelper(laosConfig);
+    return serviceHelper.laosService.evolveBatchResponse(txHash);
   }
 
   public async evolveBatchAsync(input: EvolveInput, apiKey: string): Promise<EvolveAsyncResponse> {
@@ -53,7 +67,20 @@ export class EvolvingService {
       });
      
       try {
-        const result: EvolveBatchResult = await this.serviceHelper.laosService.evolveBatchAsync({
+        // get from indexer target laosChainId used by this contract
+        const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+        if (!laosChainId) {
+          throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+        }
+        const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+        const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+        const laosConfig: LaosConfig = {
+          minterPvks: process.env.MINTER_KEYS || '',
+          rpcMinter: rpcMinterConfig[laosChainId] || '',
+        };
+        const serviceHelper = new ServiceHelper(laosConfig);
+        const result: EvolveBatchResult = await serviceHelper.laosService.evolveBatchAsync({
           laosContractAddress: contract.batchMinterContract,
           tokens: tokensToEvolve,
         }, apiKey); 
@@ -109,7 +136,20 @@ export class EvolvingService {
       });
      
       try {
-        const result: EvolveBatchResult = await this.serviceHelper.laosService.evolveBatch({
+        // get from indexer target laosChainId used by this contract
+        const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+        if (!laosChainId) {
+          throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+        }
+        const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+        const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+        const laosConfig: LaosConfig = {
+          minterPvks: process.env.MINTER_KEYS || '',
+          rpcMinter: rpcMinterConfig[laosChainId] || '',
+        };
+        const serviceHelper = new ServiceHelper(laosConfig);
+        const result: EvolveBatchResult = await serviceHelper.laosService.evolveBatch({
           laosContractAddress: contract.batchMinterContract,
           tokens: tokensToEvolve,
         }, apiKey); 

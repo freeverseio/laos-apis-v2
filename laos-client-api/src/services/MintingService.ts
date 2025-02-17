@@ -107,7 +107,7 @@ export class MintingService {
     // TODO:
     // option 1:  iterate configMap to ask to all evochains? Start with laos
     // option 2:  add parameter laosChainId to this function
-    let laosChainId = "2pi"; // ???
+    let laosChainId = "6283"; // ???
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
