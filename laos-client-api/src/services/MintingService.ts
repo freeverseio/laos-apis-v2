@@ -104,11 +104,12 @@ export class MintingService {
   }
 
   public async mintResponse(txHash: string): Promise<MintStatusResponse> {
-    // TODO iterate configMap to ask to all evochains? Start with laos
-    // OR add parameter laosChainId to this function
+    // TODO:
+    // option 1:  iterate configMap to ask to all evochains? Start with laos
+    // option 2:  add parameter laosChainId to this function
+    let laosChainId = "2pi"; // ???
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
-    let laosChainId = "2pi"
     const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',
       rpcMinter: rpcMinterConfig[laosChainId] || '',
