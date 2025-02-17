@@ -5,17 +5,9 @@ import { ServiceHelper } from "./ServiceHelper";
 import { ethers } from "ethers";
 import ContractService from "./db/ContractService";
 import ClientService from "./db/ClientService";
+import fs from "fs";
 
 export class MintingService {
-  private serviceHelper: ServiceHelper;
-
-  constructor() {
-    const config: LaosConfig = {
-      minterPvks: process.env.MINTER_KEYS || '',
-      rpcMinter: process.env.RPC_MINTER || '',
-    };
-    this.serviceHelper = new ServiceHelper(config);
-  }
 
   /**
    * Prepares asset metadata from the given token input.
@@ -33,9 +25,7 @@ export class MintingService {
     };
   }
 
-  public async refresh() {
-    this.serviceHelper.ipfsService.retryFailedIpfsUploads();
-  }
+
 
   /**
    * Mints up to multiple NFTs in a batch.
@@ -46,13 +36,27 @@ export class MintingService {
   public async mint(input: MintInput, apiKey: string): Promise<MintResponse> {
     const { contractAddress, chainId, tokens } = input;
 
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    let laosChainId = "2pi"
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+
+    const serviceHelper = new ServiceHelper(laosConfig);
+
     try {
       const expandedTokens = await Promise.all(tokens.map(async token => {
+        // hacer query a indexer api by contract address para saber laos chain id
+        // cambiar service helper para que actulice rpc minter
+
         const assetMetadata = this.prepareAssetMetadata(token);
         try {
-          const cid = await this.serviceHelper.ipfsService.getCid(assetMetadata);
+          
+          const cid = await serviceHelper.ipfsService.getCid(assetMetadata);
           const tokenUri = `ipfs://${cid}`;
-          this.serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
+          serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
           return Promise.all(token.mintTo.map(async address => {
             if (!ethers.isAddress(address)) {
               throw new Error("Invalid recipient address");
@@ -83,7 +87,7 @@ export class MintingService {
         tokens: flatTokens,
       };
 
-      const result: BatchMintResult = await this.serviceHelper.laosService.batchMint(params, apiKey);
+      const result: BatchMintResult = await serviceHelper.laosService.batchMint(params, apiKey);
       if (result.status === "success") {
         return { 
           tokenIds: result.tokenIds!, 
@@ -100,18 +104,39 @@ export class MintingService {
   }
 
   public async mintResponse(txHash: string): Promise<MintStatusResponse> {
-    return this.serviceHelper.laosService.mintResponse(txHash);
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    let laosChainId = "2pi"
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+
+    const serviceHelper = new ServiceHelper(laosConfig);
+
+    return serviceHelper.laosService.mintResponse(txHash);
   }
 
   public async mintAsync(input: MintInput, apiKey: string): Promise<MintAsyncResponse> {
     const { contractAddress, chainId, tokens } = input;
+
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    let laosChainId = "2pi"
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+
+    const serviceHelper = new ServiceHelper(laosConfig);
+
     try {
       const expandedTokens = await Promise.all(tokens.map(async token => {
         const assetMetadata = this.prepareAssetMetadata(token);
         try {
-          const cid = await this.serviceHelper.ipfsService.getCid(assetMetadata);
+          const cid = await serviceHelper.ipfsService.getCid(assetMetadata);
           const tokenUri = `ipfs://${cid}`;
-          this.serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
+          serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
           return Promise.all(token.mintTo.map(async address => {
             if (!ethers.isAddress(address)) {
               throw new Error("Invalid recipient address");
@@ -142,7 +167,7 @@ export class MintingService {
         tokens: flatTokens,
       };
 
-      const result: BatchMintResult = await this.serviceHelper.laosService.batchMintAsync(params, apiKey);
+      const result: BatchMintResult = await serviceHelper.laosService.batchMintAsync(params, apiKey);
       if (result.tx ) {
         return { 
           txHash: result.tx,
