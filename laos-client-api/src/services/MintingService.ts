@@ -6,6 +6,7 @@ import { ethers } from "ethers";
 import ContractService from "./db/ContractService";
 import ClientService from "./db/ClientService";
 import fs from "fs";
+import IndexerService from "./indexer/IndexerService";
 
 export class MintingService {
 
@@ -36,15 +37,20 @@ export class MintingService {
   public async mint(input: MintInput, apiKey: string): Promise<MintResponse> {
     const { contractAddress, chainId, tokens } = input;
 
+    // get from indexer target laosChainId used by this contract
+    const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+    if (!laosChainId) {
+      throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+    }
+
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
-    let laosChainId = "2pi"
     const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',
       rpcMinter: rpcMinterConfig[laosChainId] || '',
     };
-
-    const serviceHelper = new ServiceHelper(laosConfig);
+    const serviceHelper = new ServiceHelper(laosConfig);       
 
     try {
       const expandedTokens = await Promise.all(tokens.map(async token => {
@@ -104,6 +110,8 @@ export class MintingService {
   }
 
   public async mintResponse(txHash: string): Promise<MintStatusResponse> {
+    // TODO iterate configMap to ask to all evochains? Start with laos
+    // OR add parameter laosChainId to this function
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     let laosChainId = "2pi"
@@ -120,9 +128,13 @@ export class MintingService {
   public async mintAsync(input: MintInput, apiKey: string): Promise<MintAsyncResponse> {
     const { contractAddress, chainId, tokens } = input;
 
+    const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+    if (!laosChainId) {
+      throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+    }
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
-    let laosChainId = "2pi"
     const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',
       rpcMinter: rpcMinterConfig[laosChainId] || '',
