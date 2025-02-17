@@ -12,32 +12,6 @@ export class EvolveInput {
   @Field({ nullable: false })
   contractAddress?: string;
 
-  @Field({ nullable: false })
-  tokenId?: string;
-
-  @Field({ nullable: false })
-  name?: string;
-
-  @Field({ nullable: true })
-  description?: string;
-
-  @Field(() => [AttributeInput], { nullable: true })
-  attributes?: AttributeInput[];
-
-  @Field({ nullable: true })
-  image?: string;
-}
-
-
-
-@InputType()
-export class EvolveBatchInput {
-  @Field({ nullable: false })
-  chainId?: string;
-
-  @Field({ nullable: false })
-  contractAddress?: string;
-
   @Field(() => [TokenEvolveInput], { nullable: false })
   tokens!: TokenEvolveInput[];
 }

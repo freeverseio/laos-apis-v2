@@ -1,6 +1,6 @@
-import { EvolveBatchInput, EvolveInput } from "../types/graphql/inputs/EvolveInput";
+import { EvolveInput, EvolveInput } from "../types/graphql/inputs/EvolveInput";
 import { LaosConfig, AssetMetadata, EvolveResult, EvolveBatchResult, EvolveToken } from "../types";
-import { EvolveAsyncStatus, EvolveAsyncResponse, EvolveBatchResponse, EvolveStatusResponse, EvolveResponse } from "../types/graphql/outputs/EvolveOutput";
+import { EvolveAsyncStatus, EvolveAsyncResponse, EvolveResponse, EvolveStatusResponse, EvolveResponse } from "../types/graphql/outputs/EvolveOutput";
 import { ServiceHelper } from "./ServiceHelper";
 import ClientService from "./db/ClientService";
 import ContractService from "./db/ContractService";
@@ -21,7 +21,7 @@ export class EvolvingService {
     return this.serviceHelper.laosService.evolveBatchResponse(txHash);
   }
 
-  public async evolveBatchAsync(input: EvolveBatchInput, apiKey: string): Promise<EvolveAsyncResponse> {
+  public async evolveBatchAsync(input: EvolveInput, apiKey: string): Promise<EvolveAsyncResponse> {
     const { contractAddress, tokens, chainId } = input;
     try{
       if (!contractAddress) {
@@ -77,7 +77,7 @@ export class EvolvingService {
     }
   }
 
-  public async evolveBatch(input: EvolveBatchInput, apiKey: string): Promise<EvolveBatchResponse> {
+  public async evolveBatch(input: EvolveInput, apiKey: string): Promise<EvolveResponse> {
     const { contractAddress, tokens, chainId } = input;
     try{
       if (!contractAddress) {
