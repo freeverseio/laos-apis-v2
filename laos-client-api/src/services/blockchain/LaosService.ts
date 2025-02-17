@@ -7,7 +7,7 @@ import EvolutionCollectionFactoryAbi from '../../abi/contracts/EvolutionCollecti
 import { AssetMetadata, BatchMintNFTParams, BatchMintResult, DeploymentResult, EventName, EvolveBatchResult, EvolveNFTParams, LaosConfig, LaosTransaction, MintAsyncResponse, MintAsyncStatus, MintStatusResponse, TokenOwners, TransactionReceiptType, TransactionType } from "../../types";
 import { IPFSService } from "../ipfs/IPFSService";
 import { ContractService } from "./ContractService";
-import { EvolveAsyncStatus, EvolveBatchResponse, EvolveStatusResponse } from "../../types/graphql/outputs/EvolveOutput";
+import { EvolveAsyncStatus, EvolveResponse, EvolveStatusResponse } from "../../types/graphql/outputs/EvolveOutput";
 
 const eventNameToEventTypeMap = {
   MintedWithExternalURI: EvolutionCollection.events.MintedWithExternalURI,

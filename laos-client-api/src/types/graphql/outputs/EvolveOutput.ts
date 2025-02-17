@@ -1,23 +1,9 @@
 import { ObjectType, Field } from "type-graphql";
 import { TransactionReceiptType } from "../..";
 
+
 @ObjectType()
 export class EvolveResponse {
-  @Field()
-  tokenId!: string;
-
-  @Field()
-  success!: boolean;
-
-  @Field()
-  tokenUri!: string;
-
-  @Field()
-  tx!: string;
-}
-
-@ObjectType()
-export class EvolveBatchResponse {
 
   @Field()
   success!: boolean;

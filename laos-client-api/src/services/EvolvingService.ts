@@ -1,6 +1,6 @@
-import { EvolveBatchInput, EvolveInput } from "../types/graphql/inputs/EvolveInput";
-import { LaosConfig, AssetMetadata, EvolveResult, EvolveBatchResult, EvolveToken } from "../types";
-import { EvolveAsyncStatus, EvolveAsyncResponse, EvolveBatchResponse, EvolveStatusResponse, EvolveResponse } from "../types/graphql/outputs/EvolveOutput";
+import { EvolveInput } from "../types/graphql/inputs/EvolveInput";
+import { LaosConfig, AssetMetadata, EvolveBatchResult, EvolveToken } from "../types";
+import { EvolveAsyncStatus, EvolveAsyncResponse, EvolveStatusResponse, EvolveResponse } from "../types/graphql/outputs/EvolveOutput";
 import { ServiceHelper } from "./ServiceHelper";
 import ClientService from "./db/ClientService";
 import ContractService from "./db/ContractService";
@@ -21,7 +21,7 @@ export class EvolvingService {
     return this.serviceHelper.laosService.evolveBatchResponse(txHash);
   }
 
-  public async evolveBatchAsync(input: EvolveBatchInput, apiKey: string): Promise<EvolveAsyncResponse> {
+  public async evolveBatchAsync(input: EvolveInput, apiKey: string): Promise<EvolveAsyncResponse> {
     const { contractAddress, tokens, chainId } = input;
     try{
       if (!contractAddress) {
@@ -77,7 +77,7 @@ export class EvolvingService {
     }
   }
 
-  public async evolveBatch(input: EvolveBatchInput, apiKey: string): Promise<EvolveBatchResponse> {
+  public async evolveBatch(input: EvolveInput, apiKey: string): Promise<EvolveResponse> {
     const { contractAddress, tokens, chainId } = input;
     try{
       if (!contractAddress) {
@@ -136,58 +136,4 @@ export class EvolvingService {
   }
 
 
-
-  public async evolve(input: EvolveInput, apiKey: string): Promise<EvolveResponse> {
-    const { contractAddress, tokenId, name, description, attributes, image, chainId } = input;
-    try{
-      if (!contractAddress) {
-        throw new Error('Contract address is required');
-      }
-      if(!chainId) {
-        throw new Error('Chain id is required');
-      }
-
-      const imageUrl = await this.serviceHelper.handleImageUpload(image || '');
-      const parsedAttributes = attributes? attributes : [];
-
-      // retrieve contract from db
-      const client = await ClientService.getClientByKey(apiKey);
-      const contract = await ContractService.getClientContract(client.id, chainId, contractAddress);
-      if (!contract) {
-        throw new Error('Contract not found');
-      }
-
-      const assetMetadata: AssetMetadata = {
-        name: name || '',
-        description: description || '',
-        image: imageUrl,
-        attributes: parsedAttributes, 
-      };
-      try {
-        const result: EvolveBatchResult = await this.serviceHelper.laosService.evolveBatch({
-          laosContractAddress: contract.batchMinterContract,
-          tokens: [{
-            tokenId: tokenId!, 
-            assetMetadata, 
-          }],
-        }, apiKey); 
-        if (result.status === "success") {
-          return { 
-            tokenId: result.tokens[0].tokenId, 
-            success: true,
-            tokenUri: result.tokens[0].tokenUri,
-            tx: result.tx || ''
-          };
-        } else {
-          throw new Error(result.error ?? "Evolving failed"); // Use nullish coalescing operator
-        }
-      } catch (error) {
-        throw new Error(`Failed to evolve NFT: ${error}`);
-      }
-
-    } catch (error) {
-      console.error(`Evolving failed for contract: ${contractAddress} on chainId: ${chainId} with tokenId: ${tokenId}`, error);
-      throw error;
-    }
-  }
 }
