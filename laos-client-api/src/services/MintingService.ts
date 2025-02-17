@@ -26,8 +26,6 @@ export class MintingService {
     };
   }
 
-
-
   /**
    * Mints up to multiple NFTs in a batch.
    * @param {MintInput} input - The minting input data.
@@ -43,7 +41,6 @@ export class MintingService {
     if (!laosChainId) {
       throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
     }
-
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
@@ -54,9 +51,6 @@ export class MintingService {
 
     try {
       const expandedTokens = await Promise.all(tokens.map(async token => {
-        // hacer query a indexer api by contract address para saber laos chain id
-        // cambiar service helper para que actulice rpc minter
-
         const assetMetadata = this.prepareAssetMetadata(token);
         try {
           
@@ -128,6 +122,7 @@ export class MintingService {
   public async mintAsync(input: MintInput, apiKey: string): Promise<MintAsyncResponse> {
     const { contractAddress, chainId, tokens } = input;
 
+    // get from indexer target laosChainId used by this contract
     const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
     const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
     if (!laosChainId) {
