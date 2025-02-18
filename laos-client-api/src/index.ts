@@ -80,6 +80,9 @@ async function startServer() {
       title: 'Laos GraphQL API',
       headers: JSON.stringify({
         "x-api-key": "your-api-key",
+      }),
+      defaultHeaders: JSON.stringify({
+        "x-api-key": "your-api-key"
       })
     },
   });
