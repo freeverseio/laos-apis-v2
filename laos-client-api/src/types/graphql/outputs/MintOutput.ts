@@ -33,6 +33,9 @@ export class MintResponse {
 
   @Field()
   success!: boolean;
+
+  @Field(() => String, { nullable: true })
+  laosChainId?: string | null;
 }
 
 export enum MintAsyncStatus {

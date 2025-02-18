@@ -159,7 +159,8 @@ export class EvolvingService {
               tokenUri: token.tokenUri,
             })),
             success: true,
-            tx: result.tx || ''
+            tx: result.tx || '',
+            laosChainId: laosChainId,
           };
         } else {
           throw new Error(result.error ?? "Evolving failed"); // Use nullish coalescing operator

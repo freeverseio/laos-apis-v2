@@ -13,6 +13,9 @@ export class EvolveResponse {
 
   @Field(() => [EvolveTokenResponse])
   tokens!: EvolveTokenResponse[];
+
+  @Field(() => String, { nullable: true })
+  laosChainId?: string | null;
 }
 
 @ObjectType()

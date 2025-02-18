@@ -92,7 +92,8 @@ export class MintingService {
         return { 
           tokenIds: result.tokenIds!, 
           success: true,
-          numberOfTokens: result.numberOfTokens!
+          numberOfTokens: result.numberOfTokens!,
+          laosChainId: laosChainId
         };
       } else {
         throw new Error(result.error ?? "Minting failed");
