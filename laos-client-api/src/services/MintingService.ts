@@ -103,11 +103,16 @@ export class MintingService {
     }
   }
 
-  public async mintResponse(txHash: string): Promise<MintStatusResponse> {
-    // TODO:
-    // option 1:  iterate configMap to ask to all evochains? Start with laos
-    // option 2:  add parameter laosChainId to this function
-    let laosChainId = "6283"; // ???
+  public async mintResponse(trackingId: string): Promise<MintStatusResponse> {
+    if (!trackingId) {
+      throw new Error("Tracking ID is required");
+    }
+    const elements = trackingId.split(":");
+    if (elements.length !== 2) {
+      throw new Error("Invalid tracking ID format");
+    }
+    const laosChainId = elements[0];
+    const txHash = elements[1];
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
@@ -178,9 +183,11 @@ export class MintingService {
       const result: BatchMintResult = await serviceHelper.laosService.batchMintAsync(params, apiKey);
       if (result.tx ) {
         return { 
-          txHash: result.tx,
           status: MintAsyncStatus.PENDING,
           message: "Transaction is being submitted to the blockchain",
+          txHash: result.tx,
+          laosChainId: laosChainId,
+          trackingId: `${laosChainId}:${result.tx}`,
           tokenIds: result.tokenIds,
           contractAddress: result.contractAddress
         };

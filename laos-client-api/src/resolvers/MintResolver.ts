@@ -39,7 +39,7 @@ export class MintResolver {
   }
 
   @Query(() => MintStatusResponse)
-  async mintResponse(@Arg("txHash") txHash: string): Promise<MintStatusResponse> {
-    return this.mintingService.mintResponse(txHash);
+  async mintResponse(@Arg("trackingId") trackingId: string): Promise<MintStatusResponse> {
+    return this.mintingService.mintResponse(trackingId);
   }
 }

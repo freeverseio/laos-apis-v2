@@ -1,7 +1,7 @@
 import { ServiceHelper } from './ServiceHelper';
 import { IPFSService } from './ipfs/IPFSService';
 import { LaosService } from './blockchain/LaosService';
-import { LaosConfig, AssetAttributes } from '../types';
+import { LaosConfig } from '../types';
 
 jest.mock('./ipfs/IPFSService');
 jest.mock('./blockchain/LaosService');

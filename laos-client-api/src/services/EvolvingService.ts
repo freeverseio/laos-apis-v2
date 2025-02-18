@@ -8,22 +8,19 @@ import IndexerService from "./indexer/IndexerService";
 import fs from "fs";
 
 export class EvolvingService {
- // private serviceHelper: ServiceHelper;
 
-  constructor() {
-    // const evolveConfig: LaosConfig = {
-    //   minterPvks: process.env.MINTER_KEYS || '',
-    //   rpcMinter: process.env.RPC_MINTER || '',
-    // };
-    // this.serviceHelper = new ServiceHelper(evolveConfig);
-  }
+  constructor() {}
 
-
-  public async evolveBatchResponse(txHash: string): Promise<EvolveStatusResponse> {
-    // TODO:
-    // option 1:  iterate configMap to ask to all evochains? Start with laos
-    // option 2:  add parameter laosChainId to this function
-    const laosChainId = "6283"; // TODO
+  public async evolveBatchResponse(trackingId: string): Promise<EvolveStatusResponse> {
+    if (!trackingId) {
+      throw new Error("Tracking ID is required");
+    }
+    const elements = trackingId.split(":");
+    if (elements.length !== 2) {
+      throw new Error("Invalid tracking ID format");
+    }
+    const laosChainId = elements[0];
+    const txHash = elements[1];
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
@@ -89,6 +86,8 @@ export class EvolvingService {
             tokenIds: result.tokens.map(token => token.tokenId),
             status: EvolveAsyncStatus.PENDING,
             txHash: result.tx,
+            laosChainId: laosChainId,
+            trackingId: `${laosChainId}:${result.tx}`,
             message: "Transaction is being submitted to the blockchain"
           };
         } else {
