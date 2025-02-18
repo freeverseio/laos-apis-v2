@@ -13,6 +13,9 @@ export class EvolveResponse {
 
   @Field(() => [EvolveTokenResponse])
   tokens!: EvolveTokenResponse[];
+
+  @Field(() => String, { nullable: true })
+  laosChainId?: string | null;
 }
 
 @ObjectType()
@@ -38,11 +41,18 @@ export class EvolveAsyncResponse {
   
   @Field()
   status!: EvolveAsyncStatus;
-
+  
   @Field()
   message!: string;
-  @Field()
-  txHash!: string;
+  
+  @Field(() => String, { nullable: true })
+  txHash?: string | null;
+
+  @Field(() => String, { nullable: true })
+  trackingId?: string | null;
+
+  @Field(() => String, { nullable: true })
+  laosChainId?: string | null;
 
   @Field(() => [String], { nullable: true })
   tokenIds?: string[];

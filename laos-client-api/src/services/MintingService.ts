@@ -5,17 +5,10 @@ import { ServiceHelper } from "./ServiceHelper";
 import { ethers } from "ethers";
 import ContractService from "./db/ContractService";
 import ClientService from "./db/ClientService";
+import fs from "fs";
+import IndexerService from "./indexer/IndexerService";
 
 export class MintingService {
-  private serviceHelper: ServiceHelper;
-
-  constructor() {
-    const config: LaosConfig = {
-      minterPvks: process.env.MINTER_KEYS || '',
-      rpcMinter: process.env.RPC_MINTER || '',
-    };
-    this.serviceHelper = new ServiceHelper(config);
-  }
 
   /**
    * Prepares asset metadata from the given token input.
@@ -33,10 +26,6 @@ export class MintingService {
     };
   }
 
-  public async refresh() {
-    this.serviceHelper.ipfsService.retryFailedIpfsUploads();
-  }
-
   /**
    * Mints up to multiple NFTs in a batch.
    * @param {MintInput} input - The minting input data.
@@ -46,13 +35,28 @@ export class MintingService {
   public async mint(input: MintInput, apiKey: string): Promise<MintResponse> {
     const { contractAddress, chainId, tokens } = input;
 
+    // get from indexer target laosChainId used by this contract
+    const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+    if (!laosChainId) {
+      throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+    }
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+    const serviceHelper = new ServiceHelper(laosConfig);       
+
     try {
       const expandedTokens = await Promise.all(tokens.map(async token => {
         const assetMetadata = this.prepareAssetMetadata(token);
         try {
-          const cid = await this.serviceHelper.ipfsService.getCid(assetMetadata);
+          
+          const cid = await serviceHelper.ipfsService.getCid(assetMetadata);
           const tokenUri = `ipfs://${cid}`;
-          this.serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
+          serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
           return Promise.all(token.mintTo.map(async address => {
             if (!ethers.isAddress(address)) {
               throw new Error("Invalid recipient address");
@@ -83,12 +87,13 @@ export class MintingService {
         tokens: flatTokens,
       };
 
-      const result: BatchMintResult = await this.serviceHelper.laosService.batchMint(params, apiKey);
+      const result: BatchMintResult = await serviceHelper.laosService.batchMint(params, apiKey);
       if (result.status === "success") {
         return { 
           tokenIds: result.tokenIds!, 
           success: true,
-          numberOfTokens: result.numberOfTokens!
+          numberOfTokens: result.numberOfTokens!,
+          laosChainId: laosChainId
         };
       } else {
         throw new Error(result.error ?? "Minting failed");
@@ -99,19 +104,53 @@ export class MintingService {
     }
   }
 
-  public async mintResponse(txHash: string): Promise<MintStatusResponse> {
-    return this.serviceHelper.laosService.mintResponse(txHash);
+  public async mintResponse(trackingId: string): Promise<MintStatusResponse> {
+    if (!trackingId) {
+      throw new Error("Tracking ID is required");
+    }
+    const elements = trackingId.split(":");
+    if (elements.length !== 2) {
+      throw new Error("Invalid tracking ID format");
+    }
+    const laosChainId = elements[0];
+    const txHash = elements[1];
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+
+    const serviceHelper = new ServiceHelper(laosConfig);
+
+    return serviceHelper.laosService.mintResponse(txHash);
   }
 
   public async mintAsync(input: MintInput, apiKey: string): Promise<MintAsyncResponse> {
     const { contractAddress, chainId, tokens } = input;
+
+    // get from indexer target laosChainId used by this contract
+    const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+    if (!laosChainId) {
+      throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+    }
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    const laosConfig: LaosConfig = {
+      minterPvks: process.env.MINTER_KEYS || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
+    };
+
+    const serviceHelper = new ServiceHelper(laosConfig);
+
     try {
       const expandedTokens = await Promise.all(tokens.map(async token => {
         const assetMetadata = this.prepareAssetMetadata(token);
         try {
-          const cid = await this.serviceHelper.ipfsService.getCid(assetMetadata);
+          const cid = await serviceHelper.ipfsService.getCid(assetMetadata);
           const tokenUri = `ipfs://${cid}`;
-          this.serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
+          serviceHelper.ipfsService.uploadAssetMetadataToIPFS(assetMetadata, token.name, cid);
           return Promise.all(token.mintTo.map(async address => {
             if (!ethers.isAddress(address)) {
               throw new Error("Invalid recipient address");
@@ -142,12 +181,14 @@ export class MintingService {
         tokens: flatTokens,
       };
 
-      const result: BatchMintResult = await this.serviceHelper.laosService.batchMintAsync(params, apiKey);
+      const result: BatchMintResult = await serviceHelper.laosService.batchMintAsync(params, apiKey);
       if (result.tx ) {
         return { 
-          txHash: result.tx,
           status: MintAsyncStatus.PENDING,
           message: "Transaction is being submitted to the blockchain",
+          txHash: result.tx,
+          laosChainId: laosChainId,
+          trackingId: `${laosChainId}:${result.tx}`,
           tokenIds: result.tokenIds,
           contractAddress: result.contractAddress
         };

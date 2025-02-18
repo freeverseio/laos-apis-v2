@@ -39,7 +39,7 @@ describe('GraphQL API', () => {
     const response = await request(url)
       .post('/graphql')
       .set('Authorization', 'API-KEY your-token-here')  // Adding the Authorization header
-      .set('x-api-key', 'your-token-here')  // Adding the Authorization header
+      .set('x-api-key', 'API-KEY your-token-here') 
       .send({
         query: `mutation {
           mint(input: {

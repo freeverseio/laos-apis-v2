@@ -33,6 +33,9 @@ export class MintResponse {
 
   @Field()
   success!: boolean;
+
+  @Field(() => String, { nullable: true })
+  laosChainId?: string | null;
 }
 
 export enum MintAsyncStatus {
@@ -46,14 +49,20 @@ export enum MintAsyncStatus {
 
 @ObjectType()
 export class MintAsyncResponse {
-  @Field(() => String, { nullable: true })
-  txHash?: string | null;
-
   @Field()
   status!: MintAsyncStatus;
 
   @Field()
   message!: string;
+
+  @Field(() => String, { nullable: true })
+  txHash?: string | null;
+
+  @Field(() => String, { nullable: true })
+  trackingId?: string | null;
+
+  @Field(() => String, { nullable: true })
+  laosChainId?: string | null;
 
   @Field(() => [String], { nullable: true })
   tokenIds?: string[];

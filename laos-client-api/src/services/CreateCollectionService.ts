@@ -9,16 +9,9 @@ import { OwnershipChainService } from "./blockchain/OwnershipChainService";
 import fs from "fs";
 
 export class CreateCollectionService {
-  private serviceHelper: ServiceHelper;
   private ownershipChainService: OwnershipChainService;
 
   constructor() {
-    const config: LaosConfig = {
-      minterPvks: process.env.MINTER_KEYS || '',
-      rpcMinter: process.env.RPC_MINTER || '',
-    };
-    this.serviceHelper = new ServiceHelper(config);
-
     const ownershipChainConfig: OwnershipChainConfig = {
       pvks: process.env.MINTER_KEYS || '',
     };
@@ -61,17 +54,20 @@ export class CreateCollectionService {
       }
       
 
-      const configPath = "./supported-chains/default-ownership-laos-chain.json";
+      const configPath = "./supported-chains/default-ownership-laos-chain.json"; // 1
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
 
       let evochainTarget: string | undefined;
+      let finalLaosChainId: string;
 
       if (laosChainId) {
         evochainTarget = laosChainId === "62850" ? "LAOS_SIGMA" : "LAOS";
+        finalLaosChainId = laosChainId
       } else {
         let defaultLaosChainId: string | undefined = config[chainId];
-      
+
         if (defaultLaosChainId) {
+          finalLaosChainId = defaultLaosChainId
           evochainTarget = defaultLaosChainId === "62850" ? "LAOS_SIGMA" : "LAOS";
         } else {
           throw new Error(`chainId not recognized: ${chainId}`);
@@ -83,10 +79,20 @@ export class CreateCollectionService {
         throw new Error("laosChainId not recognized");
       }
 
-      const {contractAddress, precompileAddress} = await this.serviceHelper.laosService.deployBatchMinterContract(apiKey);
+      const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+      const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+
+      const laosConfig: LaosConfig = {
+        minterPvks: process.env.MINTER_KEYS || '',
+        rpcMinter: rpcMinterConfig[finalLaosChainId] || '',
+      };
+
+      const serviceHelper = new ServiceHelper(laosConfig);
+
+      const {contractAddress, precompileAddress} = await serviceHelper.laosService.deployBatchMinterContract(apiKey);
       console.log("BatchMinter contract deployed at: ", contractAddress);
 
-      const baseURI = this.serviceHelper.generateBaseUri(precompileAddress, evochainTarget);
+      const baseURI = serviceHelper.generateBaseUri(precompileAddress, evochainTarget);
       if (!baseURI) {
         throw new Error("BaseURI is null");
       }

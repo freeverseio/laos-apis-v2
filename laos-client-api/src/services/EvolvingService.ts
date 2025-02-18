@@ -4,21 +4,32 @@ import { EvolveAsyncStatus, EvolveAsyncResponse, EvolveStatusResponse, EvolveRes
 import { ServiceHelper } from "./ServiceHelper";
 import ClientService from "./db/ClientService";
 import ContractService from "./db/ContractService";
+import IndexerService from "./indexer/IndexerService";
+import fs from "fs";
 
 export class EvolvingService {
-  private serviceHelper: ServiceHelper;
 
-  constructor() {
-    const evolveConfig: LaosConfig = {
+  constructor() {}
+
+  public async evolveBatchResponse(trackingId: string): Promise<EvolveStatusResponse> {
+    if (!trackingId) {
+      throw new Error("Tracking ID is required");
+    }
+    const elements = trackingId.split(":");
+    if (elements.length !== 2) {
+      throw new Error("Invalid tracking ID format");
+    }
+    const laosChainId = elements[0];
+    const txHash = elements[1];
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+    const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+    const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',
-      rpcMinter: process.env.RPC_MINTER || '',
+      rpcMinter: rpcMinterConfig[laosChainId] || '',
     };
-    this.serviceHelper = new ServiceHelper(evolveConfig);
-  }
 
-
-  public async evolveBatchResponse(txHash: string): Promise<EvolveStatusResponse> {
-    return this.serviceHelper.laosService.evolveBatchResponse(txHash);
+    const serviceHelper = new ServiceHelper(laosConfig);
+    return serviceHelper.laosService.evolveBatchResponse(txHash);
   }
 
   public async evolveBatchAsync(input: EvolveInput, apiKey: string): Promise<EvolveAsyncResponse> {
@@ -53,7 +64,20 @@ export class EvolvingService {
       });
      
       try {
-        const result: EvolveBatchResult = await this.serviceHelper.laosService.evolveBatchAsync({
+        // get from indexer target laosChainId used by this contract
+        const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+        if (!laosChainId) {
+          throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+        }
+        const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+        const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+        const laosConfig: LaosConfig = {
+          minterPvks: process.env.MINTER_KEYS || '',
+          rpcMinter: rpcMinterConfig[laosChainId] || '',
+        };
+        const serviceHelper = new ServiceHelper(laosConfig);
+        const result: EvolveBatchResult = await serviceHelper.laosService.evolveBatchAsync({
           laosContractAddress: contract.batchMinterContract,
           tokens: tokensToEvolve,
         }, apiKey); 
@@ -62,6 +86,8 @@ export class EvolvingService {
             tokenIds: result.tokens.map(token => token.tokenId),
             status: EvolveAsyncStatus.PENDING,
             txHash: result.tx,
+            laosChainId: laosChainId,
+            trackingId: `${laosChainId}:${result.tx}`,
             message: "Transaction is being submitted to the blockchain"
           };
         } else {
@@ -109,7 +135,20 @@ export class EvolvingService {
       });
      
       try {
-        const result: EvolveBatchResult = await this.serviceHelper.laosService.evolveBatch({
+        // get from indexer target laosChainId used by this contract
+        const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
+        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+        if (!laosChainId) {
+          throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+        }
+        const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
+        const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
+        const laosConfig: LaosConfig = {
+          minterPvks: process.env.MINTER_KEYS || '',
+          rpcMinter: rpcMinterConfig[laosChainId] || '',
+        };
+        const serviceHelper = new ServiceHelper(laosConfig);
+        const result: EvolveBatchResult = await serviceHelper.laosService.evolveBatch({
           laosContractAddress: contract.batchMinterContract,
           tokens: tokensToEvolve,
         }, apiKey); 
@@ -120,7 +159,8 @@ export class EvolvingService {
               tokenUri: token.tokenUri,
             })),
             success: true,
-            tx: result.tx || ''
+            tx: result.tx || '',
+            laosChainId: laosChainId,
           };
         } else {
           throw new Error(result.error ?? "Evolving failed"); // Use nullish coalescing operator

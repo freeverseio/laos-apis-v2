@@ -34,7 +34,7 @@ export class EvolveResolver {
   }
 
   @Query(() => EvolveStatusResponse)
-  async evolveResponse(@Arg("txHash") txHash: string): Promise<EvolveStatusResponse> {
-    return this.evolvingService.evolveBatchResponse(txHash);
+  async evolveResponse(@Arg("trackingId") trackingId: string): Promise<EvolveStatusResponse> {
+    return this.evolvingService.evolveBatchResponse(trackingId);
   }
 }
