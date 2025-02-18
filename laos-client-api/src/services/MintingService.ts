@@ -41,7 +41,7 @@ export class MintingService {
     if (!laosChainId) {
       throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
     }
-    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',
@@ -114,7 +114,7 @@ export class MintingService {
     }
     const laosChainId = elements[0];
     const txHash = elements[1];
-    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',
@@ -135,7 +135,7 @@ export class MintingService {
     if (!laosChainId) {
       throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
     }
-    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+    const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
     const laosConfig: LaosConfig = {
       minterPvks: process.env.MINTER_KEYS || '',

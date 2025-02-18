@@ -79,7 +79,7 @@ export class CreateCollectionService {
         throw new Error("laosChainId not recognized");
       }
 
-      const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json"; // 1
+      const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
       const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
 
       const laosConfig: LaosConfig = {
