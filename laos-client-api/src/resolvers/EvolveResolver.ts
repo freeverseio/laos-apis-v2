@@ -27,7 +27,9 @@ export class EvolveResolver {
   @Mutation(() => EvolveAsyncResponse)
   async evolveAsync(@Arg("input") input: EvolveInput, @Ctx() context: Context): Promise<EvolveAsyncResponse> {
     let apiKey = context.headers.headersInit['x-api-key'];
-
+    if (!apiKey) {
+      throw new Error("x-api-key header must be informed.")
+    }
     //remove the API-KEY prefix
     apiKey = apiKey.replace('API-KEY ', '');
     return this.evolvingService.evolveBatchAsync(input, apiKey);
