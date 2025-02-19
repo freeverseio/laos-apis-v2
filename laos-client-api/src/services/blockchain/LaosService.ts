@@ -99,9 +99,10 @@ export class LaosService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log("Minting NFT to:", recipients, "nonce:", nonce);
-        // recipients, randoms, uris, options
+        const estimatedGas = await contract.mintWithExternalURIBatch.estimateGas(recipients, randoms, tokenUris);
         const tx = await contract.mintWithExternalURIBatch(recipients, randoms, tokenUris, {
           nonce: nonce,
+          gasLimit: estimatedGas + 1000,
         });
         return {
           status: 'success',
