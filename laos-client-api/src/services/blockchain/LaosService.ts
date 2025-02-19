@@ -9,6 +9,8 @@ import { IPFSService } from "../ipfs/IPFSService";
 import { ContractService } from "./ContractService";
 import { EvolveAsyncStatus, EvolveResponse, EvolveStatusResponse } from "../../types/graphql/outputs/EvolveOutput";
 
+const EXTRA_GAS_AMOUNT = 1000;
+
 const eventNameToEventTypeMap = {
   MintedWithExternalURI: EvolutionCollection.events.MintedWithExternalURI,
   EvolvedWithExternalURI: EvolutionCollection.events.EvolvedWithExternalURI,
@@ -99,12 +101,10 @@ export class LaosService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log("Minting NFT to:", recipients, "nonce:", nonce);
-        if (tokenUris.length == 2) {
           const estimatedGas = await contract.mintWithExternalURIBatch.estimateGas(recipients, randoms, tokenUris);
-          console.log("Estimated Gas for 2 elements", estimatedGas)
           const tx = await contract.mintWithExternalURIBatch(recipients, randoms, tokenUris, {
             nonce: nonce,
-            gasLimit: estimatedGas + BigInt(500000),
+            gasLimit: estimatedGas + BigInt(EXTRA_GAS_AMOUNT),
           });
           return {
             status: 'success',
@@ -112,17 +112,6 @@ export class LaosService {
             tx: tx,
             contractAddress: contract.address
           };
-        } else {
-          const tx = await contract.mintWithExternalURIBatch(recipients, randoms, tokenUris, {
-            nonce: nonce,
-          });
-          return {
-            status: 'success',
-            tokenIds: tokenOwners.map(token => token.tokenId),
-            tx: tx,
-            contractAddress: contract.address
-          };
-        }
       } catch (error) {
         const errorMessage = (error as Error).message;
         if (errorMessage.includes("nonce too low") || errorMessage.includes("NONCE_EXPIRED")) {
