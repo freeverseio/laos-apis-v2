@@ -102,7 +102,7 @@ export class LaosService {
         const estimatedGas = await contract.mintWithExternalURIBatch.estimateGas(recipients, randoms, tokenUris);
         const tx = await contract.mintWithExternalURIBatch(recipients, randoms, tokenUris, {
           nonce: nonce,
-          gasLimit: estimatedGas + 1000,
+          gasLimit: estimatedGas + BigInt(500000),
         });
         return {
           status: 'success',
