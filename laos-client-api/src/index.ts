@@ -17,6 +17,8 @@ import { stitchSchemas } from '@graphql-tools/stitch';
 import fetch from "cross-fetch";
 import { createYoga } from 'graphql-yoga';
 import { createServer } from 'http';
+import { SupportResolver } from "./resolvers/SupportResolver";
+import { SupportService } from "./services/SupportService";
 
 dotenv.config();
 
@@ -38,7 +40,7 @@ async function startServer() {
   const ipfsService = new IPFSService(process.env.PINATA_API_KEY!, process.env.PINATA_API_SECRET!);
 
   const localSchema = await buildSchema({
-    resolvers: [MintResolver, EvolveResolver, BroadcastResolver, CreateCollectionResolver],
+    resolvers: [MintResolver, EvolveResolver, BroadcastResolver, CreateCollectionResolver, SupportResolver],
     container: {
       get(someClass: any) {
         if (someClass === BroadcastResolver) {
@@ -49,6 +51,8 @@ async function startServer() {
           return new EvolveResolver(new EvolvingService());
         } else if (someClass === CreateCollectionResolver) {
           return new CreateCollectionResolver(new CreateCollectionService());
+        } else if (someClass === SupportResolver) {
+          return new SupportResolver(new SupportService());
         }
         return undefined;
       },
