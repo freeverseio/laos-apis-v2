@@ -19,18 +19,19 @@ export class BroadcastingService {
 
   public async broadcastBatch(input: BroadcastInput, apiKey: string): Promise<BroadcastResponse> {
     const { tokenIds, chainId, ownershipContractAddress, type } = input;
+    const ownershipContractAddressLower = ownershipContractAddress?.toLowerCase();
     try {
       // Check the client exists an is active
       const client = await ClientService.getClientByKey(apiKey);
       console.log('Broadcast requested by client:', client.id);
-      const contract = await ContractService.getClientContract(client.id, chainId!, ownershipContractAddress!);
+      const contract = await ContractService.getClientContract(client.id, chainId!, ownershipContractAddressLower!);
       if (!contract) {
         throw new Error('Contract not found');
       }
       const params: BroadcastBatchParams = {
         tokenIds: tokenIds!,
         chainId: chainId!,
-        ownershipContractAddress: ownershipContractAddress!,
+        ownershipContractAddress: ownershipContractAddressLower!,
       };
     
       const result: BroadcastBatchResult = await this.ownershipChainService.broadcastBatch(params, apiKey, type );
