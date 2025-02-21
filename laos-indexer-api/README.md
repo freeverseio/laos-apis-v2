@@ -1,96 +1,100 @@
-# laos-indexer-api
+# LAOS Indexer API
 
-This code provides an indexer that tracks all NFTs minted on any EVM chain using LAOS Network's bridgeless minting technology.
+## Overview
+The **LAOS Indexer API** is a GraphQL service that allows querying asset indexes on the **LAOS blockchain** and its sibling collections on **EVM-compatible chains** like Polygon. This API enables efficient retrieval of asset-related data, ensuring seamless integration with dApps and blockchain-based applications.
 
-For example, the indexer can track NFTs created on Ethereum using LAOS. In this scenario, asset ownership and trading remain on Ethereum, while the gas costs for minting are offloaded to the LAOS Network.
+## Features
+- Query asset indexes on LAOS and EVM-compatible chains.
+- Fetch metadata and ownership details of assets.
+- Support for pagination and filtering for efficient data retrieval.
+- Optimized for performance and scalability.
+- GraphQL Playground available at `/graphql` for testing queries.
 
-In such example, developers using this indexer retrieve NFT data as usual, as if all NFTs were assets regularly created on Ethereum, 
-with the use of LAOS being entirely transparent.
+## Installation
+To set up and run the API locally, follow these steps:
 
-The code is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
+```sh
+# Clone the repository
+git clone https://github.com/freeverseio/laos-apis-v2.git
 
-A custom GraphQL API is provided for real-time data retrieval.
+# Navigate to the indexer API directory
+cd laos-apis-v2/laos-indexer-api
 
-## Quickstart with Laos Mainnet
+# Install dependencies
+npm install
 
-1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
-   - Use `example.env` as a reference.
-   - Provide the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://laos-mainnet.com`.
+# Configure environment variables
+cp .env.example .env
 
-2. **Execute the following commands**:
+# Update the .env file with appropriate values
 
-```bash
-# 1. Install @subsquid/cli globally (sqd command)
-npm i -g @subsquid/cli@2.12.x
-
-# 2. Install dependencies
-npm ci
-
-# 3. Clean previous processes
-sqd clean:all
-
-# 4. Build and start the processor
-sqd run .
+# Start the API
+npm start
 ```
 
-A GraphQL playground will be available at http://localhost:4350/graphql.
+## Environment Variables
+The API requires the following environment variables to be set:
 
+| Variable            | Description                        |
+|---------------------|----------------------------------|
+| `PORT`             | The port on which the API runs.  |
+| `DB_URI`           | Database connection string.      |
+| `EVM_RPC_URL`      | RPC URL of the target EVM chain. |
+| `LAOS_API_KEY`     | API key for accessing LAOS data. |
 
-## Using a different chain
+## GraphQL Playground
+The API provides a **GraphQL Playground** interface at:
 
-1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
-   - Use `example.env` as a reference.
-   - Provide the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://laos-mainnet.com`.
-   - adapt the following env vars :
-     - PRIVATE_IPFS_GATEWAY=https://gateway.pinata.cloud
-     - LAOS_GLOBAL_CONSENSUS=0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f
-     - LAOS_PARACHAIN=4006
-     - LAOS_PALLET_INSTANCE=51
-     - STARTING_BLOCK_LAOS=1093010
-     - STARTING_BLOCK_OWNERSHIP=65109700
-
-2. **Generte the schema.graphql file**
-
-```bash
-sqd generate:schema
 ```
-or
-```bash
-node generateSchema.js --chainName=Mainnet
+http://localhost:<PORT>/graphql
 ```
 
-3. **Build orm entities**
+Use this interactive tool to explore queries and test API endpoints.
 
-```bash
-sqd codegen
-sqd clean:all
+## Example GraphQL Queries
+
+### Get Asset by ID
+```graphql
+query Asset {
+  token(
+    chainId: "137"
+    tokenId: "53919893334301279589396318239190294297714481641109014155142484029476"
+    contractAddress: "0x1b4d230bcc0e72f4f8adacf7c0ad5c389f289b04"
+  ) {
+    tokenUri
+    name
+    description
+  }
+} 
 ```
 
-
-4. **Generate migration file**
-
-```bash
-sqd migration:generate
+### Search Assets
+```graphql
+query Assets {
+  tokens(where: {chainId: "137"}) {
+    totalCount
+    edges {
+      node {
+        attributes
+        name
+      }
+    }
+  }
+}
 ```
-
-5. **Start the processor**
-
-
-```bash
-sqd run .
-```
-
-
-
-
-
-
 
 
 
 ## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or new features.
+Contributions are welcome! Please follow these steps:
+1. Fork the repository.
+2. Create a new branch.
+3. Commit your changes.
+4. Submit a pull request.
 
 ## License
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Contact
+For support or inquiries, reach out via [GitHub Issues](https://github.com/freeverseio/laos-apis-v2/issues).
+
