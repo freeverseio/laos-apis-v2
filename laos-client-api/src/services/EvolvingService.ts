@@ -34,8 +34,10 @@ export class EvolvingService {
 
   public async evolveBatchAsync(input: EvolveInput, apiKey: string): Promise<EvolveAsyncResponse> {
     const { contractAddress, tokens, chainId } = input;
+    const contractAddressLower = contractAddress?.toLowerCase();
+
     try{
-      if (!contractAddress) {
+      if (!contractAddressLower) {
         throw new Error('Contract address is required');
       }
       if(!chainId) {
@@ -43,7 +45,7 @@ export class EvolvingService {
       }
       // retrieve contract from db
       const client = await ClientService.getClientByKey(apiKey);
-      const contract = await ContractService.getClientContract(client.id, chainId, contractAddress);
+      const contract = await ContractService.getClientContract(client.id, chainId, contractAddressLower);
       if (!contract) {
         throw new Error('Contract not found');
       }
@@ -66,9 +68,9 @@ export class EvolvingService {
       try {
         // get from indexer target laosChainId used by this contract
         const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
-        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddressLower);   
         if (!laosChainId) {
-          throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+          throw new Error(`Ownership contract not found ${chainId} - ${contractAddressLower}`);
         }
         const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
         const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
@@ -98,15 +100,17 @@ export class EvolvingService {
       }
 
     } catch (error) {
-      console.error(`Evolving failed for contract: ${contractAddress} on chainId: ${chainId}`, error);
+      console.error(`Evolving failed for contract: ${contractAddressLower} on chainId: ${chainId}`, error);
       throw error;
     }
   }
 
   public async evolveBatch(input: EvolveInput, apiKey: string): Promise<EvolveResponse> {
     const { contractAddress, tokens, chainId } = input;
+    const contractAddressLower = contractAddress?.toLowerCase();
+
     try{
-      if (!contractAddress) {
+      if (!contractAddressLower) {
         throw new Error('Contract address is required');
       }
       if(!chainId) {
@@ -114,7 +118,7 @@ export class EvolvingService {
       }
       // retrieve contract from db
       const client = await ClientService.getClientByKey(apiKey);
-      const contract = await ContractService.getClientContract(client.id, chainId, contractAddress);
+      const contract = await ContractService.getClientContract(client.id, chainId, contractAddressLower);
       if (!contract) {
         throw new Error('Contract not found');
       }
@@ -137,9 +141,9 @@ export class EvolvingService {
       try {
         // get from indexer target laosChainId used by this contract
         const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
-        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+        const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddressLower);   
         if (!laosChainId) {
-          throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+          throw new Error(`Ownership contract not found ${chainId} - ${contractAddressLower}`);
         }
         const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
         const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
@@ -170,7 +174,7 @@ export class EvolvingService {
       }
 
     } catch (error) {
-      console.error(`Evolving failed for contract: ${contractAddress} on chainId: ${chainId}`, error);
+      console.error(`Evolving failed for contract: ${contractAddressLower} on chainId: ${chainId}`, error);
       throw error;
     }
   }

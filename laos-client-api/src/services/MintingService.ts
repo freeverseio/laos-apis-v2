@@ -34,12 +34,13 @@ export class MintingService {
    */
   public async mint(input: MintInput, apiKey: string): Promise<MintResponse> {
     const { contractAddress, chainId, tokens } = input;
+    const contractAddressLower = contractAddress?.toLowerCase();
 
     // get from indexer target laosChainId used by this contract
     const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
-    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddressLower);   
     if (!laosChainId) {
-      throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+      throw new Error(`Ownership contract not found ${chainId} - ${contractAddressLower}`);
     }
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
@@ -77,7 +78,7 @@ export class MintingService {
 
       // retrieve contract from db
       const client = await ClientService.getClientByKey(apiKey);
-      const contract = await ContractService.getClientContract(client.id, chainId, contractAddress);
+      const contract = await ContractService.getClientContract(client.id, chainId, contractAddressLower);
       if (!contract) {
         throw new Error('Contract not found');
       }
@@ -99,7 +100,7 @@ export class MintingService {
         throw new Error(result.error ?? "Minting failed");
       }
     } catch (error) {
-      console.error(`Batch minting failed for contract: ${contractAddress} on chainId: ${chainId}`, error);
+      console.error(`Batch minting failed for contract: ${contractAddressLower} on chainId: ${chainId}`, error);
       throw error;
     }
   }
@@ -128,12 +129,13 @@ export class MintingService {
 
   public async mintAsync(input: MintInput, apiKey: string): Promise<MintAsyncResponse> {
     const { contractAddress, chainId, tokens } = input;
+    const contractAddressLower = contractAddress?.toLowerCase();
 
     // get from indexer target laosChainId used by this contract
     const indexerService = new IndexerService(process.env.REMOTE_SCHEMA!);
-    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddress);   
+    const laosChainId = await indexerService.getOwnershipContracts(chainId, contractAddressLower);   
     if (!laosChainId) {
-      throw new Error(`Ownership contract not found ${chainId} - ${contractAddress}`);
+      throw new Error(`Ownership contract not found ${chainId} - ${contractAddressLower}`);
     }
     const rpcMinterConfigPath = "./supported-chains/laos-chain-rpc.json";
     const rpcMinterConfig = JSON.parse(fs.readFileSync(rpcMinterConfigPath, "utf-8"));
@@ -171,7 +173,7 @@ export class MintingService {
 
       // retrieve contract from db
       const client = await ClientService.getClientByKey(apiKey);
-      const contract = await ContractService.getClientContract(client.id, chainId, contractAddress);
+      const contract = await ContractService.getClientContract(client.id, chainId, contractAddressLower);
       if (!contract) {
         throw new Error('Contract not found');
       }
@@ -196,7 +198,7 @@ export class MintingService {
         throw new Error(result.error ?? "Minting failed");
       }
     } catch (error) {
-      console.error(`Batch minting failed for contract: ${contractAddress} on chainId: ${chainId}`, error);
+      console.error(`Batch minting failed for contract: ${contractAddressLower} on chainId: ${chainId}`, error);
       throw error;
     }
   } 
