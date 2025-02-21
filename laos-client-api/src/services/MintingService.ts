@@ -191,8 +191,7 @@ export class MintingService {
           txHash: result.tx,
           laosChainId: laosChainId,
           trackingId: `${laosChainId}:${result.tx}`,
-          tokenIds: result.tokenIds,
-          contractAddress: result.contractAddress
+          tokenIds: result.tokenIds
         };
       } else {
         throw new Error(result.error ?? "Minting failed");

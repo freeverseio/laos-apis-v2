@@ -66,9 +66,6 @@ export class MintAsyncResponse {
 
   @Field(() => [String], { nullable: true })
   tokenIds?: string[];
-
-  @Field(() => String, { nullable: true })
-  contractAddress?: string | null;
 }
 
 @ObjectType()
