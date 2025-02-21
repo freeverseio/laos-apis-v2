@@ -11,7 +11,7 @@ The code is a minimal extension of Subsquid's framework, leveraging its multi-ch
 
 A custom GraphQL API is provided for real-time data retrieval.
 
-## Quickstart with Polygon
+## Quickstart with Laos Mainnet
 
 1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
    - Use `example.env` as a reference.
