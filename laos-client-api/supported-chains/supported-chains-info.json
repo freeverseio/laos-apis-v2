@@ -1,0 +1,22 @@
+{
+  "ownershipChains": [
+    {
+      "chainId":"1",
+      "name": "Ethereum"
+    },
+    {
+      "chainId":"137",
+      "name": "Polygon"
+    }
+  ],
+  "laosChains": [
+    {
+      "laosChainId":"6283",
+      "name": "LAOS Mainnet"
+    },
+    {
+      "laosChainId":"62850",
+      "name": "LAOS Sigma"
+    }
+  ]
+}
