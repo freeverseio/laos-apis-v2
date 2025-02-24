@@ -1,4 +1,7 @@
 const { AppDataSource } = require("./data-source");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 AppDataSource.initialize()
   .then(async () => {
