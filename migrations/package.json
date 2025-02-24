@@ -1,0 +1,18 @@
+{
+  "name": "migrations",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "typeorm:migrate": "node migration-run.js",
+    "typeorm:revert": "node migration-revert.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1",
+    "typeorm": "^0.3.20"
+  }
+}

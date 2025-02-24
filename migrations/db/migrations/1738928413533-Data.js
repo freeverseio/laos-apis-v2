@@ -1,5 +1,5 @@
-module.exports = class Data1738853438404 {
-    name = 'Data1738853438404'
+module.exports = class Data1738928413533 {
+    name = 'Data1738928413533'
 
     async up(db) {
         await db.query(`CREATE TABLE "polygon_transfer" ("id" character varying NOT NULL, "from" text NOT NULL, "to" text NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_number" integer NOT NULL, "tx_hash" text NOT NULL, "asset_id" character varying, CONSTRAINT "PK_4e5638dcaf2d7479c8645657526" PRIMARY KEY ("id"))`)

@@ -1,4 +1,4 @@
-# LAOS Indexer
+# laos-indexer-api
 
 This code provides an indexer that tracks all NFTs minted on any EVM chain using LAOS Network's bridgeless minting technology.
 
@@ -11,12 +11,11 @@ The code is a minimal extension of Subsquid's framework, leveraging its multi-ch
 
 A custom GraphQL API is provided for real-time data retrieval.
 
-## Quickstart
+## Quickstart with Laos Mainnet
 
-1. **Specify the EVM chain** where bridgeless minting will operate, e.g. Ethereum, Polygon, Base, etc., by creating an `.env` file.
+1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
    - Use `example.env` as a reference.
-   - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
-   - Note: Public RPC endpoints often have transaction limits.
+   - Provide the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://laos-mainnet.com`.
 
 2. **Execute the following commands**:
 
@@ -37,11 +36,54 @@ sqd run .
 A GraphQL playground will be available at http://localhost:4350/graphql.
 
 
-##  GraphQL queries:
-`tokens`: Lists NFTs based on the owner's address or a collection address.
-`token`: Retrieves current details about a particular NFT.
-`transfers`: Shows all transfer events associated with a specific NFT.
-`tokenHistory`: Returns all changes associated with the NFT's metadata.
+## Using a different chain
+
+1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
+   - Use `example.env` as a reference.
+   - Provide the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://laos-mainnet.com`.
+   - adapt the following env vars :
+     - PRIVATE_IPFS_GATEWAY=https://gateway.pinata.cloud
+     - LAOS_GLOBAL_CONSENSUS=0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f
+     - LAOS_PARACHAIN=4006
+     - LAOS_PALLET_INSTANCE=51
+     - STARTING_BLOCK_LAOS=1093010
+     - STARTING_BLOCK_OWNERSHIP=65109700
+
+2. **Generte the schema.graphql file**
+
+```bash
+sqd generate:schema
+```
+or
+```bash
+node generateSchema.js --chainName=Mainnet
+```
+
+3. **Build orm entities**
+
+```bash
+sqd codegen
+sqd clean:all
+```
+
+
+4. **Move migration file**
+
+```bash
+mv db/migrations/* migrations/db/migrations/
+```
+
+5. **Go to migrations folder and run migrations**
+
+```bash
+cd migrations
+npx ts-node db/migrations/index.ts
+```
+
+
+
+
+
 
 ## Contributing
 

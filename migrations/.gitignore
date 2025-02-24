@@ -1,7 +1,6 @@
 /node_modules
 /lib
 /builds
-/dist
 
 /**Versions.json
 
@@ -9,7 +8,4 @@
 /.env
 # IDE files
 /.idea
-
-/certs/*
-
-/data/*
+/certs
