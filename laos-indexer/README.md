@@ -67,19 +67,18 @@ sqd clean:all
 ```
 
 
-4. **Generate migration file**
+4. **Move migration file**
 
 ```bash
-sqd migration:generate
+mv db/migrations/* migrations/db/migrations/
 ```
 
-5. **Start the processor**
-
+5. **Go to migrations folder and run migrations**
 
 ```bash
-sqd run .
+cd migrations
+npx ts-node db/migrations/index.ts
 ```
-
 
 
 
