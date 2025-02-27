@@ -1,6 +1,7 @@
 import { Arg, Query, Resolver } from 'type-graphql';
 import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput, OwnershipContractsWhereInput, OwnershipContractsQueryResult, OwnershipContractsPaginationInput, TokensByCollectionWhereInput } from '../model';
 import { QueryBuilderService } from '../services/QueryBuilderService';
+import { BtcService } from '../services/btc/BtcService';
 
 @Resolver()
 export class TokenResolver {
@@ -16,13 +17,18 @@ export class TokenResolver {
     @Arg('pagination', () => TokenPaginationInput, { nullable: false, defaultValue: { first: 10 } }) pagination: TokenPaginationInput,
     @Arg('orderBy', () => TokenOrderByOptions, { nullable: true }) orderBy?: TokenOrderByOptions
   ): Promise<TokenConnection> {
-    // TODO call BTC indexer
-    const laosContractAddress = "0xfffffffffffffffffffffffe0000000000000006";
-
+    // Call BTC indexer    
+    const baseUrl = process.env.INDEXER_BTC_RPC || 'INDEXER_BTC_RPC_not_provided!';
+    const btcService = new BtcService(baseUrl);
+    const collection = await btcService.getCollectionById(where.collectionId);
+    if (!collection || !collection.laosContractAddress) {
+      return new TokenConnection([], null, 0);
+    }
+    const laosContractAddress = collection.laosContractAddress;
+    //const laosContractAddress = "0xfffffffffffffffffffffffe0000000000000006";
+    
     const { query, parameters } = await this.queryBuilderService.buildTokenQuery(where, pagination, orderBy, laosContractAddress);
     const { query: countQuery, parameters: countParameters } = await this.queryBuilderService.buildTokenQueryCount(where, laosContractAddress);
-console.log("query: ", query);
-console.log("parameters: ", parameters);
     const tokens = await this.fetchTokens(query, parameters);
     const count = await this.tx(countQuery, countParameters);
     const totalCount = count && count.length > 0 ? parseInt(count[0].count, 10) : 0;
