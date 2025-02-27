@@ -1,0 +1,20 @@
+{
+  "name": "laos-indexer-btc-api",
+  "version": "1.0.0",
+  "description": "API joining BTC and LAOS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "graphql-yoga": "^5.12.1",
+    "type-graphql": "^2.0.0-rc.2"
+  }
+}
