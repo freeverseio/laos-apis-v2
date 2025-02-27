@@ -4,7 +4,11 @@
   "description": "API joining BTC and LAOS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon src/index.ts",
+    "test": "jest",
+    "clear_jest": "jest --clearCache"
   },
   "author": "",
   "license": "ISC",
@@ -13,8 +17,13 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
+    "graphql-type-json": "^0.3.2",
     "graphql-yoga": "^5.12.1",
+    "pg": "^8.13.3",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
     "type-graphql": "^2.0.0-rc.2"
   }
 }

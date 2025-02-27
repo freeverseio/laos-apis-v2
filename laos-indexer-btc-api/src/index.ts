@@ -5,18 +5,12 @@ import { TokenResolver } from "./resolvers/TokenResolver";
 import Database from "./services/db/Database";
 import { TransferResolver } from "./resolvers/TransferResolver";
 import { TokenHistoryResolver } from "./resolvers/TokenHistoryResolver";
-import Config from "./config/config";
 import { createYoga } from 'graphql-yoga';
 import { createServer } from 'http';
 
 dotenv.config();
 
 async function startServer() {
-
-  await Config.loadConfig();
-  console.log('Supported Chains Loaded:', Config.getSupportedChains());
-  console.log('Supported LAOS Chains Loaded:', Config.getSupportedLaosChains());
-  console.log('Default Ownership LAOS Chain Loaded:', Config.getDefaultOwnershipLaosChain());
 
   const tx = async (query: string, params?: any[]): Promise<any[]> => {
     const result = await Database.query(query, params);

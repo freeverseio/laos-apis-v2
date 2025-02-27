@@ -1,6 +1,5 @@
 import { OwnershipContractsPaginationInput, OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery, buildOwnershipContractsQueryByPrefix } from './queries';
-import Config from '../config/config';
 import { LaosChain } from '../model/laosChain.model';
 
 interface WhereConditionsResult {
@@ -20,11 +19,7 @@ export class QueryBuilderService {
   private supportedLaosChains: Record<string, string>;
   private defaultOwnershipLaosChain: Record<string, string>;
 
-  constructor() {
-    this.supportedChains = Config.getSupportedChains();
-    this.supportedLaosChains = Config.getSupportedLaosChains();
-    this.defaultOwnershipLaosChain = Config.getDefaultOwnershipLaosChain();
-  }
+  constructor() { }
 
   private getChainPrefix(chainId: string): string {
     const chainPrefix = this.supportedChains[chainId];
