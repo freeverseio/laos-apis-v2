@@ -18,7 +18,8 @@ async function startServer() {
   };
 
   const schema = await buildSchema({
-    resolvers: [TokenResolver, TransferResolver, TokenHistoryResolver],
+    // resolvers: [TokenResolver, TransferResolver, TokenHistoryResolver],
+    resolvers: [TokenResolver],
     container: {
       get(someClass: any) {
         if (someClass === TokenResolver) {

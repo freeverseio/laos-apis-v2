@@ -1,4 +1,4 @@
-import { OwnershipContractsPaginationInput, OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
+import { OwnershipContractsPaginationInput, OwnershipContractsWhereInput, TokenHistoryPaginationInput, TokenOrderByOptions, TokenOwnersWhereInput, TokenPaginationInput, TokensByCollectionWhereInput, TokenWhereInput, TransferOrderByOptions, TransferPaginationInput, TransferWhereInput } from '../model';
 import { buildTokenQueryBase, buildTokenByIdQuery, buildTokenCountQueryBase, buildTokenOwnerQuery, buildOwnershipContractsQueryByPrefix } from './queries';
 import { LaosChain } from '../model/laosChain.model';
 
@@ -44,7 +44,7 @@ export class QueryBuilderService {
     };
   }
 
-  private buildTokenWhereConditions(where: TokenWhereInput | TokenOwnersWhereInput, laosChain: LaosChain): WhereConditionsResult {
+  private buildTokenWhereConditions(where: TokensByCollectionWhereInput | TokenOwnersWhereInput, laosConractAddress: String): WhereConditionsResult {
     let conditions = [];
     let parameters = [];
     let paramIndex = 1;
@@ -66,10 +66,8 @@ export class QueryBuilderService {
       parameters.push(where.tokenId);
     }
 
-    if(laosChain && laosChain.id) {
-      conditions.push(`oc.laos_chain_id = $${paramIndex++}`);
-      parameters.push(laosChain.id);
-    }
+    conditions.push(`la.laos_contract = $${paramIndex++}`);
+    parameters.push(laosConractAddress); // LAOS mainnet chain id
 
     return { conditions, parameters, paramIndex };
   }
@@ -134,9 +132,8 @@ export class QueryBuilderService {
     return { effectiveOrderBy, orderDirection };
   }
 
-  private buildTokenQueryBaseByChainId(chainId: string, laosChain: LaosChain, orderByClause: string) {
-    const prefix = this.getChainPrefix(chainId);
-    const mainQuery = buildTokenQueryBase(prefix, laosChain.prefix, orderByClause);
+  private buildTokenQueryBase(orderByClause: string) {
+    const mainQuery = buildTokenQueryBase(orderByClause);
     return mainQuery;
   }
 
@@ -146,9 +143,8 @@ export class QueryBuilderService {
     return buildTokenByIdQuery(prefix, laosChain.prefix, laosChain.id);
   }
 
-  private buildTokenCountQueryBaseByChainId(chainId: string, laosChain: LaosChain) {
-    const prefix = this.getChainPrefix(chainId);
-    return buildTokenCountQueryBase(prefix, laosChain.prefix);
+  private buildTokenCountQueryBaseByChainId() {
+    return buildTokenCountQueryBase();
   }
 
   private buildTokenOwnerQueryByChainId(chainId: string, laosChain: LaosChain) {
@@ -162,15 +158,15 @@ export class QueryBuilderService {
   }
 
   async buildTokenQuery(
-    where: TokenWhereInput,
+    where: TokensByCollectionWhereInput,
     pagination: TokenPaginationInput,
-    orderBy?: TokenOrderByOptions
+    orderBy?: TokenOrderByOptions,
+    laosContractAddress?: string
   ): Promise<{ query: string; parameters: any[] }> {
     const effectiveFirst = pagination.first;
     const afterCursor = pagination.after;
     const { effectiveOrderBy, orderDirection } = this.getOrderDetails(orderBy);
-    const laosChain = this.getLaosChain(where!.chainId, where!.laosChainId);
-    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where, laosChain);
+    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where, laosContractAddress);
     let paramIndex = initialParamIndex;
 
     if (afterCursor) {
@@ -181,8 +177,8 @@ export class QueryBuilderService {
     }
 
     // build query with subquery to prevent ordering all the set and then appply limit. Around 90% more efficient
-    const orderByClause = `ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}, oc.id ASC`;
-    const mainQuery = this.buildTokenQueryBaseByChainId(where!.chainId, laosChain, orderByClause); 
+    const orderByClause = `ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}`;
+    const mainQuery = this.buildTokenQueryBase(orderByClause); 
     const query = `
       WITH ranked AS (
         ${mainQuery}
@@ -197,10 +193,9 @@ export class QueryBuilderService {
     return { query, parameters };    
   }
 
-  async buildTokenQueryCount(where: TokenWhereInput): Promise<{ query: string; parameters: any[] }> {
-    const laosChain = this.getLaosChain(where!.chainId, where!.laosChainId);
-    const { conditions, parameters } = this.buildTokenWhereConditions(where, laosChain);
-    const mainQuery = this.buildTokenCountQueryBaseByChainId(where!.chainId, laosChain);
+  async buildTokenQueryCount(where: TokensByCollectionWhereInput, laosConractAddress?: string): Promise<{ query: string; parameters: any[] }> {    
+    const { conditions, parameters } = this.buildTokenWhereConditions(where, laosConractAddress);
+    const mainQuery = this.buildTokenCountQueryBaseByChainId();
     const query = `
       ${mainQuery}
       ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
@@ -216,16 +211,16 @@ export class QueryBuilderService {
     return { query: mainQuery, parameters };
   }
 
-  async buildTokenOwnerQuery(where: TokenOwnersWhereInput): Promise<{ query: string; parameters: any[] }> {
-    const laosChain = this.getLaosChain(where?.chainId, where?.laosChainId);
-    const { conditions, parameters } = this.buildTokenWhereConditions(where, laosChain);
-    const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId, laosChain);
-    const query = `
-      ${mainQuery}
-      ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
-    `;
-    return { query, parameters };
-  }
+  // async buildTokenOwnerQuery(where: TokenOwnersWhereInput): Promise<{ query: string; parameters: any[] }> {
+  //   const laosChain = this.getLaosChain(where?.chainId, where?.laosChainId);
+  //   const { conditions, parameters } = this.buildTokenWhereConditions(where, laosChain);
+  //   const mainQuery = this.buildTokenOwnerQueryByChainId(where?.chainId, laosChain);
+  //   const query = `
+  //     ${mainQuery}
+  //     ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
+  //   `;
+  //   return { query, parameters };
+  // }
 
   async buildOwnershipContractsQuery(where: OwnershipContractsWhereInput, pagination: OwnershipContractsPaginationInput): Promise<{ query: string; parameters: any[] }> {
     const { conditions, parameters } = this.buildOwnershipContractsWhereConditions(where);
