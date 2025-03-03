@@ -49,29 +49,17 @@ export class BtcService {
     }
   }
 
-  // TODO use new btc indexer method
   async getCollectionById(id: string): Promise<CollectionItem | null> {
-    // const collectionsResponse = await this.getAllCollections();
-    // console.log('collectionsResponse:', collectionsResponse);
-
-    // if (collectionsResponse && collectionsResponse.entries) {
-    //   for (const entry of collectionsResponse.entries) {
-    //     if (entry[0] === id) {
-    //       return { collectionId: entry[0], laosContractAddress: entry[1] };
-    //     }
-    //   }
-    // }
-
     try {
       const response: AxiosResponse<CollectionResponse> = await axios.get(
-        `${this.baseUrl}/brc721/collections/${id}`,
+        `${this.baseUrl}/brc721/collection/${id}`,
         {
           headers: {
             Accept: 'application/json',
           },
         }
       );
-
+      
       if (response.status === 200) {
         return {
           collectionId: response.data?.id,
@@ -84,7 +72,7 @@ export class BtcService {
       }
 
     } catch (error) {
-      console.error('Error fetching collections:', error);
+      console.error(`Error fetching collections with id [${id}], probably the id does not exist in the BTC indexer:`, error);
       return null;
     }    
   }

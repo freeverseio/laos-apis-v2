@@ -26,6 +26,7 @@ export class TokenResolver {
     }
     const laosContractAddress = collection.laosContractAddress;
     //const laosContractAddress = "0xfffffffffffffffffffffffe0000000000000006";
+    console.log(`Retrieving tokens for laosContractAddress: ${laosContractAddress}`);
     
     const { query, parameters } = await this.queryBuilderService.buildTokenQuery(where, pagination, orderBy, laosContractAddress);
     const { query: countQuery, parameters: countParameters } = await this.queryBuilderService.buildTokenQueryCount(where, laosContractAddress);
