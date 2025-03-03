@@ -12,9 +12,10 @@ interface CollectionsResponse {
   next: string | null;
 }
 
+// RUST response
 interface CollectionResponse {
   id: string;
-  laosContractAddress: string;
+  LAOS_address: string;
   rebaseable: boolean;
 }
 
@@ -74,7 +75,7 @@ export class BtcService {
       if (response.status === 200) {
         return {
           collectionId: response.data?.id,
-          laosContractAddress: response.data?.laosContractAddress,
+          laosContractAddress: response.data?.LAOS_address,
         };
 
       } else {
