@@ -12,6 +12,12 @@ interface CollectionsResponse {
   next: string | null;
 }
 
+interface CollectionResponse {
+  id: string;
+  laosContractAddress: string;
+  rebaseable: boolean;
+}
+
 export class BtcService {
   private baseUrl: string;
 
@@ -44,19 +50,42 @@ export class BtcService {
 
   // TODO use new btc indexer method
   async getCollectionById(id: string): Promise<CollectionItem | null> {
-    const collectionsResponse = await this.getAllCollections();
-    console.log('collectionsResponse:', collectionsResponse);
+    // const collectionsResponse = await this.getAllCollections();
+    // console.log('collectionsResponse:', collectionsResponse);
 
-    if (collectionsResponse && collectionsResponse.entries) {
-      for (const entry of collectionsResponse.entries) {
-        if (entry[0] === id) {
-          return { collectionId: entry[0], laosContractAddress: entry[1] };
+    // if (collectionsResponse && collectionsResponse.entries) {
+    //   for (const entry of collectionsResponse.entries) {
+    //     if (entry[0] === id) {
+    //       return { collectionId: entry[0], laosContractAddress: entry[1] };
+    //     }
+    //   }
+    // }
+
+    try {
+      const response: AxiosResponse<CollectionResponse> = await axios.get(
+        `${this.baseUrl}/brc721/collections/${id}`,
+        {
+          headers: {
+            Accept: 'application/json',
+          },
         }
+      );
+
+      if (response.status === 200) {
+        return {
+          collectionId: response.data?.id,
+          laosContractAddress: response.data?.laosContractAddress,
+        };
+
+      } else {
+        console.error(`Error fetching collection by id. Status: ${response.status}`);
+        return null;
       }
-    }
 
-    return null; // Collection with the given ID not found
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+      return null;
+    }    
   }
-
 
 }
