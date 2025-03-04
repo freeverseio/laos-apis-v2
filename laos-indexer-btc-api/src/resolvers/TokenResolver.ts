@@ -78,17 +78,11 @@ export class TokenResolver {
       return null;
     }
 
-    // TODO Replace with this when the BTC indexer is ready
-    //  return collections.entries.map((item: any) => new OwnershipContractsQueryResult({
-    //     id: item.id,
-    //     laosContractAddress: item.LAOS_address,
-    //     rebaseable: item.rebaseable
-    //  })); 
-
-    return collections.entries.map(([id, laosContractAddress]: [string, string]) => ({
-      id,
-      laosContractAddress,
-    }));
+     return collections.entries.map((item: any) => new OwnershipContractsQueryResult({
+        id: item.id,
+        laosContractAddress: item.address,
+        rebaseable: item.rebaseable
+     })); 
   }
 
 
