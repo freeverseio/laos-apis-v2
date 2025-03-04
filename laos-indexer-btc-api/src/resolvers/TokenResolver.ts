@@ -80,7 +80,7 @@ export class TokenResolver {
 
      return collections.entries.map((item: any) => new OwnershipContractsQueryResult({
         id: item.id,
-        laosContractAddress: item.address,
+        laosContractAddress: item.LAOS_address,
         rebaseable: item.rebaseable
      })); 
   }
