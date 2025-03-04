@@ -68,6 +68,32 @@ export class TokenResolver {
     });
   }
 
+
+  @Query(() => [OwnershipContractsQueryResult], { nullable: true })
+  async ownershipContracts(): Promise<OwnershipContractsQueryResult[] | null> { // Return an array or null
+    const baseUrl = process.env.INDEXER_BTC_RPC || 'INDEXER_BTC_RPC_not_provided!';
+    const btcService = new BtcService(baseUrl);
+    const collections = await btcService.getAllCollections();
+    if (!collections || !collections.entries) {
+      return null;
+    }
+
+    // TODO Replace with this when the BTC indexer is ready
+    //  return collections.entries.map((item: any) => new OwnershipContractsQueryResult({
+    //     id: item.id,
+    //     laosContractAddress: item.LAOS_address,
+    //     rebaseable: item.rebaseable
+    //  })); 
+
+    return collections.entries.map(([id, laosContractAddress]: [string, string]) => ({
+      id,
+      laosContractAddress,
+    }));
+  }
+
+
+  // Other queries
+
   // @Query(() => TokenQueryResult, { nullable: true })
   // async token(
   //   @Arg('chainId', () => String) chainId: string,
