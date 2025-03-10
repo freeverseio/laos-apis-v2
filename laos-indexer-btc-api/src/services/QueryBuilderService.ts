@@ -52,11 +52,7 @@ export class QueryBuilderService {
     if (where?.owner) {
       conditions.push(`LOWER(COALESCE(a.owner, la.initial_owner)) = LOWER($${paramIndex++})`);
       parameters.push(where.owner.toLowerCase());
-    }
-    if (where?.contractAddress) {
-      conditions.push(`LOWER(oc.id) = LOWER($${paramIndex++})`);
-      parameters.push(where.contractAddress.toLowerCase());
-    }
+    }    
     if (where?.laosContract) {
       conditions.push(`LOWER(la.laos_contract) = LOWER($${paramIndex++})`);
       parameters.push(where.laosContract.toLowerCase());
