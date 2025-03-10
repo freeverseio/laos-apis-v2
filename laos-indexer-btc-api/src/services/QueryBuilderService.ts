@@ -50,7 +50,7 @@ export class QueryBuilderService {
     let paramIndex = 1;
 
     if (where?.owner) {
-      conditions.push(`LOWER(COALESCE(a.owner, la.initial_owner)) = LOWER($${paramIndex++})`);
+      conditions.push(`LOWER(la.initial_owner) = LOWER($${paramIndex++})`);
       parameters.push(where.owner.toLowerCase());
     }    
     if (where?.laosContract) {
