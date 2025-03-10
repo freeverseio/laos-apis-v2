@@ -28,15 +28,6 @@ export class TokenQueryResult {
   @Field(() => String, { nullable: false })
   laosContract!: string;
 
-  @Field(() => String, { nullable: true })
-  contractName?: string;
-
-  @Field(() => String, { nullable: true })
-  contractSymbol?: string;
-
-  @Field(() => String, { nullable: true })
-  contractBytecodeHash?: string;
-
   @Field(() => String, { nullable: false })
   owner!: string;
 
@@ -45,8 +36,8 @@ export class TokenQueryResult {
 
   @Field(() => String, { nullable: true })
   tokenUriFetchState!: string;
-
-  @Field(() => String, { nullable: true })
+  
+  // internal field for cursor
   contractAddress!: string | null;
 
   @Field(() => Date, { nullable: false })

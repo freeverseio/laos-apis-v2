@@ -7,9 +7,6 @@ export class TokensByCollectionWhereInput {
   collectionId!: string;
 
   @Field({ nullable: true })
-  contractAddress?: string;
-
-  @Field({ nullable: true })
   owner?: string;
 
   @Field({ nullable: true })
