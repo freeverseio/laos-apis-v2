@@ -51,7 +51,7 @@ or
 node generateSchema.js --chainName=Polygon
 ```
 
-4. **Build orm entities**
+4. **Build ORM entities**
 
 ```bash
 sqd codegen
@@ -65,7 +65,7 @@ sqd clean:all
 mv db/migrations/* migrations/db/migrations/
 ```
 
-6. **Go to migrations folder and run migrations**
+6. **Go to the migrations folder and run migrations**
 
 ```bash
 cd migrations
