@@ -1,6 +1,6 @@
-# Deploy of a Minimal Indexer
+# LAOS Minimal Indexer
 
-An example of deployed indexer, currently operating on Ethereum, Polygon and both LAOS Mainnet and Testnet, can be found [here](https://indexers.laosnetwork.io/). 
+An example of a minimal deployed indexer, currently operating on Ethereum, Polygon and both LAOS Mainnet and Testnet, can be found [here](https://indexers.laosnetwork.io/). 
 
 A minimal LAOS Indexer contains:
 * An indexer of [LAOS Mainnet](https://chainlist.org/chain/6283) and, optionally, an indexer of [LAOS Sigma Testnet](https://chainlist.org/chain/62850).

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **LAOS Client API** is a GraphQL service designed to facilitate write operations on the **LAOS blockchain**. It enables developers to perform actions such as minting and evolving assets, broadcasting transactions, and creating collections. This API serves as a crucial interface for interacting with the LAOS chain's state-modifying functionalities.
+The **LAOS Client API** is a GraphQL service designed to facilitate write operations required for Bridgeless Minting. It enables developers to perform actions such as minting and evolving assets, broadcasting transactions, and creating collections. This API serves as a crucial interface for interacting with the LAOS chain's state-modifying functionalities.
 
 ## Features
 
