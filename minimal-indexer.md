@@ -10,7 +10,7 @@ The following folders are relevant:
 - [laos-indexer](./laos-indexer): core service that indexes LAOS Mainnet and LAOS Testnet.
 - [laos-ownership-indexer](./laos-ownership-indexer): core service that indexes each of the EVM Ownership chains.
 - [laos-indexer-api](./laos-indexer-api): which exposes a GraphQL API that conveniently fuses information from both types of indexers. For example, it provides a user's inventory by checking mints on LAOS and transfers on the ownership chains.
-- [laos-extentions](./laos-extentions): which routes custom queries used by 3rd parties, such as `GetTokenBalances` and `TotalSupply`, to the corresponding queries exposed by the indexer API.
+- [laos-extensions](./laos-extensions): which routes custom queries used by 3rd parties, such as `GetTokenBalances` and `TotalSupply`, to the corresponding queries exposed by the indexer API.
 
 ## Setting up
 
@@ -20,4 +20,4 @@ The following folders are relevant:
 
 3. Set up the fusing API, by following the corresponding [README](./laos-indexer-api/README.md) 
 
-4. If needed, follow the [extensions README](./laos-extensions/README.md) 
+4. If needed, follow the [LAOS extensions README](./laos-extensions/README.md) 
