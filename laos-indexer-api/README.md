@@ -21,7 +21,7 @@ git clone https://github.com/freeverseio/laos-apis-v2.git
 cd laos-apis-v2/laos-indexer-api
 
 # Install dependencies
-npm install
+npm ci
 
 # Configure environment variables
 cp .env.example .env
