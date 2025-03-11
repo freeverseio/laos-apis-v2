@@ -20,4 +20,4 @@ The following folders are relevant:
 
 3. Set up the fusing API, by following the corresponding [README](./laos-indexer-api/README.md) 
 
-4. If needed, follow the [extensions README](./laos-extentions/README.md) 
+4. If needed, follow the [extensions README](./laos-extensions/README.md) 

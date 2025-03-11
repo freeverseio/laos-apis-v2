@@ -1,7 +1,9 @@
 # LAOS Extensions
 
 ## Overview
-The **LAOS Extensions** is a simple compoment that routes custom queries used by 3rd parties, such as `GetTokenBalances` and `TotalSupply`, to the corresponding queries exposed by the indexer API.
+The **LAOS Extensions** is a simple component that routes custom queries used by 3rd parties, such as `GetTokenBalances` and `TotalSupply`, to the corresponding queries exposed by the indexer API.
+
+Please refer to the [Minimal LAOS Indexer README](../minimal-indexer.md) for further context.
 
 ## Installation
 To set up and run the API locally, follow these steps:
