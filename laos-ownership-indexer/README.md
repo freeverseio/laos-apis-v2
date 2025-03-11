@@ -1,24 +1,28 @@
 # LAOS EVM Ownership Indexer
 
-This code provides an indexer that tracks all NFTs minted on any EVM chain using LAOS Network's bridgeless minting technology.
-
-For example, the indexer can track NFTs created on Ethereum using LAOS. In this scenario, asset ownership and trading remain on Ethereum, while the gas costs for minting are offloaded to the LAOS Network.
-
-In such example, developers using this indexer retrieve NFT data as usual, as if all NFTs were assets regularly created on Ethereum, 
-with the use of LAOS being entirely transparent.
+This code provides an indexer that tracks all NFT transfers on any EVM chain. 
+Within the umbrella of LAOS Bridgeless Minting, at least one ownership indexer is needed alongside an instance of at least one indexer of a LAOS Network (mainnet or testnet), for which the code is [here](../laos-indexer/).
 
 The code is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
 
 A custom GraphQL API is provided for real-time data retrieval.
 
-## Quickstart with Polygon
+## Setting up
 
-1. **Specify the EVM chain** where bridgeless minting will operate, e.g. Ethereum, Polygon, Base, etc., by creating an `.env` file.
+1. **Specify the EVM ownership chain** where transfers and other owernship-related transactions will take place, e.g. Ethereum, Polygon, by creating an `.env` file.
    - Use `example.env` as a reference.
    - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
-   - Note: Public RPC endpoints often have transaction limits.
+   - Select the block at which the indexer will start processing events in that chain, e.g. `STARTING_BLOCK_OWNERSHIP=59600000`.
+   - adapt the following env variables by basically setting the string (e.g. `Ethereum`) in the right places, e.g.:
+     - `CHAIN_NAME=Ethereum`
+     - `OWNERSHIP_CONTRACT_MODEL=EthereumOwnershipContract`
+     - `ASSET_MODEL=EthereumAsset`
+     - `TRANSFER_MODEL=EthereumTransfer`
+     - `SCHEMA_NAME=ownership_chain_ethereum_processor`
 
-2. **Execute the following commands**:
+Note: Public RPC endpoints often have transaction limits.
+
+2. **Quickstart** Execute the following commands:
 
 ```bash
 # 1. Install @subsquid/cli globally (sqd command)
@@ -37,20 +41,7 @@ sqd run .
 A GraphQL playground will be available at http://localhost:4350/graphql.
 
 
-## Using a different chain
-
-1. **Specify the EVM chain** where bridgeless minting will operate, e.g. Ethereum, Polygon, Base, etc., by creating an `.env` file.
-   - Use `example.env` as a reference.
-   - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
-   - adapt the following env vars :
-     - CHAIN_ID=1
-     - CHAIN_NAME=Ethereum
-     - OWNERSHIP_CONTRACT_MODEL=EthereumOwnershipContract
-     - ASSET_MODEL=EthereumAsset
-     - TRANSFER_MODEL=EthereumTransfer
-     - SCHEMA_NAME=ownership_chain_ethereum_processor
-
-2. **Generte the schema.graphql file**
+3. **Generate the schema.graphql file**
 
 ```bash
 sqd generate:schema
@@ -60,7 +51,7 @@ or
 node generateSchema.js --chainName=Polygon
 ```
 
-3. **Build orm entities**
+4. **Build orm entities**
 
 ```bash
 sqd codegen
@@ -68,35 +59,24 @@ sqd clean:all
 ```
 
 
-4. **Move migration file**
+5. **Move migration file**
 
 ```bash
 mv db/migrations/* migrations/db/migrations/
 ```
 
-5. **Go to migrations folder and run migrations**
+6. **Go to migrations folder and run migrations**
 
 ```bash
 cd migrations
 npx ts-node db/migrations/index.ts
 ```
 
-
-
-6. **Start the processor**
-
+7. **Start the processor**
 
 ```bash
 sqd run .
 ```
-
-
-
-
-
-
-
-
 
 ## Contributing
 
