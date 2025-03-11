@@ -1,23 +1,21 @@
-# laos-indexer-api
+# LAOS Indexer
 
-This code provides an indexer that tracks all NFTs minted on any EVM chain using LAOS Network's bridgeless minting technology.
+This code provides an indexer that tracks all NFTs minted and evolved on the LAOS Network. Within the umbrella of LAOS Bridgeless Minting, this component is needed alongside an instance of at least one indexer of an *ownership chain* (e.g. Ethereum, Polygon), which can be found [here](../laos-ownership-indexer/). Please refer to the [Minimal LAOS Indexer README](../minimal-indexer.md) for further context.
 
-For example, the indexer can track NFTs created on Ethereum using LAOS. In this scenario, asset ownership and trading remain on Ethereum, while the gas costs for minting are offloaded to the LAOS Network.
-
-In such example, developers using this indexer retrieve NFT data as usual, as if all NFTs were assets regularly created on Ethereum, 
-with the use of LAOS being entirely transparent.
-
-The code is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
+This indexer is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
 
 A custom GraphQL API is provided for real-time data retrieval.
 
-## Quickstart with Laos Mainnet
+## Setting up
 
-1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
-   - Use `example.env` as a reference.
-   - Provide the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://laos-mainnet.com`.
+1. **Select either LAOS Mainnet or Testnet** where minting will operate by creating an `.env` file.
+   - Use [example.env](./example.env) as a reference.
+   - Set the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://rpc.laos.laosfoundation.io`.
+   - Set your preferred IPFS Gateway, e.g.:
+      - `PRIVATE_IPFS_GATEWAY=https://subsquid-laos.mypinata.cloud/ipfs/`
+      - `PRIVATE_IPFS_GATEWAY_API_KEY=abc...123`
 
-2. **Execute the following commands**:
+2. **Quickstart** Execute the following commands:
 
 ```bash
 # 1. Install @subsquid/cli globally (sqd command)
@@ -35,21 +33,9 @@ sqd run .
 
 A GraphQL playground will be available at http://localhost:4350/graphql.
 
+3. **Generate the schema.graphql file**
 
-## Using a different chain
-
-1. **Specify the Laos chain** where minting will operate, e.g. Mainnet, Sigma, etc., by creating an `.env` file.
-   - Use `example.env` as a reference.
-   - Provide the appropriate RPC endpoint, e.g. `RPC_LAOS_ENDPOINT=https://laos-mainnet.com`.
-   - adapt the following env vars :
-     - PRIVATE_IPFS_GATEWAY=https://gateway.pinata.cloud
-     - LAOS_GLOBAL_CONSENSUS=0:0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f
-     - LAOS_PARACHAIN=4006
-     - LAOS_PALLET_INSTANCE=51
-     - STARTING_BLOCK_LAOS=1093010
-     - STARTING_BLOCK_OWNERSHIP=65109700
-
-2. **Generte the schema.graphql file**
+When you change your configuration, you can regenerate the GraphQL schema via:
 
 ```bash
 sqd generate:schema
@@ -59,7 +45,7 @@ or
 node generateSchema.js --chainName=Mainnet
 ```
 
-3. **Build orm entities**
+4. **Build ORM entities**
 
 ```bash
 sqd codegen
@@ -67,23 +53,24 @@ sqd clean:all
 ```
 
 
-4. **Move migration file**
+5. **Move migration file**
 
 ```bash
 mv db/migrations/* migrations/db/migrations/
 ```
 
-5. **Go to migrations folder and run migrations**
+6. **Go to the migrations folder and run migrations**
 
 ```bash
 cd migrations
 npx ts-node db/migrations/index.ts
 ```
 
+7. **Start the processor**
 
-
-
-
+```bash
+sqd run .
+```
 
 ## Contributing
 

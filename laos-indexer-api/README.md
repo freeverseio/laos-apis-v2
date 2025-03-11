@@ -1,12 +1,14 @@
 # LAOS Indexer API
 
 ## Overview
-The **LAOS Indexer API** is a GraphQL service that allows querying asset indexes on the **LAOS blockchain** and its sibling collections on **EVM-compatible chains** like Polygon. This API enables efficient retrieval of asset-related data, ensuring seamless integration with dApps and blockchain-based applications.
+The **LAOS Indexer API** is a GraphQL service that allows querying assets indexed on **EVM-compatible chains** like Ethereum and Polygon, as well as their sibling collections on the LAOS Network. This API enables efficient retrieval of asset-related data, ensuring seamless integration with dApps and blockchain-based applications.
+
+Please refer to the [Minimal LAOS Indexer README](../minimal-indexer.md) for further context.
 
 ## Features
-- Query asset indexes on LAOS and EVM-compatible chains.
+- Query assets indexed on LAOS and EVM-compatible chains.
 - Fetch metadata and ownership details of assets.
-- Support for pagination and filtering for efficient data retrieval.
+- Supports pagination and filtering to optimize data retrieval.
 - Optimized for performance and scalability.
 - GraphQL Playground available at `/graphql` for testing queries.
 
@@ -21,7 +23,7 @@ git clone https://github.com/freeverseio/laos-apis-v2.git
 cd laos-apis-v2/laos-indexer-api
 
 # Install dependencies
-npm install
+npm ci
 
 # Configure environment variables
 cp .env.example .env
@@ -37,16 +39,15 @@ The API requires the following environment variables to be set:
 
 | Variable            | Description                        |
 |---------------------|----------------------------------|
-| `PORT`             | The port on which the API runs.  |
-| `DB_URI`           | Database connection string.      |
-| `EVM_RPC_URL`      | RPC URL of the target EVM chain. |
-| `LAOS_API_KEY`     | API key for accessing LAOS data. |
+| `GQL_PORT`         | The port on which the API runs.  |
+| `DATABASE_URL`           | Database connection string.      |
+
 
 ## GraphQL Playground
 The API provides a **GraphQL Playground** interface at:
 
 ```
-http://localhost:<PORT>/graphql
+http://localhost:<GQL_PORT>/graphql
 ```
 
 Use this interactive tool to explore queries and test API endpoints.
