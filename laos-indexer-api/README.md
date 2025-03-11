@@ -37,16 +37,15 @@ The API requires the following environment variables to be set:
 
 | Variable            | Description                        |
 |---------------------|----------------------------------|
-| `PORT`             | The port on which the API runs.  |
-| `DB_URI`           | Database connection string.      |
-| `EVM_RPC_URL`      | RPC URL of the target EVM chain. |
-| `LAOS_API_KEY`     | API key for accessing LAOS data. |
+| `GQL_PORT`         | The port on which the API runs.  |
+| `DATABASE_URL`           | Database connection string.      |
+
 
 ## GraphQL Playground
 The API provides a **GraphQL Playground** interface at:
 
 ```
-http://localhost:<PORT>/graphql
+http://localhost:<GQL_PORT>/graphql
 ```
 
 Use this interactive tool to explore queries and test API endpoints.
