@@ -1,4 +1,4 @@
-# laos-indexer
+# LAOS Indexer
 
 This code provides an indexer that tracks all NFTs minted and evolved on the LAOS Network. 
 Within the umbrella of LAOS Bridgeless Minting, this component is needed alongside an instance of at least one indexer of an *ownership chain* (e.g. Ethereum, Polygon), for which the code is [here](../laos-ownership-indexer/).
