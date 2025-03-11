@@ -1,7 +1,7 @@
 # LAOS EVM Ownership Indexer
 
 This code provides an indexer that tracks all NFT transfers on any EVM chain. 
-Within the umbrella of LAOS Bridgeless Minting, at least one ownership indexer is needed alongside an instance of at least one indexer of a LAOS Network (mainnet or testnet), for which the code is [here](../laos-indexer/).
+Within the umbrella of LAOS Bridgeless Minting, at least one ownership indexer is needed alongside an instance of at least one indexer of a LAOS Network (mainnet or testnet), which can be found [here](../laos-indexer/). Please refer to the [Minimal LAOS Indexer README](../minimal-indexer.md) for further context.
 
 The code is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
 
@@ -9,11 +9,11 @@ A custom GraphQL API is provided for real-time data retrieval.
 
 ## Setting up
 
-1. **Specify the EVM ownership chain** where transfers and other owernship-related transactions will take place, e.g. Ethereum, Polygon, by creating an `.env` file.
+1. **Specify the EVM ownership chain** where transfers and other ownership-related transactions will take place, e.g. Ethereum, Polygon, by creating an `.env` file.
    - Use `example.env` as a reference.
    - Provide the appropriate ownership chain RPC endpoint, e.g. `RPC_ENDPOINT=https://rpc.ankr.com/polygon`.
    - Select the block at which the indexer will start processing events in that chain, e.g. `STARTING_BLOCK_OWNERSHIP=59600000`.
-   - adapt the following env variables by basically setting the string (e.g. `Ethereum`) in the right places, e.g.:
+   - adapt the following env variables by setting the string (e.g. `Ethereum`) in the right places, e.g.:
      - `CHAIN_NAME=Ethereum`
      - `OWNERSHIP_CONTRACT_MODEL=EthereumOwnershipContract`
      - `ASSET_MODEL=EthereumAsset`
@@ -51,7 +51,7 @@ or
 node generateSchema.js --chainName=Polygon
 ```
 
-4. **Build orm entities**
+4. **Build ORM entities**
 
 ```bash
 sqd codegen
@@ -65,7 +65,7 @@ sqd clean:all
 mv db/migrations/* migrations/db/migrations/
 ```
 
-6. **Go to migrations folder and run migrations**
+6. **Go to the migrations folder and run migrations**
 
 ```bash
 cd migrations

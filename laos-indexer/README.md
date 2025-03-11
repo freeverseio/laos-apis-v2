@@ -1,9 +1,8 @@
 # LAOS Indexer
 
-This code provides an indexer that tracks all NFTs minted and evolved on the LAOS Network. 
-Within the umbrella of LAOS Bridgeless Minting, this component is needed alongside an instance of at least one indexer of an *ownership chain* (e.g. Ethereum, Polygon), for which the code is [here](../laos-ownership-indexer/).
+This code provides an indexer that tracks all NFTs minted and evolved on the LAOS Network. Within the umbrella of LAOS Bridgeless Minting, this component is needed alongside an instance of at least one indexer of an *ownership chain* (e.g. Ethereum, Polygon), which can be found [here](../laos-ownership-indexer/). Please refer to the [Minimal LAOS Indexer README](../minimal-indexer.md) for further context.
 
-The code is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
+This indexer is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
 
 A custom GraphQL API is provided for real-time data retrieval.
 
@@ -36,7 +35,8 @@ A GraphQL playground will be available at http://localhost:4350/graphql.
 
 3. **Generate the schema.graphql file**
 
-Upon changes on your configuration, you can regenerate the graphql schema via:
+When you change your configuration, you can regenerate the GraphQL schema via:
+
 ```bash
 sqd generate:schema
 ```
@@ -45,7 +45,7 @@ or
 node generateSchema.js --chainName=Mainnet
 ```
 
-4. **Build orm entities**
+4. **Build ORM entities**
 
 ```bash
 sqd codegen
@@ -59,7 +59,7 @@ sqd clean:all
 mv db/migrations/* migrations/db/migrations/
 ```
 
-6. **Go to migrations folder and run migrations**
+6. **Go to the migrations folder and run migrations**
 
 ```bash
 cd migrations
