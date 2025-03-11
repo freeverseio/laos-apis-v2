@@ -38,7 +38,7 @@ sqd clean:all
 sqd run .
 ```
 
-A GraphQL playground will be available at http://localhost:4350/graphql.
+A GraphQL playground will be available at http://localhost:4351/graphql.
 
 
 3. **Generate the schema.graphql file**
