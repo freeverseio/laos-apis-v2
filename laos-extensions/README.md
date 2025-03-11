@@ -15,6 +15,9 @@ git clone https://github.com/freeverseio/laos-apis-v2.git
 # Navigate to the indexer API directory
 cd laos-apis-v2/laos-extensions
 
+# Configure environment variables
+cp example.env .env
+
 # Install dependencies
 npm ci
 
