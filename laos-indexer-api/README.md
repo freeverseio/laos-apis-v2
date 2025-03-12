@@ -1,7 +1,8 @@
-# LAOS Indexer API
+# LAOS Bridgeless Minting Indexer API
 
 ## Overview
-The **LAOS Indexer API** is a GraphQL service that allows querying assets indexed on **EVM-compatible chains** like Ethereum and Polygon, as well as their sibling collections on the LAOS Network. This API enables efficient retrieval of asset-related data, ensuring seamless integration with dApps and blockchain-based applications.
+
+The **LAOS Bridgeless Minting API** is a GraphQL service that returns all required information regarding Bridgelessly Minted assets, by conveniently fusing information from all underlying indexers (LAOS plus multiple EVM ownership chains, like Ethereum and Polygon). For example, it provides a user's inventory by checking mints (and evolves) on LAOS and transfers on the ownership chains.
 
 Please refer to the [LAOS Indexer Bridgeless Minting README](../bridgeless-minting-indexer.md) for further context.
 

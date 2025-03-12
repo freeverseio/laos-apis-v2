@@ -5,6 +5,7 @@ An example of a minimal deployed Bridgeless-Minting indexer, currently operating
 A minimal LAOS Bridgeless Minting Indexer consists of:
 * An indexer for [LAOS Mainnet](https://chainlist.org/chain/6283) and optionally for [LAOS Sigma Testnet](https://chainlist.org/chain/62850).
 * Any number of indexers for EVM *ownership* chains (Ethereum, Polygon, etc.) to be scaled via Bridgeless Minting.
+* The API that merges information from both types of indexers.
 
 The following folders are relevant:
 - [laos-indexer](./laos-indexer): core service that indexes LAOS Mainnet and LAOS Testnet.
