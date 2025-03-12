@@ -3,7 +3,7 @@
 ## Overview
 The **LAOS Extensions** is a simple component that routes custom queries used by 3rd parties, such as `GetTokenBalances` and `TotalSupply`, to the corresponding queries exposed by the indexer API.
 
-Please refer to the [Minimal LAOS Indexer README](../bridgeless-minting-indexer.md) for further context.
+Please consult the [LAOS Indexer Bridgeless Minting README](./bridgeless-minting-indexer.md) for full information.
 
 ## Installation
 To set up and run the API locally, follow these steps:
