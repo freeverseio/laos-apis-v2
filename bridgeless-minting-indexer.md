@@ -1,8 +1,8 @@
-# LAOS Minimal Indexer
+# LAOS Bridgeless Minting Indexer
 
-An example of a minimal deployed indexer, currently operating on Ethereum, Polygon and both LAOS Mainnet and Testnet, can be found [here](https://indexers.laosnetwork.io/). 
+An example of a minimal deployed Bridgeless-Minting indexer, currently operating on Ethereum, Polygon and both LAOS Mainnet and Testnet, can be found [here](https://indexers.laosnetwork.io/). 
 
-A minimal LAOS Indexer consists of:
+A minimal LAOS Bridgeless Minting Indexer consists of:
 * An indexer for [LAOS Mainnet](https://chainlist.org/chain/6283) and optionally for [LAOS Sigma Testnet](https://chainlist.org/chain/62850).
 * Any number of indexers for EVM *ownership* chains (Ethereum, Polygon, etc.) to be scaled via Bridgeless Minting.
 

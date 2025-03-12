@@ -1,7 +1,7 @@
 # LAOS EVM Ownership Indexer
 
 This code provides an indexer that tracks all NFT transfers on any EVM chain. 
-Within the umbrella of LAOS Bridgeless Minting, at least one ownership indexer is needed alongside an instance of at least one indexer of a LAOS Network (mainnet or testnet), which can be found [here](../laos-indexer/). Please refer to the [Minimal LAOS Indexer README](../minimal-indexer.md) for further context.
+Within the umbrella of LAOS Bridgeless Minting, at least one ownership indexer is needed alongside an instance of at least one indexer of a LAOS Network (mainnet or testnet), which can be found [here](../laos-indexer/). Please refer to the [Minimal LAOS Indexer README](../bridgeless-minting-indexer.md) for further context.
 
 The code is a minimal extension of Subsquid's framework, leveraging its multi-chain indexing feature to track events on both the EVM chain and the LAOS Network.
 
