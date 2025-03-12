@@ -4,7 +4,7 @@ The **LAOS APIs** repository consolidates the tools and components for interacti
 
 It consists of 3 main components:
 
-* The [**Minimal LAOS Indexer**](./bridgeless-minting-indexer.md) that enables the indexing of Bridgelessly Minted NFTs on multiple chains. It uses an efficient topology where multiple fully-independent indexers can be run (LAOS Mainnet, LAOS Testnet, Ethereum, Polygon, ...), and the merging of their data is performed only at the [API level](./laos-indexer-api/). Please consult the [Minimal LAOS Indexer README](./bridgeless-minting-indexer.md) for full information.
+* The [**LAOS Bridgless Minting Indexer**](./bridgeless-minting-indexer.md) that enables the indexing of Bridgelessly Minted NFTs on multiple chains. It uses an efficient topology where multiple fully-independent indexers can be run (LAOS Mainnet, LAOS Testnet, Ethereum, Polygon, ...), and the merging of their data is performed only at the [API level](./laos-indexer-api/). Please consult the [Minimal LAOS Indexer README](./bridgeless-minting-indexer.md) for full information.
 
 * The [LAOS Client API](./laos-client-api/) is a GraphQL service, on top of the Minimal LAOS indexer, designed to facilitate write operations required for Bridgeless Minting. It enables developers to perform actions such as minting and evolving assets, broadcasting transactions, and creating collections. This API serves as a crucial interface for interacting with the LAOS chain's state-modifying functionalities.
 
