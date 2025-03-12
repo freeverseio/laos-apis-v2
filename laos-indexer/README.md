@@ -24,10 +24,13 @@ npm i -g @subsquid/cli@2.12.x
 # 2. Install dependencies
 npm ci
 
-# 3. Clean previous processes
+# 3. Configure environment variables
+cp example.env .env
+
+# 4. Clean previous processes
 sqd clean:all
 
-# 4. Build and start the processor
+# 5. Build and start the processor
 sqd run .
 ```
 
