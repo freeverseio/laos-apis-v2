@@ -194,7 +194,7 @@ export class TokenOwnersQueryResult {
 }
 
 @ObjectType()
-export class OwnershipContractsQueryResult {
+export class CollectionsQueryResult {
 
   @Field(() => String, { nullable: false })
   id?: string;
@@ -205,7 +205,7 @@ export class OwnershipContractsQueryResult {
   @Field(() => Boolean, { nullable: true })
   rebaseable?: boolean;  
 
-  constructor(props: Partial<OwnershipContractsQueryResult>) {
+  constructor(props: Partial<CollectionsQueryResult>) {
     Object.assign(this, props);
   }
 }

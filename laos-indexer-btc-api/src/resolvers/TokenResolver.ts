@@ -1,5 +1,5 @@
 import { Arg, Query, Resolver } from 'type-graphql';
-import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput, OwnershipContractsWhereInput, OwnershipContractsQueryResult, OwnershipContractsPaginationInput, TokensByCollectionWhereInput } from '../model';
+import { TokenOrderByOptions, TokenPaginationInput, TokenConnection, TokenQueryResult, TokenQueryResultSelect, TokenWhereInput, PageInfo, TokenOwnersQueryResult, TokenOwnersWhereInput, OwnershipContractsWhereInput, CollectionsQueryResult, OwnershipContractsPaginationInput, TokensByCollectionWhereInput } from '../model';
 import { QueryBuilderService } from '../services/QueryBuilderService';
 import { BtcService } from '../services/btc/BtcService';
 
@@ -69,8 +69,8 @@ export class TokenResolver {
   }
 
 
-  @Query(() => [OwnershipContractsQueryResult], { nullable: true })
-  async ownershipContracts(): Promise<OwnershipContractsQueryResult[] | null> { // Return an array or null
+  @Query(() => [CollectionsQueryResult], { nullable: true })
+  async collections(): Promise<CollectionsQueryResult[] | null> { // Return an array or null
     const baseUrl = process.env.INDEXER_BTC_RPC || 'INDEXER_BTC_RPC_not_provided!';
     const btcService = new BtcService(baseUrl);
     const collections = await btcService.getAllCollections();
@@ -78,7 +78,7 @@ export class TokenResolver {
       return null;
     }
 
-     return collections.entries.map((item: any) => new OwnershipContractsQueryResult({
+     return collections.entries.map((item: any) => new CollectionsQueryResult({
         id: item.id,
         laosContractAddress: item.LAOS_address,
         rebaseable: item.rebaseable
