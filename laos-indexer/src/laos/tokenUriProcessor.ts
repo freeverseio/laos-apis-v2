@@ -54,6 +54,16 @@ export async function processTokenURIs() {
     const tokenURIDataService = TokenURIDataService.getInstance(entityManager);
     await tokenURIDataService.updatePendingTokenUris();
   } catch (error) {
-    console.error('Error processing token URIs:', error);
+    console.error('Error processing token URIs:', formatError(error as Error));
   }
+}
+
+function formatError(error: Error): string {
+  // limit length of error message to 200 characters
+  const errorMessage = error.message.length > 200 ? error.message.substring(0, 200) : error.message;
+  const stack = error.stack?.length ? error.stack.substring(0, 200) : error.stack;
+  return `
+    Error: ${errorMessage}
+    Stack: ${stack}
+  `;
 }
