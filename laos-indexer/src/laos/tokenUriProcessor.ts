@@ -58,9 +58,9 @@ export async function processTokenURIs() {
   }
 }
 
-function formatError(error: Error): string {
-  const errorMessage = error.message.length > 200 ? error.message.substring(0, 200) : error.message;
-  const stack = error.stack?.length ? error.stack.substring(0, 200) : error.stack;
+export function formatError(error: Error): string {
+  const errorMessage = error?.message?.length > 200 ? error.message.substring(0, 200) : error?.message;
+  const stack = error?.stack?.length ? error.stack.substring(0, 200) : error?.stack;
   return `
     Error: ${errorMessage}
     Stack: ${stack}
