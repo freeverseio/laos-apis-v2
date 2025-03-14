@@ -97,9 +97,9 @@ export class QueryBuilderService {
     return { conditions, parameters, paramIndex };
   }
 
-  private buildCursorCondition(afterCursor: string, effectiveOrderBy: string, paramIndex: number): CursorConditionResult {
+  private buildCursorCondition(afterCursor: string, effectiveOrderBy: string, paramIndex: number, laosContractAddress: String): CursorConditionResult {
     const decodedCursor = Buffer.from(afterCursor, 'base64').toString('ascii');
-    const [afterCreatedAt, afterLogIndex, afterContractId] = decodedCursor.split(':').map(part => part.trim());
+    const [afterCreatedAt, afterLogIndex] = decodedCursor.split(':').map(part => part.trim());
     let condition = '';
     let parameters = [];
 
@@ -107,17 +107,17 @@ export class QueryBuilderService {
       condition = `("la"."created_at" > to_timestamp($${paramIndex++} / 1000.0) 
         OR ("la"."created_at" = to_timestamp($${paramIndex - 1} / 1000.0) 
         AND (la.log_index > $${paramIndex++} 
-        OR (la.log_index = $${paramIndex - 1} AND LOWER(oc.id) > LOWER($${paramIndex++})))))`;
+        OR (la.log_index = $${paramIndex - 1} AND LOWER(la.laos_contract) > LOWER($${paramIndex++})))))`;
     } else {
       condition = `("la"."created_at" < to_timestamp($${paramIndex++} / 1000.0) 
         OR ("la"."created_at" = to_timestamp($${paramIndex - 1} / 1000.0) 
         AND (la.log_index < $${paramIndex++} 
-        OR (la.log_index = $${paramIndex - 1} AND LOWER(oc.id) > LOWER($${paramIndex++})))))`;
+        // OR (la.log_index = $${paramIndex - 1} AND LOWER(la.laos_contract) > LOWER($${paramIndex++})))))`;
     }
 
     parameters.push(afterCreatedAt);
     parameters.push(afterLogIndex);
-    parameters.push(afterContractId.toLowerCase());
+    parameters.push(laosContractAddress);
 
     return { condition, parameters, paramIndex };
   }
@@ -166,12 +166,11 @@ export class QueryBuilderService {
     let paramIndex = initialParamIndex;
 
     if (afterCursor) {
-      const { condition, parameters: cursorParameters, paramIndex: newParamIndex } = this.buildCursorCondition(afterCursor, effectiveOrderBy, paramIndex);
+      const { condition, parameters: cursorParameters, paramIndex: newParamIndex } = this.buildCursorCondition(afterCursor, effectiveOrderBy, paramIndex, laosContractAddress);
       conditions.push(condition);
       parameters.push(...cursorParameters);
       paramIndex = newParamIndex;
     }
-
     // build query with subquery to prevent ordering all the set and then appply limit. Around 90% more efficient
     const orderByClause = `ORDER BY ${effectiveOrderBy}, la.log_index ${orderDirection}`;
     const mainQuery = this.buildTokenQueryBase(orderByClause); 
@@ -186,6 +185,7 @@ export class QueryBuilderService {
     `;
 
     parameters.push(effectiveFirst + 1);
+
     return { query, parameters };    
   }
 
