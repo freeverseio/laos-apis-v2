@@ -116,11 +116,8 @@ export class TokenSupplyInput {
   includeMetadata!: boolean;
 
   @IsNotEmpty()
-  @IsString()
-  @IsIn(Object.values(ChainId), { 
-    message: `chainId must be one of the following string values: ${Object.values(ChainId).join(', ')}` 
-  })
-  chainId!: ChainId;
+  @IsNumberString({}, { message: 'chainId must be a numeric string' })
+  chainId!: string;
 
   @IsOptional()
   @ValidateNested()
