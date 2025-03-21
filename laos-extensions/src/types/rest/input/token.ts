@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsBoolean, IsEnum, IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested, IsNumberString } from "class-validator";
 
 // Enum for sort order
 export enum SortOrder {
@@ -9,12 +9,6 @@ export enum SortOrder {
 
 export enum SortColumn {
   CREATED_AT = 'CREATED_AT',
-}
-
-export enum ChainId {
-  ETHEREUM = '1',
-  POLYGON = '137',
-  HEDERA_TESTNET = '296',  
 }
 
 // SortBy class
@@ -67,11 +61,8 @@ class MetadataOptions {
 
 export class GetTokenBalancesInput {  
   @IsNotEmpty()
-  @IsString()
-  @IsIn(Object.values(ChainId), { 
-    message: `chainId must be one of the following string values: ${Object.values(ChainId).join(', ')}` 
-  })
-  chainId!: ChainId;
+  @IsNumberString({}, { message: 'chainId must be a numeric string' })
+  chainId!: string;
   
   @IsNotEmpty()
   @IsString()
