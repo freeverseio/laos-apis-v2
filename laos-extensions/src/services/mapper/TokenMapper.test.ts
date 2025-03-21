@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { TokenMapper } from "./TokenMapper";
-import { TokenIndexer, AttributeIndexer, ChainId } from "../../types";
+import { TokenIndexer, AttributeIndexer } from "../../types";
 
 describe("TokenMapper", () => {
   const inputTokens: TokenIndexer[] = [
@@ -114,7 +114,7 @@ describe("TokenMapper", () => {
           page: { after: "sample_cursor", pageSize: 50, more: true },
         },
         {
-          chainId: ChainId.POLYGON,
+          chainId: "137",
           contractAddress: contractAddress, 
           includeMetadata: true
         },
@@ -140,7 +140,7 @@ describe("TokenMapper", () => {
     it("should map an array of tokens to TokenBalancesResponse format", () => {
       const chainId = 1;
       const inputRequest = { 
-        chainId: ChainId.POLYGON,
+        chainId: "137",
         includeMetadata: true,
         accountAddress: "0xc69f5121e79155f036acf8d2bdef50cee0c05b75"
       };
