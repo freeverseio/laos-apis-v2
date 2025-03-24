@@ -5,6 +5,11 @@ interface CollectionItem {
   laosContractAddress: string;
 }
 
+
+interface TokenOwner {
+  owner: string;
+}
+
 interface CollectionsResponse {
   entries: string[][];
   more: boolean;
@@ -17,6 +22,10 @@ interface CollectionResponse {
   id: string;
   LAOS_address: string;
   rebaseable: boolean;
+}
+
+interface TokenOwnerResponse {  
+  owner: string;
 }
 
 export class BtcService {
@@ -73,6 +82,39 @@ export class BtcService {
 
     } catch (error) {
       console.error(`Error fetching collections with id [${id}], probably the id does not exist in the BTC indexer:`, error);
+      return null;
+    }    
+  }
+
+  async getTokenCurrenOwner(collectionId: string, tokenId: string): Promise<TokenOwner | null> {
+    try {
+      const response: AxiosResponse<TokenOwnerResponse> = await axios.get(
+        `${this.baseUrl}/brc721/token/${collectionId}/${tokenId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log(`Token ${tokenId} from collection ${collectionId} is owned by: ${response.data}`);
+        /* ??
+          pub enum Brc721TokenOwnership {
+            InitialOwner(H160),
+            NftId(Brc721Output),
+          }
+        */
+        return {
+          owner: response.data?.owner,
+        };
+
+      } else {
+        console.error(`Error fetching getTokenCurrenOwner. Status: ${response.status}`);
+        return null;
+      }
+
+    } catch (error) {
+      console.error(`Error fetching token owner with collectionId [${collectionId}] and tokenId [${tokenId}], probably the ids do not exist in the BTC indexer:`, error);
       return null;
     }    
   }
