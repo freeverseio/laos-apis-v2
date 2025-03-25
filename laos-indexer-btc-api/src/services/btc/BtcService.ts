@@ -89,7 +89,7 @@ export class BtcService {
   async getTokenCurrenOwner(collectionId: string, tokenId: string): Promise<TokenOwner | null> {
     try {
       const response: AxiosResponse<TokenOwnerResponse> = await axios.get(
-        `${this.baseUrl}/brc721/token/${collectionId}/${tokenId}`,
+        `${this.baseUrl}/brc721/collection/${collectionId}/token/${tokenId}`,
         {
           headers: {
             Accept: 'application/json',
