@@ -31,6 +31,16 @@ export class TokenResolver {
     const { query, parameters } = await this.queryBuilderService.buildTokenQuery(where, pagination, orderBy, laosContractAddress);
     const { query: countQuery, parameters: countParameters } = await this.queryBuilderService.buildTokenQueryCount(where, laosContractAddress);
     const tokens = await this.fetchTokens(query, parameters);
+
+    // update the tokens current owner    
+    const ownerPromises = tokens.map(async (token) => {
+      const owner = await btcService.getTokenCurrenOwner(where.collectionId, token.tokenId);
+      if (owner?.owner) {
+        token.owner = owner.owner;
+      }
+    });    
+    await Promise.all(ownerPromises);    
+
     const count = await this.tx(countQuery, countParameters);
     const totalCount = count && count.length > 0 ? parseInt(count[0].count, 10) : 0;
     const hasNextPage = tokens.length > pagination.first;

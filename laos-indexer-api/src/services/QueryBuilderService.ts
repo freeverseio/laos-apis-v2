@@ -263,7 +263,6 @@ export class QueryBuilderService {
     let paramIndex = 1;
 
     const ownershipPrefix = this.getChainPrefix(where?.chainId);
-    // TODO get default laosChainId depending on chainId if not provied
     const laosChain = this.getLaosChain(where?.chainId, where?.laosChainId);
     const baseQuery = `
       SELECT 
