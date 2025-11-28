@@ -34,7 +34,7 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copy the compiled code and node_modules from the build stage
 COPY --from=builder --chown=appuser:nodejs /app/dist ./dist
 COPY --from=builder --chown=appuser:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=appuser:nodejs /app/entrypoint.sh ./
+COPY --from=builder --chown=appuser:nodejs /app/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Remove the production environment template and adjust ownership
 RUN chown -R appuser:nodejs /app
@@ -49,5 +49,5 @@ EXPOSE 4001
 ENV PORT 4001
 
 # Define the entry point script
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
