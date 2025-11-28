@@ -21,15 +21,15 @@ export class TokenResolver {
     const baseUrl = process.env.INDEXER_BTC_RPC || 'INDEXER_BTC_RPC_not_provided!';
     const btcService = new BtcService(baseUrl);
     const collection = await btcService.getCollectionById(where.collectionId);
-    if (!collection || !collection.laosContractAddress) {
+    if (!collection || !collection.evmCollectionAddress) {
       return new TokenConnection([], null, 0);
     }
-    const laosContractAddress = collection.laosContractAddress;
-    //const laosContractAddress = "0xfffffffffffffffffffffffe0000000000000006";
-    console.log(`Retrieving tokens for laosContractAddress: ${laosContractAddress}`);
+    const evmCollectionAddress = collection.evmCollectionAddress;
+    //const evmCollectionAddress = "0xfffffffffffffffffffffffe0000000000000006";
+    console.log(`Retrieving tokens for evmCollectionAddress: ${evmCollectionAddress}`);
     
-    const { query, parameters } = await this.queryBuilderService.buildTokenQuery(where, pagination, orderBy, laosContractAddress);
-    const { query: countQuery, parameters: countParameters } = await this.queryBuilderService.buildTokenQueryCount(where, laosContractAddress);
+    const { query, parameters } = await this.queryBuilderService.buildTokenQuery(where, pagination, orderBy, evmCollectionAddress);
+    const { query: countQuery, parameters: countParameters } = await this.queryBuilderService.buildTokenQueryCount(where, evmCollectionAddress);
     const tokens = await this.fetchTokens(query, parameters);
     const count = await this.tx(countQuery, countParameters);
     const totalCount = count && count.length > 0 ? parseInt(count[0].count, 10) : 0;
@@ -69,19 +69,19 @@ export class TokenResolver {
 
 
   @Query(() => [CollectionsQueryResult], { nullable: true })
-  async collections(): Promise<CollectionsQueryResult[] | null> { // Return an array or null
+  async collections(): Promise<CollectionsQueryResult[] | null> {
     const baseUrl = process.env.INDEXER_BTC_RPC || 'INDEXER_BTC_RPC_not_provided!';
     const btcService = new BtcService(baseUrl);
     const collections = await btcService.getAllCollections();
-    if (!collections || !collections.entries) {
+    if (!collections || collections.length === 0) {
       return null;
     }
 
-     return collections.entries.map((item: any) => new CollectionsQueryResult({
-        id: item.id,
-        laosContractAddress: item.LAOS_address,
-        rebaseable: item.rebaseable
-     })); 
+    return collections.map((item: any) => new CollectionsQueryResult({
+      id: item.id,
+      evmCollectionAddress: item.evmCollectionAddress,
+      rebaseable: item.rebaseable
+    }));
   }
 
 

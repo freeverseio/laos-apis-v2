@@ -200,7 +200,7 @@ export class CollectionsQueryResult {
   id?: string;
 
   @Field(() => String, { nullable: true })
-  laosContractAddress?: string;
+  evmCollectionAddress?: string;
   
   @Field(() => Boolean, { nullable: true })
   rebaseable?: boolean;  

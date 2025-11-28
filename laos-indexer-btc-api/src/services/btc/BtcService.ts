@@ -1,21 +1,18 @@
 import axios, { AxiosResponse } from 'axios';
 
 interface CollectionItem {
-  collectionId: string;
-  laosContractAddress: string;
+  id: string;
+  evmCollectionAddress: string;
+  rebaseable: boolean;
 }
 
-interface CollectionsResponse {
-  entries: string[][];
-  more: boolean;
-  prev: string | null;
-  next: string | null;
+interface CollectionsApiResponse {
+  collections: CollectionItem[];
 }
 
-// RUST response
 interface CollectionResponse {
   id: string;
-  LAOS_address: string;
+  evmCollectionAddress: string;
   rebaseable: boolean;
 }
 
@@ -26,9 +23,9 @@ export class BtcService {
     this.baseUrl = baseUrl;
   }
 
-  async getAllCollections(): Promise<CollectionsResponse> {
+  async getAllCollections(): Promise<CollectionItem[]> {
     try {
-      const response: AxiosResponse<CollectionsResponse> = await axios.get(
+      const response: AxiosResponse<CollectionsApiResponse> = await axios.get(
         `${this.baseUrl}/collections`,
         {
           headers: {
@@ -37,15 +34,15 @@ export class BtcService {
         }
       );
 
-      if (response.status === 200) {
-        return response.data;
+      if (response.status === 200 && Array.isArray(response.data?.collections)) {
+        return response.data.collections;
       } else {
         console.error(`Error fetching collections. Status: ${response.status}`);
-        return { entries: [], more: false, prev: null, next: null }; // Return a default response on error
+        return [];
       }
     } catch (error) {
       console.error('Error fetching collections:', error);
-      return { entries: [], more: false, prev: null, next: null }; // Return a default response on error
+      return [];
     }
   }
 
@@ -60,10 +57,11 @@ export class BtcService {
         }
       );
       
-      if (response.status === 200) {
+      if (response.status === 200 && response.data) {
         return {
-          collectionId: response.data?.id,
-          laosContractAddress: response.data?.LAOS_address,
+          id: response.data.id,
+          evmCollectionAddress: response.data.evmCollectionAddress,
+          rebaseable: response.data.rebaseable,
         };
 
       } else {

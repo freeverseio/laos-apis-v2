@@ -97,7 +97,7 @@ export class QueryBuilderService {
     return { conditions, parameters, paramIndex };
   }
 
-  private buildCursorCondition(afterCursor: string, effectiveOrderBy: string, paramIndex: number, laosContractAddress: String): CursorConditionResult {
+  private buildCursorCondition(afterCursor: string, effectiveOrderBy: string, paramIndex: number, evmCollectionAddress: String): CursorConditionResult {
     const decodedCursor = Buffer.from(afterCursor, 'base64').toString('ascii');
     const [afterCreatedAt, afterLogIndex] = decodedCursor.split(':').map(part => part.trim());
     let condition = '';
@@ -117,7 +117,7 @@ export class QueryBuilderService {
 
     parameters.push(afterCreatedAt);
     parameters.push(afterLogIndex);
-    parameters.push(laosContractAddress);
+    parameters.push(evmCollectionAddress);
 
     return { condition, parameters, paramIndex };
   }
@@ -157,16 +157,16 @@ export class QueryBuilderService {
     where: TokensByCollectionWhereInput,
     pagination: TokenPaginationInput,
     orderBy?: TokenOrderByOptions,
-    laosContractAddress?: string
+    evmCollectionAddress?: string
   ): Promise<{ query: string; parameters: any[] }> {
     const effectiveFirst = pagination.first;
     const afterCursor = pagination.after;
     const { effectiveOrderBy, orderDirection } = this.getOrderDetails(orderBy);
-    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where, laosContractAddress);
+    const { conditions, parameters, paramIndex: initialParamIndex } = this.buildTokenWhereConditions(where, evmCollectionAddress);
     let paramIndex = initialParamIndex;
 
     if (afterCursor) {
-      const { condition, parameters: cursorParameters, paramIndex: newParamIndex } = this.buildCursorCondition(afterCursor, effectiveOrderBy, paramIndex, laosContractAddress);
+      const { condition, parameters: cursorParameters, paramIndex: newParamIndex } = this.buildCursorCondition(afterCursor, effectiveOrderBy, paramIndex, evmCollectionAddress);
       conditions.push(condition);
       parameters.push(...cursorParameters);
       paramIndex = newParamIndex;
