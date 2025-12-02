@@ -56,7 +56,8 @@ async function startServer() {
   
   
     const server = createServer(gatewayApp);
-    server.listen(process.env.GQL_PORT, () => console.log(`Gateway running at http://localhost:${process.env.GQL_PORT}/`));
+    const port = Number(process.env.GQL_PORT) || 4000;
+    server.listen(port, () => console.log(`Gateway running at http://localhost:${port}/`));
 }
 
 startServer();
