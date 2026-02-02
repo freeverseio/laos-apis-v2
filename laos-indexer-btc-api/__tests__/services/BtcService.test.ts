@@ -42,7 +42,7 @@ describe('BtcService', () => {
     mockedAxios.get.mockResolvedValue({ status: 200, data: { id: '1', evmCollectionAddress: '0xabc', rebaseable: false } } as any);
     const res = await service.getCollectionById('1');
     expect(res).toEqual({ id: '1', evmCollectionAddress: '0xabc', rebaseable: false });
-    expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/collection/1`, { headers: { Accept: 'application/json' } });
+    expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/collections/1`, { headers: { Accept: 'application/json' } });
   });
 
   test('getCollectionById returns null on non-200 and logs error', async () => {

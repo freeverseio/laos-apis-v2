@@ -49,7 +49,7 @@ export class BtcService {
   async getCollectionById(id: string): Promise<CollectionItem | null> {
     try {
       const response: AxiosResponse<CollectionResponse> = await axios.get(
-        `${this.baseUrl}/collection/${id}`,
+        `${this.baseUrl}/collections/${id}`,
         {
           headers: {
             Accept: 'application/json',
