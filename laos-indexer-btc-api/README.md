@@ -80,9 +80,10 @@ QueryBuilderService composes parameterized queries and supports:
 - Dockerfile provided at project root
 - .docker/config.json example config
 
-Build image:
+Build image and push:
 ```
-docker build --platform linux/amd64 -t laos-indexer-btc-api .
+docker build --platform linux/amd64 -t freeverseio/laos-indexer-btc-api:110ced05d76a0b05bcabd687f038a40a7ff71551 .
+docker push freeverseio/laos-indexer-btc-api:110ced05d76a0b05bcabd687f038a40a7ff71551
 ```
 
 Run (example):
