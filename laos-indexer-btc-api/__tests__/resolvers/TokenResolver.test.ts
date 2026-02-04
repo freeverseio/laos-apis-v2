@@ -36,6 +36,7 @@ describe('TokenResolver.tokensByCollection', () => {
       tokenUri: 'uri',
       block_number: 1,
     }];
+    MockedBtc.prototype.getToken.mockResolvedValue({ ownerH160: '0xOWN', collectionId: 'c1', height: 1, txIndex: 0, tokenId: '1', ownershipStatus: 'CURRENT_OWNER' } as any);
     tx.mockResolvedValueOnce(sample) // fetchTokens
       .mockResolvedValueOnce([{ count: '1' }]);
 

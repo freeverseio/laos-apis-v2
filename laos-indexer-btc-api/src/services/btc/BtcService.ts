@@ -16,11 +16,42 @@ interface CollectionResponse {
   rebaseable: boolean;
 }
 
+interface TokenResponse {
+  collectionId?: string;
+  height?: number;
+  txIndex?: number;
+  tokenId?: string;
+  ownershipStatus?: string;
+  ownerH160: string;
+  owner?: string;
+  txid?: string;
+  vout?: number;
+}
+
+
 export class BtcService {
   private baseUrl: string;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  async getToken(collectionId: string, tokenId: string): Promise<TokenResponse | null> {
+    try {
+      const response: AxiosResponse<TokenResponse> = await axios.get(
+        `${this.baseUrl}/collections/${collectionId}/tokens/${tokenId}`,
+        {
+          headers: { Accept: 'application/json' },
+        }
+      );
+      if (response.status === 200 && response.data) {
+        return response.data;
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error fetching token ${collectionId}/${tokenId}:`, error);
+      return null;
+    }
   }
 
   async getAllCollections(): Promise<CollectionItem[]> {
@@ -49,7 +80,7 @@ export class BtcService {
   async getCollectionById(id: string): Promise<CollectionItem | null> {
     try {
       const response: AxiosResponse<CollectionResponse> = await axios.get(
-        `${this.baseUrl}/collection/${id}`,
+        `${this.baseUrl}/collections/${id}`,
         {
           headers: {
             Accept: 'application/json',

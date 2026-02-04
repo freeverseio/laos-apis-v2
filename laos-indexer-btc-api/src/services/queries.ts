@@ -38,7 +38,7 @@ export const buildTokenByIdQuery = (ownershipPrefix: string, laosPrefix: string,
   )
   SELECT 
     la.token_id AS "tokenId",
-    COALESCE(a.owner, la.initial_owner) AS owner,
+    la.initial_owner AS owner,
     la.initial_owner as "initialOwner",
     la.created_at as "createdAt",
     la.laos_contract AS "laosContract",
@@ -56,13 +56,12 @@ export const buildTokenByIdQuery = (ownershipPrefix: string, laosPrefix: string,
   INNER JOIN contract_data cd ON LOWER(la.laos_contract) = cd.laos_contract
   INNER JOIN ${laosPrefix}_metadata m ON la.metadata = m.id
   INNER JOIN ${laosPrefix}_token_uri tu ON m.token_uri_id = tu.id
-  LEFT JOIN ${ownershipPrefix}_asset a ON (la.token_id = a.token_id AND LOWER(cd.ownership_contract) = LOWER(a.ownership_contract_id))
   WHERE la.token_id = $2 AND cd.laos_contract IS NOT null AND cd.laos_chain_id = ${laosChainId}
 `;
 
 export const buildTokenOwnerQuery = (ownershipPrefix: string, laosPrefix: string) => `
   SELECT DISTINCT 
-      COALESCE(a.owner, la.initial_owner) AS owner,
+      la.initial_owner AS owner,
       la.initial_owner AS "initialOwner"
   FROM ${laosPrefix}_laos_asset la
   INNER JOIN ${ownershipPrefix}_ownership_contract oc 
@@ -71,9 +70,6 @@ export const buildTokenOwnerQuery = (ownershipPrefix: string, laosPrefix: string
       ON la.metadata = m.id
   INNER JOIN ${laosPrefix}_token_uri tu 
       ON m.token_uri_id = tu.id
-  LEFT JOIN ${ownershipPrefix}_asset a 
-      ON la.token_id = a.token_id 
-      AND a.ownership_contract_id = oc.id
   `;
 
 export const buildOwnershipContractsQueryByPrefix = (ownershipPrefix: string) => `
