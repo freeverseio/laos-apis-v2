@@ -31,15 +31,23 @@ export class TokenResolver {
     const { query, parameters } = await this.queryBuilderService.buildTokenQuery(where, pagination, orderBy, evmCollectionAddress);
     const { query: countQuery, parameters: countParameters } = await this.queryBuilderService.buildTokenQueryCount(where, evmCollectionAddress);
     const tokens = await this.fetchTokens(query, parameters);
+
+    // enrich owners from BTC indexer
+    const enriched = await Promise.all(tokens.map(async (t) => {
+      const tok = await btcService.getToken(where.collectionId, t.tokenId);
+      const owner = tok?.owner ?? t.initialOwner;
+      return { ...t, owner } as TokenQueryResultSelect;
+    }));
+
     const count = await this.tx(countQuery, countParameters);
     const totalCount = count && count.length > 0 ? parseInt(count[0].count, 10) : 0;
-    const hasNextPage = tokens.length > pagination.first;
+    const hasNextPage = enriched.length > pagination.first;
 
     if (hasNextPage) {
-      tokens.pop();
+      enriched.pop();
     }
 
-    const edges = tokens.map(token => ({
+    const edges = enriched.map(token => ({
       cursor: Buffer.from(`${new Date(token.createdAt).getTime()}:${token.logIndex}:${token.contractAddress}`).toString('base64'),
       node: {
         ...token,
